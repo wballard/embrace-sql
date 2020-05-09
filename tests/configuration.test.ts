@@ -1,6 +1,10 @@
 import path from "path";
 import fs from "fs";
-import { loadConfiguration } from "../src/configuration";
+import {
+  loadConfiguration,
+  Configuration,
+  buildRootContext,
+} from "../src/configuration";
 const debug = require("debug")("embracesql:test");
 /**
  * Hello world type tests, make sure the core configuration
@@ -10,7 +14,7 @@ const debug = require("debug")("embracesql:test");
  * call APIs, -- just that configuration worked at all.
  */
 describe("hello world configuration!", () => {
-  let theConfig = undefined;
+  let theConfig: Configuration = undefined;
   beforeAll(async () => {
     const root = (process.env["EMBRACESQL_ROOT"] = path.join(
       __dirname,
@@ -24,11 +28,22 @@ describe("hello world configuration!", () => {
     const configuration = await loadConfiguration();
     debug(configuration);
     theConfig = configuration;
+    const rootContext = buildRootContext(configuration);
+    debug(rootContext);
   });
   it("reads a config", async () => {
     expect(theConfig).toMatchSnapshot();
   });
-  it("makes a sqlite database for you", async () => {});
+  it("makes a sqlite database for you", async () => {
+    expect(
+      fs.existsSync(
+        path.join(
+          theConfig.embraceSQLRoot,
+          theConfig.databases["default"].pathname
+        )
+      )
+    ).toBeTruthy();
+  });
   it("makes a hello world sql for you", async () => {});
   it("makes empty handlers for you", async () => {});
   it("generates an open api doc", async () => {});

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es2017"],
+    "lib": ["esnext"],
     "removeComments": true,
     "moduleResolution": "node",
     "noUnusedLocals": true,
@@ -12,8 +12,5 @@
     "esModuleInterop": true
   },
   "include": ["./**/*.ts"],
-  "exclude": [
-    "node_modules/**/*",
-    ".vscode/**/*"
-  ]
+  "exclude": ["node_modules/**/*", ".vscode/**/*"]
 }
