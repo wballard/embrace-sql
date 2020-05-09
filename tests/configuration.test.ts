@@ -10,6 +10,7 @@ const debug = require("debug")("embracesql:test");
  * call APIs, -- just that configuration worked at all.
  */
 describe("hello world configuration!", () => {
+  let theConfig = undefined;
   beforeAll(async () => {
     const root = (process.env["EMBRACESQL_ROOT"] = path.join(
       __dirname,
@@ -22,9 +23,11 @@ describe("hello world configuration!", () => {
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration();
     debug(configuration);
+    theConfig = configuration;
   });
-  //       expect(result).toMatchSnapshot();
-  it("reads a config and starts", async () => {});
+  it("reads a config", async () => {
+    expect(theConfig).toMatchSnapshot();
+  });
   it("makes a sqlite database for you", async () => {});
   it("makes a hello world sql for you", async () => {});
   it("makes empty handlers for you", async () => {});

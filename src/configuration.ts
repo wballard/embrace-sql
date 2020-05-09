@@ -7,6 +7,10 @@ const debug = require("debug")("embracesql:configuration");
  */
 type Configuration = {
   /**
+   * The root directory used to start this config.
+   */
+  embraceSQLRoot: string;
+  /**
    * URL identifying Kafka topic or REST endpoing to post commands.
    */
   twinCommandsTo?: string;
@@ -35,10 +39,12 @@ type Databases<DatabaseNames extends string> = {
 export const loadConfiguration = async (): Promise<Configuration> => {
   const root = process.env.EMBRACESQL_ROOT || process.cwd();
   debug(root);
-  // TODO env var substition for js and yaml
+  // TODO env var substition loader hook
   const explorer = cosmiconfig("embracesql", {
     searchPlaces: ["embracesql.yaml", "embracesql.yml"],
   });
   const result = await explorer.search(root);
-  return result.config as Configuration;
+  const config = result.config as Configuration;
+  config.embraceSQLRoot = root;
+  return config;
 };

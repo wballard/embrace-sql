@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`hello world configuration! reads a config 1`] = `
+Object {
+  "databases": Object {
+    "default": "sqlite:embracesql.db",
+  },
+  "embraceSQLRoot": "/Users/wballard/embrace-sql-core/tests/hello",
+}
+`;
