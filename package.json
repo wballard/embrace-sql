@@ -1,17 +1,18 @@
 {
-  "name": "embrace-sql-core",
+  "name": "embracesql",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Will Ballard <wballard@mailframe.net>",
   "license": "MIT",
   "scripts": {
     "start": "",
-    "test": "export DEBUG='' && jest",
+    "test": "jest",
     "pretty": "prettier --write './src/**/*.ts'",
     "lint": "eslint ./src/**/*.ts"
   },
   "dependencies": {
     "@types/jest": "^25.2.1",
+    "cosmiconfig": "^6.0.0",
     "debug": "^4.1.1",
     "eslint": "^7.0.0",
     "husky": "^4.2.5",
