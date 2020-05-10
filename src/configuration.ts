@@ -4,6 +4,7 @@ import process from "process";
 import path from "path";
 const debug = require("debug")("embracesql:configuration");
 import embraceDatabases, { DatabaseInstance } from "./database-engines";
+import embraceEventHandlers from "./event-handlers";
 import { generateFromTemplates } from "./generator";
 
 /**
@@ -53,20 +54,26 @@ export type RootContext = {
 export const loadConfiguration = async (): Promise<Configuration> => {
   const root = path.normalize(process.env.EMBRACESQL_ROOT || process.cwd());
   debug(root);
-  // run the root generation templates
-  await generateFromTemplates(path.join(__dirname, "./templates/root"), {
-    configuration: {
-      embraceSQLRoot: root,
+  // run the root generation templates, gives you something to work
+  // with even if you start in an empty directory so that system 'always works'
+  await generateFromTemplates(
+    {
+      configuration: {
+        embraceSQLRoot: root,
+      },
+      databases: undefined,
     },
-    databases: undefined,
-  });
+    "root"
+  );
   // TODO env var substition loader hook
+  // going with cosmic config -- even though this is just doing YAML for the moment
   const explorer = cosmiconfig("embracesql", {
     searchPlaces: ["embracesql.yaml", "embracesql.yml"],
   });
   const result = await explorer.search(root);
   const config = result.config as Configuration;
   config.embraceSQLRoot = root;
+  // pop in some types so we are working with actual URLs
   let databases = new Map<string, Url>();
   Object.keys(result.config.databases).forEach((databaseName) => {
     databases[databaseName] = new Url(result.config.databases[databaseName]);
@@ -78,13 +85,20 @@ export const loadConfiguration = async (): Promise<Configuration> => {
 };
 
 /**
- * With a configuration in hand, set up the root context.
+ * With a configuration in hand, set up a new rootContext.
+ *
+ * This is built to be called -- repeatedly if needed. The idea is you can watch, and
+ * rebuild a whole new context as needed -- swapping the root context at runtime to
+ * hot-reconfigure the system without worrying about any state leaking.
  */
 export const buildRootContext = async (
   configuration: Configuration
 ): Promise<RootContext> => {
-  return {
+  let rootContext = {
     configuration,
-    databases: await embraceDatabases(configuration),
+    databases: new Map<string, DatabaseInstance>(),
   };
+  await embraceDatabases(rootContext);
+  await embraceEventHandlers(rootContext);
+  return rootContext;
 };

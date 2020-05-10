@@ -31,14 +31,14 @@ type ToFile = {
  * location. Other named values are added to the context before being passed to render
  * the body.
  *
- * @param templatesInDirectory - read every template in this directory, honoring .ignore files
  * @param rootContext - render off a root context, not a runtime context, as no API is being called
+ * @param templatesInDirectory - read every template in this directory, honoring .ignore files
  *
  * @returns - a promise of the named files -- but this function doesn't do the writing
  */
 export const renderTemplates = async (
+  rootContext: RootContext,
   templatesInDirectory: string,
-  rootContext: RootContext
 ): Promise<Array<ToFile>> => {
   return (
     walk({ path: templatesInDirectory })

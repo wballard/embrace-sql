@@ -1,6 +1,6 @@
 import Url from "url-parse";
 import embraceSQLite from "./sqlite";
-import { Configuration } from "../configuration";
+import { RootContext } from "../configuration";
 
 /**
  * A single instance of a database
@@ -14,12 +14,12 @@ export type DatabaseInstance = Database;
  * and reconnect.
  */
 const embraceSingleDatabase = async (
-  configuration: Configuration,
+  rootContext: RootContext,
   db: Url
 ): Promise<DatabaseInstance> => {
   switch (db.protocol.split(":")[0].toLowerCase()) {
     case "sqlite":
-      return embraceSQLite(configuration, db);
+      return embraceSQLite(rootContext.configuration, db);
     default:
       return undefined;
   }
@@ -29,14 +29,14 @@ const embraceSingleDatabase = async (
  * Every database in the configuraton is embraced and brought into the context.
  */
 export default async (
-  configuration: Configuration
+  rootContext: RootContext
 ): Promise<Map<string, DatabaseInstance>> => {
   let databases = new Map<string, DatabaseInstance>();
-  Object.keys(configuration.databases).forEach(
+  Object.keys(rootContext.configuration.databases).forEach(
     async (databaseName) =>
-      (databases[databaseName] = await embraceSingleDatabase(
-        configuration,
-        configuration.databases[databaseName]
+      (rootContext.databases[databaseName] = await embraceSingleDatabase(
+        rootContext,
+        rootContext.configuration.databases[databaseName]
       ))
   );
   return databases;

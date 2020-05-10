@@ -6,6 +6,15 @@ import {
   buildRootContext,
 } from "../src/configuration";
 const debug = require("debug")("embracesql:test");
+
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toExist(): R;
+    }
+  }
+}
+
 /**
  * Hello world type tests, make sure the core configuration
  * and generation capabilities are working.
@@ -27,38 +36,37 @@ describe("hello world configuration!", () => {
     const configuration = await loadConfiguration();
     debug(configuration);
     theConfig = configuration;
-    const rootContext = buildRootContext(configuration);
+    const rootContext = await buildRootContext(configuration);
     debug(rootContext);
+  });
+  expect.extend({
+    toExist(fileName) {
+      const fullPath = path.join(theConfig.embraceSQLRoot, fileName);
+      const exists = fs.existsSync(fullPath);
+      return exists
+        ? { message: () => `${fullPath} exists`, pass: true }
+        : { message: () => `${fullPath} does not exist`, pass: false };
+    },
   });
   it("reads a config", async () => {
     expect(theConfig).toMatchSnapshot();
   });
   it("makes a default config for you", async () => {
-    expect(
-      fs.existsSync(path.join(theConfig.embraceSQLRoot, "embracesql.yaml"))
-    ).toBeTruthy();
+    expect("embracesql.yaml").toExist();
   });
   it("makes a sqlite database for you", async () => {
-    expect(
-      fs.existsSync(
-        path.join(
-          theConfig.embraceSQLRoot,
-          theConfig.databases["default"].pathname
-        )
-      )
-    ).toBeTruthy();
+    expect(theConfig.databases["default"].pathname).toExist();
   });
   it("makes a hello world sql for you", async () => {
-        expect(
-          fs.existsSync(
-            path.join(
-              theConfig.embraceSQLRoot,
-              "hello.sql"
-            )
-          )
-        ).toBeTruthy();
+    expect("hello.sql").toExist();
   });
-  it("makes empty handlers for you", async () => {});
+  it("makes empty handlers for you", async () => {
+    expect("hello.sql.beforeBatch.js").toExist();
+    expect("hello.sql.before.js").toExist();
+    expect("hello.sql.after.js").toExist();
+    expect("hello.sql.afterBatch.js").toExist();
+    expect("hello.sql.afterError.js").toExist();
+  });
   it("generates an open api doc", async () => {});
   it("generates client library for you", async () => {});
 

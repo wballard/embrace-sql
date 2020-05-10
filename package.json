@@ -26,6 +26,7 @@
     "husky": "^4.2.5",
     "ignore-walk": "^3.0.3",
     "jest": "^26.0.1",
+    "node-sql-parser": "^1.10.0",
     "prettier": "^2.0.5",
     "read-file-utf8": "^2.0.4",
     "sqlite": "^4.0.7",
