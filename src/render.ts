@@ -36,7 +36,7 @@ type ToFile = {
  *
  * @returns - a promise of the named files -- but this function doesn't do the writing
  */
-export const renderTemplate = async (
+export const renderTemplates = async (
   templatesInDirectory: string,
   rootContext: RootContext
 ): Promise<Array<ToFile>> => {

@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs";
+import fs from "fs-extra";
 import {
   loadConfiguration,
   Configuration,
@@ -20,9 +20,8 @@ describe("hello world configuration!", () => {
       __dirname,
       "./hello"
     ));
-    //we only want the config in here
-    const trash = fs.readdirSync(root).filter((f) => f != "embracesql.yaml");
-    trash.forEach((f) => fs.unlinkSync(path.join(root, f)));
+    // clean up
+    await fs.emptyDir(root);
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration();
@@ -49,7 +48,16 @@ describe("hello world configuration!", () => {
       )
     ).toBeTruthy();
   });
-  it("makes a hello world sql for you", async () => {});
+  it("makes a hello world sql for you", async () => {
+        expect(
+          fs.existsSync(
+            path.join(
+              theConfig.embraceSQLRoot,
+              "hello.sql"
+            )
+          )
+        ).toBeTruthy();
+  });
   it("makes empty handlers for you", async () => {});
   it("generates an open api doc", async () => {});
   it("generates client library for you", async () => {});

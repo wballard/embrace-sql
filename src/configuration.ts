@@ -4,6 +4,7 @@ import process from "process";
 import path from "path";
 const debug = require("debug")("embracesql:configuration");
 import embraceDatabases, { DatabaseInstance } from "./database-engines";
+import { generateFromTemplates } from "./generator";
 
 /**
  * The all important root configuration. This tells EmbraceSQL which databases to manage.
@@ -20,7 +21,7 @@ export type Configuration = {
   /**
    * All available databases.
    */
-  databases: Map<string, Url>;
+  databases?: Map<string, Url>;
 };
 
 /**
@@ -52,6 +53,13 @@ export type RootContext = {
 export const loadConfiguration = async (): Promise<Configuration> => {
   const root = path.normalize(process.env.EMBRACESQL_ROOT || process.cwd());
   debug(root);
+  // run the root generation templates
+  await generateFromTemplates(path.join(__dirname, "./templates/root"), {
+    configuration: {
+      embraceSQLRoot: root,
+    },
+    databases: undefined,
+  });
   // TODO env var substition loader hook
   const explorer = cosmiconfig("embracesql", {
     searchPlaces: ["embracesql.yaml", "embracesql.yml"],
