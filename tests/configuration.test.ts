@@ -34,6 +34,11 @@ describe("hello world configuration!", () => {
   it("reads a config", async () => {
     expect(theConfig).toMatchSnapshot();
   });
+  it("makes a default config for you", async () => {
+    expect(
+      fs.existsSync(path.join(theConfig.embraceSQLRoot, "embracesql.yaml"))
+    ).toBeTruthy();
+  });
   it("makes a sqlite database for you", async () => {
     expect(
       fs.existsSync(

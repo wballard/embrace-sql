@@ -32,6 +32,10 @@ export type Configuration = {
  */
 export type RootContext = {
   /**
+   * The configuration used to build this context.
+   */
+  configuration: Configuration;
+  /**
    * All configured databases, by name. This is the internal root context, so this is a hash and
    * not named properties. Client contexts will be generated with names to provide awesome autocomplete.
    */
@@ -72,6 +76,7 @@ export const buildRootContext = async (
   configuration: Configuration
 ): Promise<RootContext> => {
   return {
+    configuration,
     databases: await embraceDatabases(configuration),
   };
 };
