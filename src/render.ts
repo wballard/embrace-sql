@@ -38,7 +38,7 @@ type ToFile = {
  */
 export const renderTemplates = async (
   rootContext: RootContext,
-  templatesInDirectory: string,
+  templatesInDirectory: string
 ): Promise<Array<ToFile>> => {
   return (
     walk({ path: templatesInDirectory })

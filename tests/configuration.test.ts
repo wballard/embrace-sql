@@ -58,16 +58,17 @@ describe("hello world configuration!", () => {
     expect(theConfig.databases["default"].pathname).toExist();
   });
   it("makes a hello world sql for you", async () => {
-    expect("hello.sql").toExist();
+    expect("default/hello.sql").toExist();
   });
   it("makes empty handlers for you", async () => {
-    expect("hello.sql.beforeBatch.js").toExist();
-    expect("hello.sql.before.js").toExist();
-    expect("hello.sql.after.js").toExist();
-    expect("hello.sql.afterBatch.js").toExist();
-    expect("hello.sql.afterError.js").toExist();
+    expect("default/hello.sql.beforeBatch.js").toExist();
+    expect("default/hello.sql.before.js").toExist();
+    expect("default/hello.sql.after.js").toExist();
+    expect("default/hello.sql.afterBatch.js").toExist();
+    expect("default/hello.sql.afterError.js").toExist();
   });
   it("generates an open api doc", async () => {});
+  it("generates a typed context object", async () => {});
   it("generates client library for you", async () => {});
 
   afterAll(async () => {});

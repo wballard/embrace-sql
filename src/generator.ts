@@ -20,7 +20,7 @@ export const generateFromTemplates = async (
 ) => {
   const renderedFiles = await renderTemplates(
     rootContext,
-    path.join(__dirname, "templates", templatesInDirectory),
+    path.join(__dirname, "templates", templatesInDirectory)
   );
   // one big promise array, wait till it is done
   const waitForThem = renderedFiles.map((toFile) =>
