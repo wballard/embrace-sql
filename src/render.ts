@@ -1,4 +1,4 @@
-import { RootContext } from "./configuration";
+import { RootContext } from "./context";
 import walk from "ignore-walk";
 import path from "path";
 import readFile from "read-file-utf8";

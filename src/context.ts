@@ -1,3 +1,27 @@
+import { Configuration } from "./configuration";
+import { DatabaseInstance } from "./database-engines";
+import { embraceDatabases } from "./database-engines";
+import { embraceEventHandlers } from "./event-handlers";
+
+/**
+ * This is the default to set up a new context on each API invocation, as well as 'the' context
+ * for internal code generation.
+ *
+ * The type here is a bit different as the context used in 'client code' is generated
+ * with database type names. Here on the inside
+ */
+export type RootContext = {
+  /**
+   * The configuration used to build this context.
+   */
+  configuration: Configuration;
+  /**
+   * All configured databases, by name. This is the internal root context, so this is a hash and
+   * not named properties. Client contexts will be generated with names to provide awesome autocomplete.
+   */
+  databases: Map<string, DatabaseInstance>;
+};
+
 /**
  * This context is the 'one true parameter' passed to every Embrace SQL
  * event handler. It is created by EmbraceSQL at the start of each API
@@ -13,7 +37,10 @@
  *
  * @typeParam DatabaseNames - a string literal type union with each of your database names
  */
-type Context<DatabaseNames extends string, ParameterNames extends string> = {
+export type Context<
+  DatabaseNames extends string,
+  ParameterNames extends string
+> = {
   /**
    * Set the current state of security to allow SQL execution against the database.
    *
@@ -96,7 +123,7 @@ type Databases<DatabaseNames extends string> = {
 /***
  * A single database available via the context
  */
-type Database = {
+export type Database = {
   /**
    * Access transaction control of the database here.
    */
@@ -145,4 +172,25 @@ type ParameterValue = {
  */
 type ContextParameters<ParameterNames extends string> = {
   [ParameterName in ParameterNames]: ParameterValue | null;
+};
+
+/**
+ * With a configuration in hand, set up a new rootContext.
+ *
+ * This is built to be called -- repeatedly if needed. The idea is you can watch, and
+ * rebuild a whole new context as needed -- swapping the root context at runtime to
+ * hot-reconfigure the system without worrying about any state leaking.
+ */
+export const buildRootContext = async (
+  configuration: Configuration
+): Promise<RootContext> => {
+  const rootContext = {
+    configuration,
+    databases: new Map<string, DatabaseInstance>(),
+  };
+  // need the database first, their connections are used
+  // to mine metadata
+  await embraceDatabases(rootContext);
+  await embraceEventHandlers(rootContext);
+  return rootContext;
 };

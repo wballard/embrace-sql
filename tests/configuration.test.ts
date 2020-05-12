@@ -1,10 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
-import {
-  loadConfiguration,
-  Configuration,
-  buildRootContext,
-} from "../src/configuration";
+import { loadConfiguration, Configuration } from "../src/configuration";
+import { buildRootContext, RootContext } from "../src/context";
 const debug = require("debug")("embracesql:test");
 
 declare global {
@@ -24,10 +21,11 @@ declare global {
  */
 describe("hello world configuration!", () => {
   let theConfig: Configuration = undefined;
+  let rootContext: RootContext;
   beforeAll(async () => {
     const root = (process.env["EMBRACESQL_ROOT"] = path.join(
       __dirname,
-      "./hello"
+      "./configs/hello"
     ));
     // clean up
     await fs.emptyDir(root);
@@ -36,7 +34,7 @@ describe("hello world configuration!", () => {
     const configuration = await loadConfiguration();
     debug(configuration);
     theConfig = configuration;
-    const rootContext = await buildRootContext(configuration);
+    rootContext = await buildRootContext(configuration);
     debug(rootContext);
   });
   expect.extend({
@@ -66,6 +64,11 @@ describe("hello world configuration!", () => {
     expect("default/hello.sql.after.js").toExist();
     expect("default/hello.sql.afterBatch.js").toExist();
     expect("default/hello.sql.afterError.js").toExist();
+  });
+  it("exposes methods to run hello sql", async () => {
+    expect(
+      rootContext.databases["default"].SQLModules.hello.sql
+    ).toMatchSnapshot();
   });
   it("generates an open api doc", async () => {});
   it("generates a typed context object", async () => {});

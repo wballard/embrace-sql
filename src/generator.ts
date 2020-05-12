@@ -1,4 +1,4 @@
-import { RootContext } from "./configuration";
+import { RootContext } from "./context";
 import { renderTemplates } from "./render";
 import fs from "fs-extra";
 import path from "path";

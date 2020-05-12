@@ -1,8 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`hello world configuration! exposes methods to run hello sql 1`] = `"SELECT \\"hello world\\""`;
+
 exports[`hello world configuration! reads a config 1`] = `
 Object {
   "databases": Map {},
-  "embraceSQLRoot": "/Users/wballard/embrace-sql-core/tests/hello",
+  "embraceSQLRoot": "/Users/wballard/embrace-sql-core/tests/configs/hello",
 }
 `;
