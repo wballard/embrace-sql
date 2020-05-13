@@ -1,6 +1,7 @@
 import Url from "url-parse";
 import embraceSQLite from "./sqlite";
 import { RootContext, Database } from "../context";
+import { AST } from "node-sql-parser";
 
 /**
  * Each SQL found on disk has some data -- the SQL itself, and will
@@ -20,6 +21,11 @@ export type SQLModule = {
    * changes to the SQL equal cache misses.
    */
   cacheKey: string;
+  /**
+   * Parsed SQL abstract syntax tree, which can be an array becuse
+   * of semicolon batches.
+   */
+  ast?: AST[];
 };
 
 /**

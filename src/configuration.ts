@@ -23,8 +23,6 @@ export type Configuration = {
   databases?: Map<string, Url>;
 };
 
-
-
 /**
  * Load up a configuration object.
  *
