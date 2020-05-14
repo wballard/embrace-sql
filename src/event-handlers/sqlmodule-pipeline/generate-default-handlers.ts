@@ -10,12 +10,12 @@ import { generateFromTemplates } from "../../generator";
  */
 export default async (
   rootContext: RootContext,
-  module: SQLModule
+  sqlModule: SQLModule
 ): Promise<RootContext> => {
   // smells like SQLSpirit...
-  if (module.ast) {
+  if (sqlModule.ast) {
     await generateFromTemplates(
-      Object.assign({}, rootContext, { module }),
+      Object.assign({}, rootContext, { module: sqlModule }),
       "handlers/js"
     );
   }

@@ -53,7 +53,7 @@ export const loadConfiguration = async (): Promise<Configuration> => {
   const config = result.config as Configuration;
   config.embraceSQLRoot = root;
   // pop in some types so we are working with actual URLs
-  let databases = new Map<string, Url>();
+  const databases = new Map<string, Url>();
   Object.keys(result.config.databases).forEach((databaseName) => {
     databases[databaseName] = new Url(result.config.databases[databaseName]);
   });

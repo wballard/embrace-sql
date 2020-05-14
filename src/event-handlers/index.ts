@@ -9,10 +9,15 @@ import sqlModuleMap from "../event-handlers/sqlmodule-pipeline";
 /**
  * Scrub up identifiers to be valid JavaScript names.
  */
-function identifier(key: string): string {
-  const id = key.trim().replace(/\W+/g, "_");
+export const identifier = (key: string): string => {
+  const id = key
+    .trim()
+    // quotes won't do
+    .replace(/['"]+/g, "")
+    // snake case
+    .replace(/\W+/g, "_");
   return /^\d/.test(id) ? "_" + id : id;
-}
+};
 
 /**
  * Manage a directory of event handlers, which form the basis of APIs
@@ -57,15 +62,19 @@ export const embraceEventHandlers = async (
           (attachTo[segment] =
             attachTo[segment] || new Map<string, string | SQLModule>()),
         rootContext.databases[databaseName].SQLModules
-    );
+      );
     // working with full paths from here on out, one less thing to worry about
     const fullPath = path.join(
       rootContext.configuration.embraceSQLRoot,
       SQLFileName
     );
+    const relativePath = SQLFileName;
     // get all the 'read' IO done
     const sql = await readFile(fullPath);
+    // data about each SQL module
     const sqlModule = {
+      database: rootContext.databases[databaseName],
+      relativePath,
       fullPath,
       sql,
       cacheKey: md5(sql),

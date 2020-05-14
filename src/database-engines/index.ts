@@ -4,10 +4,38 @@ import { RootContext, Database } from "../context";
 import { AST } from "node-sql-parser";
 
 /**
+ * Types mapped back into API calls from SQL.
+ */
+export type SQLType = "string" | "number" | "blob";
+
+/**
+ * One result set column metadata.
+ */
+export type SQLColumnMetadata = {
+  /**
+   * Use this name to access the row. These are valid JavaScript variable names.
+   */
+  name: string;
+
+  /**
+   * Type identifier.
+   */
+  type: SQLType;
+};
+
+/**
  * Each SQL found on disk has some data -- the SQL itself, and will
  * get additional metadata attached to it.
  */
 export type SQLModule = {
+  /**
+   * Reference back to the containing database.
+   */
+  database: DatabaseInstance;
+  /**
+   * Relative path useful for REST.
+   */
+  relativePath: string;
   /**
    * Fully qualified file name on disk.
    */
@@ -26,6 +54,10 @@ export type SQLModule = {
    * of semicolon batches.
    */
   ast?: AST[];
+  /**
+   * Result set metadata, which may be an array because of semicolon batches.
+   */
+  resultsetMetadata?: Array<Array<SQLColumnMetadata>>;
 };
 
 /**
@@ -33,9 +65,20 @@ export type SQLModule = {
  */
 export type DatabaseInstance = Database & {
   /**
-   * This is the tree of paths or SQL files on disk.
+   * This is the tree of paths derived from SQL files on disk.
    */
   SQLModules: Map<string, string | SQLModule>;
+  /**
+   * Execute the sql module query on this database, and
+   * promise some result.
+   *
+   * TODO: Resultset object definition
+   */
+  execute: (SQLModule) => Promise<object>;
+  /**
+   * Analyze the passed module and determine the resultset type(s).
+   */
+  analyze: (SQLModule) => Promise<object>;
 };
 
 /**

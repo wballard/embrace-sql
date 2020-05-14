@@ -17,7 +17,7 @@ export const generateFromTemplates = async (
   rootContext: RootContext,
   templatesInDirectory: string,
   overwrite = false
-) => {
+): Promise<void> => {
   const renderedFiles = await renderTemplates(
     rootContext,
     path.join(__dirname, "templates", templatesInDirectory)

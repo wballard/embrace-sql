@@ -70,7 +70,9 @@ describe("hello world configuration!", () => {
       rootContext.databases["default"].SQLModules.hello.sql
     ).toMatchSnapshot();
   });
-  it("generates an open api doc", async () => {});
+  it("generates an open api doc", async () => {
+    expect("openapi.yaml").toExist();
+  });
   it("generates a typed context object", async () => {});
   it("generates client library for you", async () => {});
 
