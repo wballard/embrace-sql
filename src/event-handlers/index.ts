@@ -72,6 +72,7 @@ export const embraceEventHandlers = async (
       fullPath,
       sql,
       cacheKey: md5(sql),
+      contextName: identifier(path.join(parsedPath.dir, parsedPath.name)),
     };
     rootContext.databases[databaseName].SQLModules = new Map<
       string,

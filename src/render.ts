@@ -10,8 +10,20 @@ import handlebars from "handlebars";
  */
 handlebars.registerHelper("eachInMap", function (map, block) {
   let out = "";
-  Object.keys(map).map(function (prop) {
-    out += block.fn({ key: prop, value: map[prop] });
+  Object.keys(map).map(function (prop, index, all) {
+    out += block.fn(
+      {
+        value: map[prop],
+      },
+      {
+        data: {
+          index: index,
+          key: prop,
+          first: index === 0,
+          last: index === all.length - 1,
+        },
+      }
+    );
   });
   return out;
 });
@@ -51,6 +63,13 @@ export const renderTemplates = async (
   rootContext: RootContext,
   templatesInDirectory: string
 ): Promise<Array<ToFile>> => {
+  // set up our partials
+  handlebars.registerPartial(
+    "shared-context.ts",
+    handlebars.compile(
+      await readFile(path.join(__dirname, "./shared-context.ts"))
+    )
+  );
   return (
     walk({ path: templatesInDirectory })
       .then((fileNames) =>

@@ -1,0 +1,56 @@
+---
+to: "{{configuration.embraceSQLRoot}}/context.ts"
+---
+/* eslint-disable @typescript-eslint/camelcase */
+
+{{> shared-context.ts}}
+
+// Generation starts here
+
+// All named databases
+export type AvailableDatabases = 
+  {{#eachInMap databases}}
+  "{{@key}}" {{#if @last}};{{else}}|{{/if}}
+  {{/eachInMap}}
+
+// Partial context binds databases, leaves open parameters
+export type DatabaseContext<ParameterNames extends string> = 
+  Context<AvailableDatabases, ParameterNames>;
+
+// each different API endpoint gets a context type with parameters and results
+{{#eachInMap databases}}
+{{#eachInMap value.SQLModules}}
+export type {{value.contextName}}Parameters = DefaultParameters;
+{{> resultsetMetadata value}}
+export type {{value.contextName}}Context = 
+  DatabaseContext<{{value.contextName}}Parameters> & { results: Array<{{value.contextName}}Results>};
+{{/eachInMap}}
+{{/eachInMap}}
+
+
+{{#*inline "resultsetMetadata"}}
+{{#if multipleResultsets}}
+type: object
+{{> multipleResultsetMetadata resultsetMetadata}}
+{{else}}
+type {{contextName}}Results = 
+{{> oneResultetMetadata resultsetMetadata.[0]}}
+{{/if}}
+{{/inline}}
+
+{{#*inline "oneResultetMetadata"}}
+{
+  {{#each this}}
+    {{name}}: {{type}}
+  {{/each}}
+}
+{{/inline}}
+
+{{#*inline "multipleResultsetMetadata"}}
+properties:
+{{#each this}}
+  '{{@index}}':
+    type: array
+    {{> oneResultetMetadata this}}
+{{/each}}
+{{/inline}}

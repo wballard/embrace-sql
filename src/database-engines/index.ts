@@ -1,6 +1,7 @@
 import Url from "url-parse";
 import embraceSQLite from "./sqlite";
-import { RootContext, Database } from "../context";
+import { RootContext } from "../context";
+import { Database } from "../shared-context";
 import { AST } from "node-sql-parser";
 
 /**
@@ -62,6 +63,10 @@ export type SQLModule = {
    * Generated OpenAPI hander path.
    */
   openAPI?: string;
+  /**
+   * Module safe name for the context.
+   */
+  contextName?: string;
 };
 
 /**

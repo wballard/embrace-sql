@@ -72,7 +72,7 @@ describe("hello world configuration!", () => {
     expect("openapi.yaml").toExist();
   });
   it("generates a typed context object", async () => {
-    test.todo("...");
+    expect("context.ts").toExist();
   });
   it("generates client library for you", async () => {
     test.todo("...");
