@@ -51,7 +51,7 @@ export default async (
   // TODO -- do we need SAVEPOINT / nesting?
   return {
     transactions,
-    SQLModules: new Map<string, string | SQLModule>(),
+    SQLModules: new Map<string, SQLModule>(),
     execute: async (sqlModule: SQLModule): Promise<object> => {
       const statement = await database.prepare(sqlModule.sql);
       const results = await statement.all();
