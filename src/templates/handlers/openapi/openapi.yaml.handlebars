@@ -1,12 +1,12 @@
 ---
 to: "{{module.fullPath}}.openapi.yaml"
 ---
-
-  /{{module.relativePath}}:
+/{{module.relativePath}}
   {{#if module.allSELECT}}
     get:
       responses:
-        {{> resultset}}
+        '200':
+          {{> resultset}}
   {{/if}}
 
 {{#*inline "resultset"}}
@@ -15,7 +15,7 @@ content:
     schema:
       {{> resultsetMetadata}}
 {{/inline}}
-  
+
 {{#*inline "resultsetMetadata"}}
 {{#if module.multipleResultsets}}
 type: object
@@ -39,7 +39,7 @@ items:
 {{#*inline "multipleResultsetMetadata"}}
 properties:
 {{#each this}}
-  {{@index}}:
+  '{{@index}}':
     type: array
     {{> oneResultetMetadata this}}
 {{/each}}

@@ -6,9 +6,20 @@ import frontMatter from "front-matter";
 import handlebars from "handlebars";
 
 /**
+ * Map iteration.
+ */
+handlebars.registerHelper("eachInMap", function (map, block) {
+  let out = "";
+  Object.keys(map).map(function (prop) {
+    out += block.fn({ key: prop, value: map[prop] });
+  });
+  return out;
+});
+
+/**
  * Content to be written to a file.
  */
-type ToFile = {
+export type ToFile = {
   /**
    * Fully qualified path, write the file here.
    */

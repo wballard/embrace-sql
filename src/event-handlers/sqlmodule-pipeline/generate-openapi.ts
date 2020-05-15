@@ -15,12 +15,13 @@ export default async (
   if (sqlModule.ast) {
     const allSELECT = sqlModule.ast?.every((query) => query.type === "select");
     const multipleResultsets = sqlModule?.resultsetMetadata?.length > 1;
-    await generateFromTemplates(
+    const rendered = await generateFromTemplates(
       Object.assign({}, rootContext, {
         module: Object.assign({}, sqlModule, { allSELECT, multipleResultsets }),
       }),
       "handlers/openapi"
     );
+    sqlModule.openAPI = rendered.map((r) => r.content).join("\n");
   }
   return rootContext;
 };

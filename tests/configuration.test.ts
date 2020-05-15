@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import path from "path";
 import fs from "fs-extra";
 import { loadConfiguration, Configuration } from "../src/configuration";
 import { buildRootContext, RootContext } from "../src/context";
-const debug = require("debug")("embracesql:test");
 
 declare global {
   namespace jest {
@@ -32,18 +32,16 @@ describe("hello world configuration!", () => {
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration();
-    debug(configuration);
     theConfig = configuration;
     rootContext = await buildRootContext(configuration);
-    debug(rootContext);
   });
   expect.extend({
     toExist(fileName) {
       const fullPath = path.join(theConfig.embraceSQLRoot, fileName);
       const exists = fs.existsSync(fullPath);
       return exists
-        ? { message: () => `${fullPath} exists`, pass: true }
-        : { message: () => `${fullPath} does not exist`, pass: false };
+        ? { message: (): string => `${fullPath} exists`, pass: true }
+        : { message: (): string => `${fullPath} does not exist`, pass: false };
     },
   });
   it("reads a config", async () => {
@@ -73,8 +71,10 @@ describe("hello world configuration!", () => {
   it("generates an open api doc", async () => {
     expect("openapi.yaml").toExist();
   });
-  it("generates a typed context object", async () => {});
-  it("generates client library for you", async () => {});
-
-  afterAll(async () => {});
+  it("generates a typed context object", async () => {
+    test.todo("...");
+  });
+  it("generates client library for you", async () => {
+    test.todo("...");
+  });
 });

@@ -58,6 +58,10 @@ export type SQLModule = {
    * Result set metadata, which may be an array because of semicolon batches.
    */
   resultsetMetadata?: Array<Array<SQLColumnMetadata>>;
+  /**
+   * Generated OpenAPI hander path.
+   */
+  openAPI?: string;
 };
 
 /**
@@ -65,9 +69,10 @@ export type SQLModule = {
  */
 export type DatabaseInstance = Database & {
   /**
-   * This is the tree of paths derived from SQL files on disk.
+   * This is the tree of paths derived from SQL files on disk. This is in
+   * a compressed path format, so each key can have / in it.
    */
-  SQLModules: Map<string, string | SQLModule>;
+  SQLModules: Map<string, SQLModule>;
   /**
    * Execute the sql module query on this database, and
    * promise some result.

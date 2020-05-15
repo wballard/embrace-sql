@@ -14,8 +14,7 @@ export default async (
 ): Promise<RootContext> => {
   try {
     await sqlModule.database.transactions.begin();
-    const results = await sqlModule.database.analyze(sqlModule);
-    console.debug(results);
+    await sqlModule.database.analyze(sqlModule);
   } finally {
     await sqlModule.database.transactions.rollback();
   }

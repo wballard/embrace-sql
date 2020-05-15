@@ -1,5 +1,5 @@
 import { RootContext } from "./context";
-import { renderTemplates } from "./render";
+import { renderTemplates, ToFile } from "./render";
 import fs from "fs-extra";
 import path from "path";
 
@@ -17,7 +17,7 @@ export const generateFromTemplates = async (
   rootContext: RootContext,
   templatesInDirectory: string,
   overwrite = false
-): Promise<void> => {
+): Promise<Array<ToFile>> => {
   const renderedFiles = await renderTemplates(
     rootContext,
     path.join(__dirname, "templates", templatesInDirectory)
@@ -34,5 +34,5 @@ export const generateFromTemplates = async (
   );
   await Promise.all(waitForThem);
 
-  // no return, on purpose
+  return renderedFiles;
 };

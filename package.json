@@ -39,5 +39,9 @@
     "ts-jest": "^25.5.1",
     "typescript": "^3.8.3",
     "url-parse": "^1.4.7"
+  },
+  "devDependencies": {
+    "eslint-plugin-jest": "^23.11.0",
+    "jest-runner-eslint": "^0.8.0"
   }
 }

@@ -1,4 +1,5 @@
 import { RootContext } from "../../context";
+import generateCombined from "./generate-combined";
 
 /**
  * After each SQLModule is run through a pipeline, combine the results for an
@@ -6,5 +7,6 @@ import { RootContext } from "../../context";
  * all the databases and SQL in a given system.
  */
 export default async (rootContext: RootContext): Promise<RootContext> => {
+  await generateCombined(rootContext);
   return rootContext;
 };

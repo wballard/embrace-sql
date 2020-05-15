@@ -37,7 +37,6 @@ export default async (
     filename,
     driver: sqlite3.Database,
   });
-  console.debug(database);
   const transactions = {
     begin: async (): Promise<void> => {
       database.run("BEGIN IMMEDIATE TRANSACTION");
@@ -66,22 +65,17 @@ export default async (
        */
       sqlModule.resultsetMetadata = [];
       const parser = new Parser();
-      const schemas = await Promise.all(
+      await Promise.all(
         sqlModule.ast
           ?.filter((ast) => ast.type === "select")
           .map(async (ast) => {
             const sql = parser.sqlify(ast);
             const create = `CREATE TABLE ${md5(sql)} AS ${sql};`;
-            const readBack = `SELECT * FROM ${md5(sql)}`;
             const describe = `pragma table_info('${md5(sql)}')`;
             try {
               await database.run(create);
-              const readBackStatement = await database.prepare(readBack);
-              const readBackRows = await readBackStatement.all();
-              console.debug(readBackRows);
               const describeStatement = await database.prepare(describe);
               const readDescribeRows = await describeStatement.all();
-              console.debug(readDescribeRows);
               // OK so something to know -- columns with spaces in them are quoted
               // by sqlite so if a column is named
               // hi mom
@@ -104,8 +98,6 @@ export default async (
             }
           })
       );
-
-      console.debug(schemas);
       return {};
     },
   };
