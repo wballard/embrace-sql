@@ -4,6 +4,9 @@ to: "{{module.fullPath}}.openapi.yaml"
 /{{module.relativePath}}:
   {{#if module.allSELECT}}
     get:
+      operationId: get__{{module.contextName}}
+      produces:
+        - "application/json"
       responses:
         '200':
           {{> resultset}}

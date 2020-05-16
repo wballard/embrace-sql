@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs-extra";
 import { loadConfiguration, Configuration } from "../src/configuration";
 import { buildRootContext, RootContext } from "../src/context";
+import { createServer } from "../src/server";
 
 declare global {
   namespace jest {
@@ -82,5 +83,8 @@ describe("hello world configuration!", () => {
       rootContext.databases["default"].SQLModules["hello"]
     );
     expect(results).toMatchSnapshot();
+  });
+  it("will make a runnable server", async () => {
+    await createServer(rootContext);
   });
 });

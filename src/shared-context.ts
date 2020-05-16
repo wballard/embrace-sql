@@ -64,10 +64,6 @@ export type SQLColumnMetadata = {
  */
 export type SQLModule = {
   /**
-   * Reference back to the containing database.
-   */
-  database: DatabaseInstance;
-  /**
    * Relative path useful for REST.
    */
   relativePath: string;
@@ -101,28 +97,6 @@ export type SQLModule = {
    * Module safe name for the context.
    */
   contextName?: string;
-};
-
-/**
- * A single instance of a database, with attached SQLFiles.
- */
-export type DatabaseInstance = Database & {
-  /**
-   * This is the tree of paths derived from SQL files on disk. This is in
-   * a compressed path format, so each key can have / in it.
-   */
-  SQLModules: Map<string, SQLModule>;
-  /**
-   * Execute the sql module query on this database, and
-   * promise some result.
-   *
-   * TODO: Resultset object definition
-   */
-  execute: (SQLModule) => Promise<object>;
-  /**
-   * Analyze the passed module and determine the resultset type(s).
-   */
-  analyze: (SQLModule) => Promise<object>;
 };
 
 /**
@@ -177,7 +151,7 @@ export type ParameterValue = {
   toString: () => string;
 };
 /**
- * Parameters as passed to the SQL API or AutoCRUD. This can be extended
+ * Parameters as passed to the SQLModule. This can be extended
  * or modified at runtime in handlers.
  *
  * These parameters can be passed by name, so a parameter called `pig` will
@@ -258,9 +232,7 @@ export type Context<
   error?: object;
 
   /**
-   * The current database, this will default to
-   * * the `default` database in your configuration
-   * * the first database listed in your configuration if none is called default
+   * The current database in use for this SQLModule.
    */
   database: Database;
 
@@ -270,7 +242,7 @@ export type Context<
   databases: Databases<DatabaseNames>;
 
   /**
-   * Parameters as passed to the SQL API or AutoCRUD. This can be extended
+   * Parameters as passed to the SQL. This can be extended
    * or modified at runtime in handlers.
    */
   parameters: ContextParameters<ParameterNames>;

@@ -1,7 +1,29 @@
 import { Configuration } from "./configuration";
-import { DatabaseInstance } from "./shared-context";
 import { embraceDatabases } from "./database-engines";
 import { embraceEventHandlers } from "./event-handlers";
+import { Database, SQLModule } from "./shared-context";
+
+/**
+ * A single instance of a database for use internally.
+ */
+export type DatabaseInternal = Database & {
+  /**
+   * This is the tree of paths derived from SQL files on disk. This is in
+   * a compressed path format, so each key can have / in it.
+   */
+  SQLModules: Map<string, SQLModule>;
+  /**
+   * Execute the sql module query on this database, and
+   * promise some result.
+   *
+   * TODO: Resultset object definition
+   */
+  execute: (SQLModule) => Promise<object>;
+  /**
+   * Analyze the passed module and determine the resultset type(s).
+   */
+  analyze: (SQLModule) => Promise<object>;
+};
 
 /**
  * This is the default to set up a new context on each API invocation, as well as 'the' context
@@ -19,7 +41,7 @@ export type RootContext = {
    * All configured databases, by name. This is the internal root context, so this is a hash and
    * not named properties. Client contexts will be generated with names to provide awesome autocomplete.
    */
-  databases: Map<string, DatabaseInstance>;
+  databases: Map<string, DatabaseInternal>;
 };
 
 /**
@@ -34,7 +56,7 @@ export const buildRootContext = async (
 ): Promise<RootContext> => {
   const rootContext = {
     configuration,
-    databases: new Map<string, DatabaseInstance>(),
+    databases: new Map<string, DatabaseInternal>(),
   };
   // need the database first, their connections are used
   // to mine metadata

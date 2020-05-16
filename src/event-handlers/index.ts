@@ -5,6 +5,7 @@ import path from "path";
 import md5 from "md5";
 import sqlModulePipeline from "./sqlmodule-pipeline";
 import contextPipeline from "./context-pipeline";
+import { SQLModule } from "../shared-context";
 
 /**
  * Scrub up identifiers to be valid JavaScript names.
@@ -44,7 +45,7 @@ export const embraceEventHandlers = async (
     fileName.toLowerCase().endsWith(".sql")
   );
   // root folders are databases, so attach there
-  const sqlModules = await sqlFileNames.map(async (SQLFileName) => {
+  const allSQLModules = await sqlFileNames.map(async (SQLFileName) => {
     const parsedPath = path.parse(SQLFileName);
     const segments = parsedPath.dir
       .split(path.sep)
@@ -66,7 +67,6 @@ export const embraceEventHandlers = async (
     const sql = await readFile(fullPath);
     // data about each SQL module
     const sqlModule = {
-      database: rootContext.databases[databaseName],
       relativePath,
       fullPath,
       sql,
@@ -79,12 +79,22 @@ export const embraceEventHandlers = async (
     ] = sqlModule;
     return sqlModule;
   });
-  // every module through the compiler pipeline, so compile them all
-  const compiledSQLModules = await sqlModules.map(async (sqlModule) =>
-    sqlModulePipeline(rootContext, await sqlModule)
+  // checkpoint -- wait for finish
+  await Promise.all(allSQLModules);
+  const allDatabases = Object.values(rootContext.databases).map(
+    async (database) => {
+      const compiledSQLModules = Object.values<SQLModule>(
+        database.SQLModules
+      ).map(async (sqlModule) =>
+        sqlModulePipeline(rootContext, database, sqlModule)
+      );
+      // let them all finish
+      await Promise.all(compiledSQLModules);
+      return database;
+    }
   );
   // let them all finish
-  await Promise.all(compiledSQLModules);
+  await Promise.all(allDatabases);
   // stitch together the full context and final combined files
   // this is the 'pack' phase
   await contextPipeline(rootContext);

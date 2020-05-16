@@ -3,7 +3,8 @@ import { Configuration } from "../configuration";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import path from "path";
-import { DatabaseInstance, SQLModule, SQLType } from "../shared-context";
+import { SQLModule, SQLType } from "../shared-context";
+import { DatabaseInternal } from "../context";
 import { Parser } from "node-sql-parser";
 import md5 from "md5";
 import { identifier } from "../event-handlers";
@@ -28,7 +29,7 @@ const typeMap = (fromSQLite: string): SQLType => {
 export default async (
   configuration: Configuration,
   db: Url
-): Promise<DatabaseInstance> => {
+): Promise<DatabaseInternal> => {
   const filename = path.isAbsolute(db.pathname)
     ? db.pathname
     : path.normalize(path.join(configuration.embraceSQLRoot, db.pathname));

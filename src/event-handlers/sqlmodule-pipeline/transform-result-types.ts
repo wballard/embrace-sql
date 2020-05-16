@@ -1,4 +1,4 @@
-import { RootContext } from "../../context";
+import { RootContext, DatabaseInternal } from "../../context";
 import { SQLModule } from "../../shared-context";
 /**
  * Run the query -- but in a transaction so the database doesn't get
@@ -10,13 +10,14 @@ import { SQLModule } from "../../shared-context";
  */
 export default async (
   rootContext: RootContext,
+  database: DatabaseInternal,
   sqlModule: SQLModule
 ): Promise<RootContext> => {
   try {
-    await sqlModule.database.transactions.begin();
-    await sqlModule.database.analyze(sqlModule);
+    await database.transactions.begin();
+    await database.analyze(sqlModule);
   } finally {
-    await sqlModule.database.transactions.rollback();
+    await database.transactions.rollback();
   }
   return rootContext;
 };

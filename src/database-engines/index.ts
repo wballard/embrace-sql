@@ -1,7 +1,7 @@
 import Url from "url-parse";
 import embraceSQLite from "./sqlite";
 import { RootContext } from "../context";
-import { DatabaseInstance } from "../shared-context";
+import { DatabaseInternal } from "../context";
 
 /**
  * Embrace a database, bringing it into context.
@@ -12,7 +12,7 @@ import { DatabaseInstance } from "../shared-context";
 const embraceSingleDatabase = async (
   rootContext: RootContext,
   db: Url
-): Promise<DatabaseInstance> => {
+): Promise<DatabaseInternal> => {
   switch (db.protocol.split(":")[0].toLowerCase()) {
     case "sqlite":
       return embraceSQLite(rootContext.configuration, db);
@@ -26,10 +26,10 @@ const embraceSingleDatabase = async (
  */
 export const embraceDatabases = async (
   rootContext: RootContext
-): Promise<Map<string, DatabaseInstance>> => {
+): Promise<Map<string, DatabaseInternal>> => {
   // name value pairs inside the root context -- there isn't a strongly
   // typed generated context type available to the generator itself
-  const databases = new Map<string, DatabaseInstance>();
+  const databases = new Map<string, DatabaseInternal>();
   Object.keys(rootContext.configuration.databases).forEach(
     async (databaseName) =>
       (rootContext.databases[databaseName] = await embraceSingleDatabase(
