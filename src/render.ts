@@ -143,13 +143,21 @@ export const renderTemplates = async (
           // by the front matter variables
           const fileName = frontMatterVariables["to"];
           const beautifier = (content: string): string => {
-            switch (path.extname(fileName).toLowerCase()) {
-              case ".yaml":
-                return prettier.format(content, { parser: "yaml" });
-              case ".ts":
-                return prettier.format(content, { parser: "typescript" });
-              default:
-                return content;
+            const extension = path.extname(fileName).toLowerCase();
+            const prettierSupport = prettier.getSupportInfo();
+            const parsers = prettierSupport.languages.flatMap((language) => {
+              if (language.extensions?.find((e) => e === extension)) {
+                return language.parsers;
+              } else {
+                return [];
+              }
+            });
+            if (parsers.length) {
+              return prettier.format(content, {
+                parser: (parsers[0] as unknown) as prettier.CustomParser,
+              });
+            } else {
+              return content;
             }
           };
           return {
