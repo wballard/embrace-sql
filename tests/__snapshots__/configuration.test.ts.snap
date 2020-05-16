@@ -8,3 +8,11 @@ Object {
   "embraceSQLRoot": "/Users/wballard/embrace-sql-core/tests/configs/hello",
 }
 `;
+
+exports[`hello world configuration! will run a query in context 1`] = `
+Array [
+  Object {
+    "\\"hello world\\"": "hello world",
+  },
+]
+`;

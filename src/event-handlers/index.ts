@@ -5,7 +5,6 @@ import path from "path";
 import md5 from "md5";
 import sqlModulePipeline from "./sqlmodule-pipeline";
 import contextPipeline from "./context-pipeline";
-import { SQLModule } from "../shared-context";
 
 /**
  * Scrub up identifiers to be valid JavaScript names.
@@ -74,10 +73,7 @@ export const embraceEventHandlers = async (
       cacheKey: md5(sql),
       contextName: identifier(path.join(parsedPath.dir, parsedPath.name)),
     };
-    rootContext.databases[databaseName].SQLModules = new Map<
-      string,
-      SQLModule
-    >();
+    // collate each module by the containing database
     rootContext.databases[databaseName].SQLModules[
       pathAfterDatabase
     ] = sqlModule;

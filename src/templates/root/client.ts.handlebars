@@ -1,0 +1,33 @@
+---
+to: "{{configuration.embraceSQLRoot}}/client.ts"
+---
+/* eslint-disable @typescript-eslint/camelcase */
+
+import * as context from "./context";
+
+{{> shared-client.ts}}
+
+// Generation starts here
+
+export const InProcessClient = {
+{{#eachInMap databases}}
+  {{@key}}: {
+  {{#treeAMap value.SQLModules database=@key}}
+    {{#each value}}
+    {{> moduleTree this database=@database}}
+    {{/each}}
+  {{/treeAMap}}
+  },
+{{/eachInMap}}
+};
+
+{{#*inline "moduleTree"}}
+{{name}}: {
+  {{#if value}}
+  sql: async () : Promise<context.{{value.contextName}}Results> => invokeInProcess("{{database}}", "{{path}}"),
+  {{/if}}
+  {{#each children}}
+    {{> moduleTree this database=database}}
+  {{/each}}
+}
+{{/inline}}

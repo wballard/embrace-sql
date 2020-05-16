@@ -77,4 +77,10 @@ describe("hello world configuration!", () => {
   it("generates client library for you", async () => {
     expect("client.ts").toExist();
   });
+  it("will run a query in context", async () => {
+    const results = await rootContext.databases["default"].execute(
+      rootContext.databases["default"].SQLModules["hello"]
+    );
+    expect(results).toMatchSnapshot();
+  });
 });
