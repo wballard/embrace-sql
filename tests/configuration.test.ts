@@ -75,6 +75,6 @@ describe("hello world configuration!", () => {
     expect("context.ts").toExist();
   });
   it("generates client library for you", async () => {
-    test.todo("...");
+    expect("client.ts").toExist();
   });
 });

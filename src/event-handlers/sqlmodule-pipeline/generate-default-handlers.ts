@@ -1,5 +1,5 @@
 import { RootContext } from "../../context";
-import { SQLModule } from "../../database-engines";
+import { SQLModule } from "../../shared-context";
 import { generateFromTemplates } from "../../generator";
 
 /**

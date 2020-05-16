@@ -1,5 +1,5 @@
 import { Configuration } from "./configuration";
-import { DatabaseInstance } from "./database-engines";
+import { DatabaseInstance } from "./shared-context";
 import { embraceDatabases } from "./database-engines";
 import { embraceEventHandlers } from "./event-handlers";
 

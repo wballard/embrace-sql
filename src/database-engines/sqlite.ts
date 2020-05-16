@@ -3,7 +3,7 @@ import { Configuration } from "../configuration";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import path from "path";
-import { DatabaseInstance, SQLModule, SQLType } from ".";
+import { DatabaseInstance, SQLModule, SQLType } from "../shared-context";
 import { Parser } from "node-sql-parser";
 import md5 from "md5";
 import { identifier } from "../event-handlers";

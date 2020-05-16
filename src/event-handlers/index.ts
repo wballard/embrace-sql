@@ -5,7 +5,7 @@ import path from "path";
 import md5 from "md5";
 import sqlModulePipeline from "./sqlmodule-pipeline";
 import contextPipeline from "./context-pipeline";
-import { SQLModule } from "../database-engines";
+import { SQLModule } from "../shared-context";
 
 /**
  * Scrub up identifiers to be valid JavaScript names.

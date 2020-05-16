@@ -1,5 +1,5 @@
 import { RootContext } from "../../context";
-import { SQLModule } from "../../database-engines";
+import { SQLModule } from "../../shared-context";
 /**
  * Run the query -- but in a transaction so the database doesn't get
  * modified. This allows an inspection of the resultset(s) to figure out

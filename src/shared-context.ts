@@ -1,3 +1,5 @@
+import type { AST } from "node-sql-parser";
+
 /**
  * This containes context types shared between the EmbraceSQL server
  * and any generated code used by clients.
@@ -10,6 +12,118 @@
  * Even though this isn't really a handlebars template, it is registered
  * as a partial, so resist the urge to use mustaches in here.
  */
+
+/**
+ * A message, passed for security and logging.
+ */
+export type Message = string | object;
+
+/**
+ * Security types.
+ */
+export type GrantType = "allow" | "deny";
+
+/**
+ * A single grant, stored away in the context.
+ */
+export type Grant = {
+  /**
+   * This type is set automatically for you.
+   */
+  type: GrantType;
+  /**
+   * Your additional message, which can be an object allowing you
+   * to use it as a metadata store with security context informmation.
+   */
+  message: Message;
+};
+
+/**
+ * Types mapped back into API calls from SQL.
+ */
+export type SQLType = "string" | "number" | "blob";
+
+/**
+ * One result set column metadata.
+ */
+export type SQLColumnMetadata = {
+  /**
+   * Use this name to access the row. These are valid JavaScript variable names.
+   */
+  name: string;
+
+  /**
+   * Type identifier.
+   */
+  type: SQLType;
+};
+
+/**
+ * Each SQL found on disk has some data -- the SQL itself, and will
+ * get additional metadata attached to it.
+ */
+export type SQLModule = {
+  /**
+   * Reference back to the containing database.
+   */
+  database: DatabaseInstance;
+  /**
+   * Relative path useful for REST.
+   */
+  relativePath: string;
+  /**
+   * Fully qualified file name on disk.
+   */
+  fullPath: string;
+  /**
+   * Actual SQL text source, unmodified, read from disk
+   */
+  sql: string;
+  /**
+   * Content based cache key to use for any hash lookups, so that content
+   * changes to the SQL equal cache misses.
+   */
+  cacheKey: string;
+  /**
+   * Parsed SQL abstract syntax tree, which can be an array becuse
+   * of semicolon batches.
+   */
+  ast?: AST[];
+  /**
+   * Result set metadata, which may be an array because of semicolon batches.
+   */
+  resultsetMetadata?: Array<Array<SQLColumnMetadata>>;
+  /**
+   * Generated OpenAPI hander path.
+   */
+  openAPI?: string;
+  /**
+   * Module safe name for the context.
+   */
+  contextName?: string;
+};
+
+/**
+ * A single instance of a database, with attached SQLFiles.
+ */
+export type DatabaseInstance = Database & {
+  /**
+   * This is the tree of paths derived from SQL files on disk. This is in
+   * a compressed path format, so each key can have / in it.
+   */
+  SQLModules: Map<string, SQLModule>;
+  /**
+   * Execute the sql module query on this database, and
+   * promise some result.
+   *
+   * TODO: Resultset object definition
+   */
+  execute: (SQLModule) => Promise<object>;
+  /**
+   * Analyze the passed module and determine the resultset type(s).
+   */
+  analyze: (SQLModule) => Promise<object>;
+};
 
 /**
  * Transaction control for databases.
@@ -97,19 +211,19 @@ export type Context<
    *
    * @param message - Any helpful message you see fit, will be appended to [[grants]].
    */
-  allow: (message: any) => void;
+  allow: (message: Message) => void;
 
   /**
    * Set the current start of security to deny SQL execution against the database.
    *
    * @param message - Any helpful message you see fit, will be appended to [[grants]].
    */
-  deny: (message: any) => void;
+  deny: (message: Message) => void;
 
   /**
    * View all the reasons security might have been [[allow]] or [[deny]].
    */
-  grants: Array<any>;
+  grants: Array<Grant>;
 
   /**
    * If a JWT token from an `Authorization: Bearer <token>` header has been successfully

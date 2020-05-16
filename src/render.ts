@@ -4,6 +4,7 @@ import path from "path";
 import readFile from "read-file-utf8";
 import frontMatter from "front-matter";
 import handlebars from "handlebars";
+import prettier from "prettier";
 
 /**
  * Map iteration.
@@ -25,6 +26,44 @@ handlebars.registerHelper("eachInMap", function (map, block) {
       }
     );
   });
+  return out;
+});
+
+/**
+ * Tree-ify a path compressed map.
+ */
+handlebars.registerHelper("treeAMap", function (map, block) {
+  let out = "";
+  const result = [];
+  const level = { result };
+
+  Object.keys(map).forEach((path) => {
+    path.split("/").reduce((r, name, i, a) => {
+      // link back to the full path
+      const value = a.length - 1 === i ? map[a.join("/")] : undefined;
+      if (!r[name]) {
+        r[name] = { result: [] };
+        r.result.push({
+          name,
+          children: r[name].result,
+          value,
+          path: a.join("/"),
+        });
+      }
+
+      return r[name];
+    }, level);
+  });
+
+  out += block.fn(
+    {
+      value: result,
+    },
+    {
+      // pass on variable
+      data: block.hash,
+    }
+  );
   return out;
 });
 
@@ -70,6 +109,12 @@ export const renderTemplates = async (
       await readFile(path.join(__dirname, "./shared-context.ts"))
     )
   );
+  handlebars.registerPartial(
+    "shared-client.ts",
+    handlebars.compile(
+      await readFile(path.join(__dirname, "./shared-client.ts"))
+    )
+  );
   return (
     walk({ path: templatesInDirectory })
       .then((fileNames) =>
@@ -96,10 +141,23 @@ export const renderTemplates = async (
           );
           // render the actual template with the context extended
           // by the front matter variables
+          const fileName = frontMatterVariables["to"];
+          const beautifier = (content: string): string => {
+            switch (path.extname(fileName).toLowerCase()) {
+              case ".yaml":
+                return prettier.format(content, { parser: "yaml" });
+              case ".ts":
+                return prettier.format(content, { parser: "typescript" });
+              default:
+                return content;
+            }
+          };
           return {
-            fileName: frontMatterVariables["to"],
-            content: handlebars.compile(body)(
-              Object.assign({}, rootContext, frontMatterVariables)
+            fileName,
+            content: beautifier(
+              handlebars.compile(body)(
+                Object.assign({}, rootContext, frontMatterVariables)
+              )
             ),
           };
         })

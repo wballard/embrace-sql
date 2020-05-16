@@ -1,5 +1,5 @@
 import { RootContext } from "../../context";
-import { SQLModule } from "../../database-engines";
+import { SQLModule } from "../../shared-context";
 import parseSQL from "./parse-sql";
 import transformResultTypes from "./transform-result-types";
 import generateDefaultHandlers from "./generate-default-handlers";
