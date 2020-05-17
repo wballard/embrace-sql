@@ -5,6 +5,8 @@ import OpenAPIBackend from "openapi-backend";
 import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
+import { SQLModule } from "./shared-context";
+import { DatabaseInternal } from "./context";
 
 /**
  * Create a HTTP server exposing an OpenAPI style set of endpoints for each Database
@@ -18,14 +20,50 @@ export const createServer = async (
 ): Promise<Koa<Koa.DefaultState, Koa.DefaultContext>> => {
   const server = new Koa();
 
+  // generated configuration is loaded up
+  // TODO: the configuration is left on disk for current debugging -- but probably should be hidden
   const definition = YAML.parse(
     await readFile(
       path.join(rootContext.configuration.embraceSQLRoot, "openapi.yaml")
     )
   );
 
+  // no real need for code generation here, each SQLModule has an operation name
+  // and the module itself
+  type DatabaseModule = {
+    database: DatabaseInternal;
+    module: SQLModule;
+  };
+  const allSQLModules = Object.values(rootContext.databases).flatMap(
+    (database) =>
+      Object.values(database.SQLModules).flatMap((module) => ({
+        database,
+        module,
+      }))
+  ) as Array<DatabaseModule>;
+
+  // go ahead and make a handler for both GET and POST
+  // even though GET will often not be supported int the OpenAPI
+  const getHandlers = Object.fromEntries(
+    allSQLModules.map((dbModule) => {
+      return [
+        `get__${dbModule.module.contextName}`,
+        async (openAPI, httpContext): Promise<void> => {
+          httpContext.body = await dbModule.database.execute(
+            dbModule.module,
+            openAPI.operation.parameters
+          );
+          httpContext.status = 200;
+        },
+      ];
+    })
+  );
+
   const api = new OpenAPIBackend({
     definition,
+    handlers: {
+      ...getHandlers,
+    },
   });
   api.init();
 

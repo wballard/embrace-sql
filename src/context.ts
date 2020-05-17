@@ -16,9 +16,10 @@ export type DatabaseInternal = Database & {
    * Execute the sql module query on this database, and
    * promise some result.
    *
-   * TODO: Resultset object definition
+   * @param SQLModule - execute this module, returning results
+   * @param parameters - name value has object of parameters
    */
-  execute: (SQLModule) => Promise<object>;
+  execute: (SQLModule, parameters: object) => Promise<Array<object>>;
   /**
    * Analyze the passed module and determine the resultset type(s).
    */

@@ -9,6 +9,27 @@ Object {
 }
 `;
 
+exports[`hello world configuration! will make a runnable server 1`] = `
+Object {
+  "header": Object {
+    "connection": "close",
+    "content-length": "35",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Sun, 17 May 2020 16:49:02 GMT",
+  },
+  "req": Object {
+    "data": undefined,
+    "headers": Object {
+      "user-agent": "node-superagent/3.8.3",
+    },
+    "method": "GET",
+    "url": "http://127.0.0.1:50938/default/hello.sql",
+  },
+  "status": 200,
+  "text": "[{\\"\\\\\\"hello world\\\\\\"\\":\\"hello world\\"}]",
+}
+`;
+
 exports[`hello world configuration! will run a query in context 1`] = `
 Array [
   Object {

@@ -53,10 +53,16 @@ export default async (
   return {
     transactions,
     SQLModules: new Map<string, SQLModule>(),
-    execute: async (sqlModule: SQLModule): Promise<object> => {
+    execute: async (
+      sqlModule: SQLModule,
+      parameters: object
+    ): Promise<Array<object>> => {
       const statement = await database.prepare(sqlModule.sql);
-      const results = await statement.all();
-      return results;
+      if (parameters && Object.keys(parameters).length) {
+        throw Error("TODO");
+      } else {
+        return await statement.all();
+      }
     },
     analyze: async (sqlModule: SQLModule): Promise<object> => {
       /**

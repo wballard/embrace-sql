@@ -42,6 +42,7 @@
     "read-file-utf8": "^2.0.4",
     "sqlite": "^4.0.7",
     "sqlite3": "^4.2.0",
+    "supertest": "^4.0.2",
     "ts-jest": "^25.5.1",
     "typescript": "^3.8.3",
     "url-parse": "^1.4.7",

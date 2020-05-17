@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import { loadConfiguration, Configuration } from "../src/configuration";
 import { buildRootContext, RootContext } from "../src/context";
 import { createServer } from "../src/server";
+import request from "supertest";
 
 declare global {
   namespace jest {
@@ -85,6 +86,15 @@ describe("hello world configuration!", () => {
     expect(results).toMatchSnapshot();
   });
   it("will make a runnable server", async () => {
-    await createServer(rootContext);
+    const server = await createServer(rootContext);
+    const listening = server.listen(4567);
+    try {
+      const response = await request(server.callback()).get(
+        "/default/hello.sql"
+      );
+      expect(response).toMatchSnapshot();
+    } finally {
+      listening.close();
+    }
   });
 });
