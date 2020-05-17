@@ -5,11 +5,27 @@ import readFile from "read-file-utf8";
 import frontMatter from "front-matter";
 import handlebars from "handlebars";
 import prettier from "prettier";
+import { SQLModule } from "./shared-context";
+
+/**
+ * Only contains SELECT statements, so eligible for a get
+ */
+//        m
+handlebars.registerHelper("allSELECT", (module, options) => {
+  const render = ((module as unknown) as SQLModule)?.ast?.every(
+    (query) => query.type === "select"
+  );
+  if (render) {
+    return options.fn({ module });
+  } else {
+    return options.inverse({ module });
+  }
+});
 
 /**
  * Map iteration.
  */
-handlebars.registerHelper("eachInMap", function (map, block) {
+handlebars.registerHelper("eachInMap", (map, block) => {
   let out = "";
   Object.keys(map).map(function (prop, index, all) {
     out += block.fn(
@@ -32,7 +48,7 @@ handlebars.registerHelper("eachInMap", function (map, block) {
 /**
  * Tree-ify a path compressed map.
  */
-handlebars.registerHelper("treeAMap", function (map, block) {
+handlebars.registerHelper("treeAMap", (map, block) => {
   let out = "";
   const result = [];
   const level = { result };

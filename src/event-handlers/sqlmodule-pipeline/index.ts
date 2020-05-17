@@ -3,7 +3,6 @@ import { SQLModule } from "../../shared-context";
 import parseSQL from "./parse-sql";
 import transformResultTypes from "./transform-result-types";
 import generateDefaultHandlers from "./generate-default-handlers";
-import generateOpenAPI from "./generate-openapi";
 
 /**
  * Each SQLModule runs through a transformation pipeline. This differs slightly
@@ -19,6 +18,5 @@ export default async (
   await parseSQL(rootContext, sqlModule);
   await transformResultTypes(rootContext, database, sqlModule);
   await generateDefaultHandlers(rootContext, sqlModule);
-  await generateOpenAPI(rootContext, sqlModule);
   return rootContext;
 };

@@ -9,8 +9,61 @@ info:
   version: --
 
 paths:
-  {{#eachInMap databases}}
-  {{#eachInMap value.SQLModules}}
-  {{{value.openAPI}}}
-  {{/eachInMap}}
-  {{/eachInMap}}
+{{#eachInMap databases}}
+{{#eachInMap value.SQLModules}}
+  /{{value.relativePath}}:
+    {{> get module=value}}
+{{/eachInMap}}
+{{/eachInMap}}
+
+
+{{#*inline "get"}}
+{{#allSELECT module}}
+get:
+  operationId: get__{{module.contextName}}
+  description: Read data
+  responses:
+    '200':
+      description: Sucess
+      {{> resultset module=module}}
+{{/allSELECT}}
+{{/inline}}
+
+{{#*inline "post"}}
+{{/inline}}
+
+{{#*inline "resultset"}}
+content:
+  application/json:
+    schema:
+      {{> resultsetMetadata}}
+{{/inline}}
+
+{{#*inline "resultsetMetadata"}}
+{{#if module.multipleResultsets}}
+type: object
+{{> multipleResultsetMetadata module.resultsetMetadata}}
+{{else}}
+type: array
+{{> oneResultetMetadata module.resultsetMetadata.[0]}}
+{{/if}}
+{{/inline}}
+
+{{#*inline "oneResultetMetadata"}}
+items: 
+  type: object
+  properties:
+  {{#each this}}
+    {{name}}:
+      type: {{type}}
+  {{/each}}
+{{/inline}}
+
+{{#*inline "multipleResultsetMetadata"}}
+properties:
+{{#each this}}
+  '{{@index}}':
+    type: array
+    {{> oneResultetMetadata this}}
+{{/each}}
+{{/inline}}

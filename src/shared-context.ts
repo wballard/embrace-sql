@@ -90,10 +90,6 @@ export type SQLModule = {
    */
   resultsetMetadata?: Array<Array<SQLColumnMetadata>>;
   /**
-   * Generated OpenAPI hander path.
-   */
-  openAPI?: string;
-  /**
    * Module safe name for the context.
    */
   contextName?: string;
