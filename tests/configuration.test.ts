@@ -92,7 +92,7 @@ describe("hello world configuration!", () => {
       const response = await request(server.callback()).get(
         "/default/hello.sql"
       );
-      expect(response).toMatchSnapshot();
+      expect(response.text).toMatchSnapshot();
     } finally {
       listening.close();
     }
