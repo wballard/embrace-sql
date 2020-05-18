@@ -15,7 +15,7 @@ export default async (
   sqlModule: SQLModule
 ): Promise<RootContext> => {
   // await makes this a lot less goofy than a promise chain
-  await parseSQL(rootContext, sqlModule);
+  await parseSQL(rootContext, database, sqlModule);
   await transformResultTypes(rootContext, database, sqlModule);
   await generateDefaultHandlers(rootContext, sqlModule);
   return rootContext;

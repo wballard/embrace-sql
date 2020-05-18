@@ -1,6 +1,5 @@
-import { RootContext } from "../../context";
+import { RootContext, DatabaseInternal } from "../../context";
 import { SQLModule } from "../../shared-context";
-import { Parser } from "node-sql-parser";
 
 /**
  * Every SQL file needs its handlers
@@ -10,11 +9,15 @@ import { Parser } from "node-sql-parser";
  */
 export default async (
   rootContext: RootContext,
+  database: DatabaseInternal,
   module: SQLModule
 ): Promise<RootContext> => {
-  const { ast } = new Parser().parse(module.sql);
-  // array valued always as this can be a batch and
-  // now there is only one place we need to deal with the condition
+  const { ast, namedParameters } = database.parse(module);
   module.ast = Array.isArray(ast) ? ast : [ast];
+  // all the parameters, string is the default and can be mutated later
+  module.namedParameters = namedParameters.map((p) => ({
+    name: p,
+    type: "string",
+  }));
   return rootContext;
 };

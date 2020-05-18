@@ -5,7 +5,7 @@ import { open } from "sqlite";
 import path from "path";
 import { SQLModule, SQLType } from "../shared-context";
 import { DatabaseInternal } from "../context";
-import { Parser } from "node-sql-parser";
+import { Parser, TableColumnAst } from "node-sql-parser";
 import md5 from "md5";
 import { identifier } from "../event-handlers";
 
@@ -53,13 +53,23 @@ export default async (
   return {
     transactions,
     SQLModules: new Map<string, SQLModule>(),
+    parse: (sqlModule: SQLModule): TableColumnAst => {
+      const parser = new Parser();
+      const parsed = parser.parse(sqlModule.sql, { database: "postgresql" });
+      return parsed;
+    },
     execute: async (
       sqlModule: SQLModule,
       parameters: object
     ): Promise<Array<object>> => {
       const statement = await database.prepare(sqlModule.sql);
       if (parameters && Object.keys(parameters).length) {
-        throw Error("TODO");
+        // map to SQLite names
+        const withParameters = Object.fromEntries(
+          Object.keys(parameters).map((name) => [`:${name}`, parameters[name]])
+        );
+        statement.bind(withParameters);
+        return await statement.all();
       } else {
         return await statement.all();
       }
@@ -76,13 +86,22 @@ export default async (
         sqlModule.ast
           ?.filter((ast) => ast.type === "select")
           .map(async (ast) => {
-            const sql = parser.sqlify(ast);
+            const sql = parser.sqlify(ast, { database: "postgresql" });
             const create = `CREATE TABLE ${md5(sql)} AS ${sql};`;
+            const preparedCreate = await database.prepare(create);
             const describe = `pragma table_info('${md5(sql)}')`;
             try {
-              await database.run(create);
-              const describeStatement = await database.prepare(describe);
-              const readDescribeRows = await describeStatement.all();
+              // run with all nulls for all parameters by default
+              if (sqlModule.namedParameters?.length) {
+                const withParameters = Object.fromEntries(
+                  sqlModule.namedParameters?.map((p) => [`:${p.name}`, null])
+                );
+                await preparedCreate.bind(withParameters);
+                await preparedCreate.all();
+              } else {
+                await preparedCreate.all();
+              }
+              const readDescribeRows = await database.all(describe);
               // OK so something to know -- columns with spaces in them are quoted
               // by sqlite so if a column is named
               // hi mom

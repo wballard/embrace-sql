@@ -2,6 +2,7 @@ import { Configuration } from "./configuration";
 import { embraceDatabases } from "./database-engines";
 import { embraceEventHandlers } from "./event-handlers";
 import { Database, SQLModule } from "./shared-context";
+import { TableColumnAst } from "node-sql-parser";
 
 /**
  * A single instance of a database for use internally.
@@ -24,6 +25,10 @@ export type DatabaseInternal = Database & {
    * Analyze the passed module and determine the resultset type(s).
    */
   analyze: (SQLModule) => Promise<object>;
+  /**
+   * Parse out the SQL.
+   */
+  parse: (SQLModule) => TableColumnAst;
 };
 
 /**

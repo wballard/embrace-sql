@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+
 import type { AST } from "node-sql-parser";
 
 /**
@@ -266,3 +268,23 @@ export type Context<
  * Default parameter names.
  */
 export type DefaultParameters = undefined;
+
+// Generation starts here
+
+// All named databases
+export type AvailableDatabases = "default";
+
+// Partial context binds databases, leaves open parameters
+export type DatabaseContext<ParameterNames extends string> = Context<
+  AvailableDatabases,
+  ParameterNames
+>;
+
+// each different API endpoint gets a context type with parameters and results
+export type default_helloParameters = DefaultParameters;
+export type default_helloResults = Array<{
+  message: string;
+}>;
+export type default_helloContext = DatabaseContext<default_helloParameters> & {
+  results: default_helloResults;
+};

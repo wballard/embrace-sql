@@ -36,7 +36,7 @@
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
     "md5": "^2.2.1",
-    "node-sql-parser": "^1.10.0",
+    "node-sql-parser": "wballard/node-sql-parser",
     "openapi-backend": "^3.4.2",
     "prettier": "^2.0.5",
     "read-file-utf8": "^2.0.4",

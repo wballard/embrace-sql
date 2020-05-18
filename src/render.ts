@@ -8,9 +8,15 @@ import prettier from "prettier";
 import { SQLModule } from "./shared-context";
 
 /**
- * Only contains SELECT statements, so eligible for a get
+ * Code generation is via handlebars, so we take the config, load up all the
+ * sql, parse it for metadata, then generate some code.
+ *
+ * Up here -- setting up handlebars with some helpers.
  */
-//        m
+
+/**
+ * Only contains SELECT statements, so eligible for a GET on HTTP.
+ */
 handlebars.registerHelper("allSELECT", (module, options) => {
   const render = ((module as unknown) as SQLModule)?.ast?.every(
     (query) => query.type === "select"
@@ -23,7 +29,8 @@ handlebars.registerHelper("allSELECT", (module, options) => {
 });
 
 /**
- * Map iteration.
+ * Map iteration, lots of maps in our metadata and handlebars is
+ * sadly lacking a built in.
  */
 handlebars.registerHelper("eachInMap", (map, block) => {
   let out = "";
