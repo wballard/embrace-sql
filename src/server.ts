@@ -42,8 +42,14 @@ export const createServer = async (
       }))
   ) as Array<DatabaseModule>;
 
-  // go ahead and make a handler for both GET and POST
-  // even though GET will often not be supported int the OpenAPI
+  /**
+   * `get__${dbModule.module.contextName}` corresponds to the operationId
+   * that is defined in the openapi.yaml.
+   * see https://github.com/anttiviljami/openapi-backend/blob/master/examples/koa/index.js#L18.
+   * 
+   * go ahead and make a handler for both GET and POST
+   * even though GET will often not be supported int the OpenAPI
+   */
   const getHandlers = Object.fromEntries(
     allSQLModules.map((dbModule) => {
       return [
