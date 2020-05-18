@@ -2,6 +2,33 @@
 
 exports[`hello world configuration! exposes methods to run hello sql 1`] = `"SELECT \\"hello world\\""`;
 
+exports[`hello world configuration! generates an open api doc 1`] = `
+"openapi: 3.0.0
+info:
+  title: --
+  description: --
+  version: --
+
+paths:
+  /default/hello.sql:
+    get:
+      operationId: get__default_hello
+      description: Read data
+      responses:
+        \\"200\\":
+          description: Sucess
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hello_world:
+                      type: string
+"
+`;
+
 exports[`hello world configuration! reads a config 1`] = `
 Object {
   "databases": Map {},
