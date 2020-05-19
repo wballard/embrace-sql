@@ -43,13 +43,10 @@
     "sqlite": "^4.0.7",
     "sqlite3": "^4.2.0",
     "supertest": "^4.0.2",
-    "ts-jest": "^25.5.1",
+    "ts-jest": "^26.0.0",
     "typescript": "^3.8.3",
     "url-parse": "^1.4.7",
     "yaml": "^1.10.0"
   },
-  "devDependencies": {
-    "eslint-plugin-jest": "^23.11.0",
-    "jest-runner-eslint": "^0.8.0"
-  }
+  "devDependencies": {}
 }

@@ -2,20 +2,26 @@ import { RootContext, DatabaseInternal } from "../../context";
 import { SQLModule } from "../../shared-context";
 
 /**
- * Every SQL file needs its handlers
+ * Parse the SQL in a module, extracting the abstract syntax tree
+ * and all of the parameters
  *
- * @rootContext - as usual, our root context
- * @param SQLFileName - full file path to a single SQL
+ * @param rootContext - as usual, our root context
+ * @param database - parse using this specific database
+ * @param sqlModule - parse and update this module
  */
 export default async (
   rootContext: RootContext,
   database: DatabaseInternal,
-  module: SQLModule
+  sqlModules: SQLModule
 ): Promise<RootContext> => {
-  const { ast, namedParameters } = database.parse(module);
-  module.ast = Array.isArray(ast) ? ast : [ast];
+  const { ast, namedParameters } = database.parse(sqlModules);
+  if (Array.isArray(ast)) {
+    // we are only supporting single statements
+  } else {
+    sqlModules.ast = ast;
+  }
   // all the parameters, string is the default and can be mutated later
-  module.namedParameters = namedParameters.map((p) => ({
+  sqlModules.namedParameters = namedParameters.map((p) => ({
     name: p,
     type: "string",
   }));

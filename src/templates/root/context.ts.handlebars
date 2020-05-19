@@ -29,29 +29,11 @@ export type {{value.contextName}}Context =
 
 
 {{#*inline "resultsetMetadata"}}
-{{#if multipleResultsets}}
-type: object
-{{> multipleResultsetMetadata resultsetMetadata}}
-{{else}}
 export type {{contextName}}Results = Array<
-{{> oneResultetMetadata resultsetMetadata.[0]}}
->
-{{/if}}
-{{/inline}}
-
-{{#*inline "oneResultetMetadata"}}
 {
-  {{#each this}}
+  {{#each resultsetMetadata}}
     {{name}}: {{type}}
   {{/each}}
 }
-{{/inline}}
-
-{{#*inline "multipleResultsetMetadata"}}
-properties:
-{{#each this}}
-  '{{@index}}':
-    type: array
-    {{> oneResultetMetadata this}}
-{{/each}}
+>
 {{/inline}}

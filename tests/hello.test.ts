@@ -73,7 +73,9 @@ describe("hello world configuration!", () => {
   });
   it("generates an open api doc", async () => {
     expect("openapi.yaml").toExist();
-    const content = await readFile(path.join(theConfig.embraceSQLRoot, "openapi.yaml"));
+    const content = await readFile(
+      path.join(theConfig.embraceSQLRoot, "openapi.yaml")
+    );
     expect(content).toMatchSnapshot();
   });
   it("generates a typed context object", async () => {

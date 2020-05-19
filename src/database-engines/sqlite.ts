@@ -3,7 +3,7 @@ import { Configuration } from "../configuration";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import path from "path";
-import { SQLModule, SQLType } from "../shared-context";
+import { SQLModule, SQLType, SQLColumnMetadata } from "../shared-context";
 import { DatabaseInternal } from "../context";
 import { Parser, TableColumnAst } from "node-sql-parser";
 import md5 from "md5";
@@ -74,57 +74,51 @@ export default async (
         return await statement.all();
       }
     },
-    analyze: async (sqlModule: SQLModule): Promise<object> => {
+    analyze: async (
+      sqlModule: SQLModule
+    ): Promise<Array<SQLColumnMetadata>> => {
       /**
        * This is a bit involved, taking each select, making a
        * temp table from it, inspecting -- and rolling the whole
        * thing back.
        */
       sqlModule.resultsetMetadata = [];
-      const parser = new Parser();
-      await Promise.all(
-        sqlModule.ast
-          ?.filter((ast) => ast.type === "select")
-          .map(async (ast) => {
-            const sql = parser.sqlify(ast, { database: "postgresql" });
-            const create = `CREATE TABLE ${md5(sql)} AS ${sql};`;
-            const preparedCreate = await database.prepare(create);
-            const describe = `pragma table_info('${md5(sql)}')`;
-            try {
-              // run with all nulls for all parameters by default
-              if (sqlModule.namedParameters?.length) {
-                const withParameters = Object.fromEntries(
-                  sqlModule.namedParameters?.map((p) => [`:${p.name}`, null])
-                );
-                await preparedCreate.bind(withParameters);
-                await preparedCreate.all();
-              } else {
-                await preparedCreate.all();
-              }
-              const readDescribeRows = await database.all(describe);
-              // OK so something to know -- columns with spaces in them are quoted
-              // by sqlite so if a column is named
-              // hi mom
-              // sqlite has that as 'hi mom'
-              // which makes the javascript key ...["'hi mom'"] -- oh yeah
-              // the ' is part of the key
 
-              /**
-               * One row per column, the name and type info are interesting,
-               * pick them out and normalize them.
-               */
-              sqlModule.resultsetMetadata.push(
-                readDescribeRows.map((row) => ({
-                  name: identifier(row.name.toString()),
-                  type: typeMap(row.type),
-                }))
-              );
-            } catch (e) {
-              console.error(e);
-            }
-          })
-      );
-      return {};
+      if (sqlModule.ast?.type === "select") {
+        const parser = new Parser();
+        const sql = parser.sqlify(sqlModule.ast, { database: "postgresql" });
+        const create = `CREATE TABLE ${md5(sql)} AS ${sql};`;
+        const preparedCreate = await database.prepare(create);
+        const describe = `pragma table_info('${md5(sql)}')`;
+        // run with all nulls for all parameters by default
+        if (sqlModule.namedParameters?.length) {
+          const withParameters = Object.fromEntries(
+            sqlModule.namedParameters?.map((p) => [`:${p.name}`, null])
+          );
+          await preparedCreate.bind(withParameters);
+          await preparedCreate.all();
+        } else {
+          await preparedCreate.all();
+        }
+        const readDescribeRows = await database.all(describe);
+        // OK so something to know -- columns with spaces in them are quoted
+        // by sqlite so if a column is named
+        // hi mom
+        // sqlite has that as 'hi mom'
+        // which makes the javascript key ...["'hi mom'"] -- oh yeah
+        // the ' is part of the key
+
+        /**
+         * One row per column, the name and type info are interesting,
+         * pick them out and normalize them.
+         */
+        return readDescribeRows.map((row) => ({
+          name: identifier(row.name.toString()),
+          type: typeMap(row.type),
+        }));
+      } else {
+        return [];
+      }
     },
   };
 };
