@@ -2,6 +2,7 @@ import { RootContext, DatabaseInternal } from "../../context";
 import { SQLModule } from "../../shared-context";
 import parseSQL from "./parse-sql";
 import transformResultTypes from "./transform-result-types";
+import transformParameterTypes from "./transform-parameter-types";
 import generateDefaultHandlers from "./generate-default-handlers";
 
 /**
@@ -16,6 +17,7 @@ export default async (
 ): Promise<RootContext> => {
   // await makes this a lot less goofy than a promise chain
   await parseSQL(rootContext, database, sqlModule);
+  await transformParameterTypes(rootContext, database, sqlModule);
   await transformResultTypes(rootContext, database, sqlModule);
   await generateDefaultHandlers(rootContext, sqlModule);
   return rootContext;

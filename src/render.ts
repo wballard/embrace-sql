@@ -17,10 +17,8 @@ import { SQLModule } from "./shared-context";
 /**
  * Only contains SELECT statements, so eligible for a GET on HTTP.
  */
-handlebars.registerHelper("allSELECT", (module, options) => {
-  const render = ((module as unknown) as SQLModule)?.ast?.every(
-    (query) => query.type === "select"
-  );
+handlebars.registerHelper("allSELECT", (module: SQLModule, options) => {
+  const render = module.ast?.type === "select";
   if (render) {
     return options.fn({ module });
   } else {

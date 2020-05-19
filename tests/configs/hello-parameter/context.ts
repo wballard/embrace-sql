@@ -97,14 +97,13 @@ export type SQLModule = {
    */
   cacheKey: string;
   /**
-   * Parsed SQL abstract syntax tree, which can be an array becuse
-   * of semicolon batches.
+   * Parsed SQL abstract syntax tree, one AST, only one statement is allowed.
    */
-  ast?: AST[];
+  ast?: AST;
   /**
    * Result set metadata, which may be an array because of semicolon batches.
    */
-  resultsetMetadata?: Array<Array<SQLColumnMetadata>>;
+  resultsetMetadata?: Array<SQLColumnMetadata>;
   /**
    * Module safe name for the context.
    */

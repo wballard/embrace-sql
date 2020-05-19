@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import path from "path";
 import fs from "fs-extra";
 import { loadConfiguration } from "../src/configuration";

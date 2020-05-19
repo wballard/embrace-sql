@@ -15,7 +15,7 @@ export default async (
 ): Promise<RootContext> => {
   try {
     await database.transactions.begin();
-    await database.analyze(sqlModule);
+    sqlModule.resultsetMetadata = await database.analyze(sqlModule);
   } finally {
     await database.transactions.rollback();
   }

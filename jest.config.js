@@ -3,7 +3,6 @@ process.env.IS_OFFLINE = "true";
 process.env.IS_TESTING = "true";
 
 module.exports = {
-  bail: true,
   collectCoverage: true,
   preset: "ts-jest",
   testEnvironment: "node",

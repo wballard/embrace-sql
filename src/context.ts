@@ -1,7 +1,7 @@
 import { Configuration } from "./configuration";
 import { embraceDatabases } from "./database-engines";
 import { embraceEventHandlers } from "./event-handlers";
-import { Database, SQLModule } from "./shared-context";
+import { Database, SQLModule, SQLColumnMetadata } from "./shared-context";
 import { TableColumnAst } from "node-sql-parser";
 
 /**
@@ -24,7 +24,7 @@ export type DatabaseInternal = Database & {
   /**
    * Analyze the passed module and determine the resultset type(s).
    */
-  analyze: (SQLModule) => Promise<object>;
+  analyze: (SQLModule) => Promise<Array<SQLColumnMetadata>>;
   /**
    * Parse out the SQL.
    */
