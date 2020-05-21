@@ -49,43 +49,54 @@ const restructure = (
   };
 };
 
+/**
+ * Go back to the console as before.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+let uninstall = (): void => {};
+
+/**
+ * Install the structured console.
+ */
 const install = (): void => {
   const originalLog = console.log;
   console.log = (message: any, ...additional: any[]): void => {
     const writeThis = JSON.stringify(restructure("info", message, additional));
-    if (process.env.JEST_WORKER_ID) originalLog(writeThis);
     process.stdout.write(writeThis);
   };
   const originalDebug = console.debug;
   console.debug = (message: any, ...additional: any[]): void => {
     const writeThis = JSON.stringify(restructure("debug", message, additional));
-    if (process.env.JEST_WORKER_ID) originalDebug(writeThis);
     process.stdout.write(writeThis);
   };
   const originalInfo = console.info;
   console.info = (message: any, ...additional: any[]): void => {
     const writeThis = JSON.stringify(restructure("info", message, additional));
-    if (process.env.JEST_WORKER_ID) originalInfo(writeThis);
     process.stdout.write(writeThis);
   };
   const originalWarn = console.warn;
   console.warn = (message: any, ...additional: any[]): void => {
     const writeThis = JSON.stringify(restructure("warn", message, additional));
-    if (process.env.JEST_WORKER_ID) originalWarn(writeThis);
     process.stdout.write(writeThis);
   };
   const originalError = console.error;
   console.error = (message: any, ...additional: any[]): void => {
     const writeThis = JSON.stringify(restructure("error", message, additional));
-    if (process.env.JEST_WORKER_ID) originalError(writeThis);
     process.stderr.write(writeThis);
   };
+  uninstall = (): void => {
+    console.log = originalLog;
+    console.debug = originalDebug;
+    console.info = originalInfo;
+    console.warn = originalWarn;
+    console.error = originalError;
+  };
 };
-install();
 
 /**
  * Direct acess to the logging methods
  */
 export default {
   install,
+  uninstall,
 };

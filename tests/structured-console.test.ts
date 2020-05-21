@@ -2,6 +2,7 @@ import stdMocks from "std-mocks";
 import sc from "../src/structured-console";
 
 describe("structured console logging", () => {
+  beforeAll(() => sc.install());
   it("exists", () => {
     expect(sc).toBeTruthy();
   });
@@ -35,4 +36,5 @@ describe("structured console logging", () => {
     stdMocks.restore();
     expect(stdMocks.flush()).toMatchSnapshot();
   });
+  afterAll(() => sc.uninstall());
 });
