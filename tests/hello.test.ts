@@ -82,7 +82,7 @@ describe("hello world configuration!", () => {
     expect("context.ts").toExist();
   });
   it("generates client library for you", async () => {
-    expect("client.ts").toExist();
+    expect("client/index.ts").toExist();
   });
   it("will run a query in context", async () => {
     const results = await rootContext.databases["default"].execute(

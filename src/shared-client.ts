@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
+import "isomorphic-fetch";
 
 /**
  * This contains base client types used as a seed for generation.
@@ -13,14 +14,3 @@
  * handlebars so avoid mustaches.
  */
 
-/**
- * In process invocation of a single SQLModule.
- */
-export const invokeInProcess = async (
-  databaseName: string,
-  sqlModuleName: string
-): Promise<object> => {
-  // find the correct SQLModule
-  // execute it
-  return {};
-};

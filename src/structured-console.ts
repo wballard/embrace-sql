@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import process from "process";
 import callsites from "callsites";
+import path from "path";
 /**
  * Modification to console so that it will generate structured data.
  *
@@ -41,9 +42,13 @@ const restructure = (
   ...additional: any[]
 ): LogMessage => {
   const call = callsites();
+  // up this call, and the log itself back to the call frame
+  // in the *actual* source file that called log.
+  const properDepth = call[2];
+  const relativePath = path.relative(process.cwd(), properDepth.getFileName());
   return {
     logLevel,
-    source: `${call[2].getFileName()}#${call[2].getLineNumber()}`,
+    source: `${relativePath}#${properDepth.getLineNumber()}`,
     message,
     additional,
   };
