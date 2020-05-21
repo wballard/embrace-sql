@@ -27,6 +27,13 @@ get:
       description: Sucess
       {{> resultset module=module}}
 {{/allSELECT}}
+post:
+  operationId: post__{{module.contextName}}
+  description: Read data
+  responses:
+    '200':
+      description: Sucess
+      {{> resultset module=module}}
 {{/inline}}
 
 {{#*inline "post"}}

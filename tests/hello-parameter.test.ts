@@ -4,6 +4,7 @@ import { loadConfiguration } from "../src/configuration";
 import { buildRootContext, RootContext } from "../src/context";
 import { createServer } from "../src/server";
 import request from "supertest";
+import rmfr from "rmfr";
 
 /**
  * Let's make sure we can use a parameter with a pbare query.
@@ -11,13 +12,10 @@ import request from "supertest";
 describe("hello world with a parameter", () => {
   let rootContext: RootContext;
   beforeAll(async () => {
-    const root = (process.env["EMBRACESQL_ROOT"] = path.join(
-      __dirname,
-      "configs/hello-parameter"
-    ));
+    const root = path.join(__dirname, "./tests/configs/hello-parameter");
     // clean up
     await fs.ensureDir(root);
-    await fs.emptyDir(root);
+    await rmfr(root);
     // set up
     await fs.ensureDir(path.join(root, "default"));
     await fs.writeFile(

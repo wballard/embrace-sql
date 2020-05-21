@@ -1,2 +1,0 @@
-databases:
-  default: sqlite:embracesql.db

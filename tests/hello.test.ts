@@ -6,6 +6,7 @@ import { buildRootContext, RootContext } from "../src/context";
 import { createServer } from "../src/server";
 import request from "supertest";
 import readFile from "read-file-utf8";
+import rmfr from "rmfr";
 
 declare global {
   namespace jest {
@@ -26,12 +27,9 @@ describe("hello world configuration!", () => {
   let theConfig: Configuration = undefined;
   let rootContext: RootContext;
   beforeAll(async () => {
-    const root = (process.env["EMBRACESQL_ROOT"] = path.relative(
-      process.cwd(),
-      "./configs/hello"
-    ));
+    const root = path.relative(process.cwd(), "./tests/configs/hello");
     // clean up
-    await fs.emptyDir(root);
+    await rmfr(root);
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration(root);
@@ -98,6 +96,14 @@ describe("hello world configuration!", () => {
         "/default/hello.sql"
       );
       expect(response.text).toMatchSnapshot();
+      // client
+      const { EmbraceSQL } = require(path.join(
+        process.cwd(),
+        rootContext.configuration.embraceSQLRoot,
+        "client"
+      ));
+      const client = EmbraceSQL("http://localhost:4567");
+      expect(await client.default.hello.sql()).toMatchSnapshot();
     } finally {
       listening.close();
     }

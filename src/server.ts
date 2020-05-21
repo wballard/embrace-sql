@@ -58,11 +58,27 @@ export const createServer = async (
       ];
     })
   );
+  // everything gets a POST
+  const postHandlers = Object.fromEntries(
+    allSQLModules.map((dbModule) => {
+      return [
+        `post__${dbModule.module.contextName}`,
+        async (openAPI, httpContext): Promise<void> => {
+          httpContext.body = await dbModule.database.execute(
+            dbModule.module,
+            openAPI.operation.parameters
+          );
+          httpContext.status = 200;
+        },
+      ];
+    })
+  );
 
   const api = new OpenAPIBackend({
     definition,
     handlers: {
       ...getHandlers,
+      ...postHandlers,
     },
   });
   api.init();
