@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/camelcase */
+
+import * as context from "./context";
+
+/* eslint-disable @typescript-eslint/camelcase */
 import "isomorphic-fetch";
 
 /**
@@ -13,3 +17,21 @@ import "isomorphic-fetch";
  * Even though this isn't really handlebars, it will be included in
  * handlebars so avoid mustaches.
  */
+
+// Generation starts here
+
+/**
+ * Create a  EmbraceSQL client.
+ */
+export const EmbraceSQL = (serverUrl: string) => {
+  const DatabaseMap = {
+    default: {
+      hello: {
+        sql: async (): Promise<context.default_helloResults> => {
+          return get("/");
+        },
+      },
+    },
+  };
+  return DatabaseMap;
+};
