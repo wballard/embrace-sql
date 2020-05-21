@@ -26,15 +26,15 @@ describe("hello world configuration!", () => {
   let theConfig: Configuration = undefined;
   let rootContext: RootContext;
   beforeAll(async () => {
-    const root = (process.env["EMBRACESQL_ROOT"] = path.join(
-      __dirname,
+    const root = (process.env["EMBRACESQL_ROOT"] = path.relative(
+      process.cwd(),
       "./configs/hello"
     ));
     // clean up
     await fs.emptyDir(root);
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
-    const configuration = await loadConfiguration();
+    const configuration = await loadConfiguration(root);
     theConfig = configuration;
     rootContext = await buildRootContext(configuration);
   });

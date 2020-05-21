@@ -1,7 +1,5 @@
 import { cosmiconfig } from "cosmiconfig";
 import Url from "url-parse";
-import process from "process";
-import path from "path";
 import { generateFromTemplates } from "./generator";
 
 /**
@@ -29,8 +27,9 @@ export type Configuration = {
  *
  * Will look in the current directory or a environment variable set root.
  */
-export const loadConfiguration = async (): Promise<Configuration> => {
-  const root = path.normalize(process.env.EMBRACESQL_ROOT || process.cwd());
+export const loadConfiguration = async (
+  root: string
+): Promise<Configuration> => {
   // run the root generation templates, gives you something to work
   // with even if you start in an empty directory so that system 'always works'
   await generateFromTemplates(

@@ -32,7 +32,7 @@ paths:
 exports[`hello world configuration! reads a config 1`] = `
 Object {
   "databases": Map {},
-  "embraceSQLRoot": "/Users/wballard/embrace-sql-core/tests/configs/hello",
+  "embraceSQLRoot": "configs/hello",
 }
 `;
 

@@ -26,7 +26,7 @@ describe("hello world with a parameter", () => {
     );
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
-    const configuration = await loadConfiguration();
+    const configuration = await loadConfiguration(root);
     rootContext = await buildRootContext(configuration);
   });
   it("will run a query in context", async () => {
