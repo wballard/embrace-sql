@@ -29,6 +29,15 @@ paths:
     post:
       operationId: post__default_hello
       description: Read data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hello_world:
+                  type: string
       responses:
         \\"200\\":
           description: Sucess

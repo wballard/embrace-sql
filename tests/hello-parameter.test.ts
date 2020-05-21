@@ -12,7 +12,10 @@ import rmfr from "rmfr";
 describe("hello world with a parameter", () => {
   let rootContext: RootContext;
   beforeAll(async () => {
-    const root = path.join(__dirname, "./tests/configs/hello-parameter");
+    const root = path.relative(
+      process.cwd(),
+      "./tests/configs/hello-parameter"
+    );
     // clean up
     await fs.ensureDir(root);
     await rmfr(root);
@@ -42,6 +45,17 @@ describe("hello world with a parameter", () => {
         "/default/hello.sql?stuff=whirled"
       );
       expect(response.text).toMatchSnapshot();
+      // client
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { EmbraceSQL } = require(path.join(
+        process.cwd(),
+        rootContext.configuration.embraceSQLRoot,
+        "client"
+      ));
+      const client = EmbraceSQL("http://localhost:45678");
+      expect(
+        await client.default.hello.sql({ stuff: "things" })
+      ).toMatchSnapshot();
     } finally {
       listening.close();
     }

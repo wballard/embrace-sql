@@ -48,10 +48,10 @@ export const createServer = async (
     allSQLModules.map((dbModule) => {
       return [
         `get__${dbModule.module.contextName}`,
-        async (openAPI, httpContext): Promise<void> => {
+        async (_openAPI, httpContext): Promise<void> => {
           httpContext.body = await dbModule.database.execute(
             dbModule.module,
-            openAPI.operation.parameters
+            httpContext.request.query
           );
           httpContext.status = 200;
         },
@@ -63,10 +63,10 @@ export const createServer = async (
     allSQLModules.map((dbModule) => {
       return [
         `post__${dbModule.module.contextName}`,
-        async (openAPI, httpContext): Promise<void> => {
+        async (_openAPI, httpContext): Promise<void> => {
           httpContext.body = await dbModule.database.execute(
             dbModule.module,
-            openAPI.operation.parameters
+            httpContext.request.body
           );
           httpContext.status = 200;
         },

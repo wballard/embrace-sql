@@ -19,7 +19,7 @@ import fetch from "isomorphic-fetch";
  * to run a query with optional parameters and come back with
  * a JSON encoded resultset.
  */
-const post = async (
+export const post = async (
   serverUrl: string,
   apiPath: string,
   parameters = {}

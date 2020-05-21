@@ -97,6 +97,7 @@ describe("hello world configuration!", () => {
       );
       expect(response.text).toMatchSnapshot();
       // client
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { EmbraceSQL } = require(path.join(
         process.cwd(),
         rootContext.configuration.embraceSQLRoot,

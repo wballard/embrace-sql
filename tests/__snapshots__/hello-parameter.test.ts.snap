@@ -1,6 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`hello world with a parameter will make a runnable server 1`] = `"[{\\"message\\":null}]"`;
+exports[`hello world with a parameter will make a runnable server 1`] = `"[{\\"message\\":\\"whirled\\"}]"`;
+
+exports[`hello world with a parameter will make a runnable server 2`] = `
+Array [
+  Object {
+    "message": "things",
+  },
+]
+`;
 
 exports[`hello world with a parameter will run a query in context 1`] = `
 Array [
