@@ -1,5 +1,5 @@
 import { RootContext, DatabaseInternal } from "../../context";
-import { SQLModule } from "../../shared-context";
+import { SQLModuleInternal } from ".";
 
 /**
  * Parse the SQL in a module, extracting the abstract syntax tree
@@ -12,16 +12,16 @@ import { SQLModule } from "../../shared-context";
 export default async (
   rootContext: RootContext,
   database: DatabaseInternal,
-  sqlModules: SQLModule
+  sqlModule: SQLModuleInternal
 ): Promise<RootContext> => {
-  const { ast, namedParameters } = database.parse(sqlModules);
+  const { ast, namedParameters } = database.parse(sqlModule);
   if (Array.isArray(ast)) {
     // we are only supporting single statements
   } else {
-    sqlModules.ast = ast;
+    sqlModule.ast = ast;
   }
   // all the parameters, string is the default and can be mutated later
-  sqlModules.namedParameters = namedParameters.map((p) => ({
+  sqlModule.namedParameters = namedParameters.map((p) => ({
     name: p,
     type: "string",
   }));

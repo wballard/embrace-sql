@@ -1,6 +1,6 @@
 import { RootContext } from "../../context";
-import { SQLModule } from "../../shared-context";
 import { generateFromTemplates } from "../../generator";
+import { SQLModuleInternal } from ".";
 
 /**
  * Every SQL file needs its handlers
@@ -10,7 +10,7 @@ import { generateFromTemplates } from "../../generator";
  */
 export default async (
   rootContext: RootContext,
-  sqlModule: SQLModule
+  sqlModule: SQLModuleInternal
 ): Promise<RootContext> => {
   // smells like SQLSpirit...
   if (sqlModule.ast) {

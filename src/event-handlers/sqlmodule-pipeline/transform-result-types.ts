@@ -1,5 +1,5 @@
 import { RootContext, DatabaseInternal } from "../../context";
-import { SQLModule } from "../../shared-context";
+import { SQLModuleInternal } from ".";
 /**
  * Run the query -- but in a transaction so the database doesn't get
  * modified. This allows an inspection of the resultset(s) to figure out
@@ -11,7 +11,7 @@ import { SQLModule } from "../../shared-context";
 export default async (
   rootContext: RootContext,
   database: DatabaseInternal,
-  sqlModule: SQLModule
+  sqlModule: SQLModuleInternal
 ): Promise<RootContext> => {
   try {
     await database.transactions.begin();

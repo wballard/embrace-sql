@@ -1,4 +1,3 @@
-import type { AST } from "node-sql-parser";
 
 /**
  * This containes context types shared between the EmbraceSQL server
@@ -94,10 +93,6 @@ export type SQLModule = {
    * changes to the SQL equal cache misses.
    */
   cacheKey: string;
-  /**
-   * Parsed SQL abstract syntax tree, one AST, only one statement is allowed.
-   */
-  ast?: AST;
   /**
    * Result set metadata, which may be an array because of semicolon batches.
    */
