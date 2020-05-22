@@ -16,7 +16,7 @@ export default async (
   if (sqlModule.ast) {
     await generateFromTemplates(
       Object.assign({}, rootContext, { module: sqlModule }),
-      "handlers/js"
+      "handlers"
     );
   }
   return rootContext;
