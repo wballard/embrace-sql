@@ -20,7 +20,15 @@ export type DatabaseContext<ParameterNames extends string> =
 // each different API endpoint gets a context type with parameters and results
 {{#eachInMap databases}}
 {{#eachInMap value.SQLModules}}
+{{#if value.namedParameters.length }}
+export type {{value.contextName}}Parameters = 
+  {{#each value.namedParameters}}
+  "{{name}}" |
+  {{/each}}
+  "";
+{{else}}
 export type {{value.contextName}}Parameters = DefaultParameters;
+{{/if}}
 {{> resultsetMetadata value}}
 export type {{value.contextName}}Context = 
   DatabaseContext<{{value.contextName}}Parameters> & { results: {{value.contextName}}Results};

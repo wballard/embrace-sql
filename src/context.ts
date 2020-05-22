@@ -3,6 +3,7 @@ import { embraceDatabases } from "./database-engines";
 import { embraceEventHandlers } from "./event-handlers";
 import { Database, SQLModule, SQLColumnMetadata } from "./shared-context";
 import { TableColumnAst } from "node-sql-parser";
+import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
 /**
  * A single instance of a database for use internally.
@@ -20,11 +21,11 @@ export type DatabaseInternal = Database & {
    * @param SQLModule - execute this module, returning results
    * @param parameters - name value has object of parameters
    */
-  execute: (SQLModule, parameters: object) => Promise<Array<object>>;
+  execute: (sqlModule: SQLModule, parameters: object) => Promise<Array<object>>;
   /**
    * Analyze the passed module and determine the resultset type(s).
    */
-  analyze: (SQLModule) => Promise<Array<SQLColumnMetadata>>;
+  analyze: (sqlModule: SQLModuleInternal) => Promise<Array<SQLColumnMetadata>>;
   /**
    * Parse out the SQL.
    */

@@ -8,6 +8,7 @@ import { DatabaseInternal } from "../context";
 import { Parser, TableColumnAst } from "node-sql-parser";
 import md5 from "md5";
 import { identifier } from "../event-handlers";
+import { SQLModuleInternal } from "../event-handlers/sqlmodule-pipeline";
 
 /**
  * Map SQLite to our neutral type strings.
@@ -75,7 +76,7 @@ export default async (
       }
     },
     analyze: async (
-      sqlModule: SQLModule
+      sqlModule: SQLModuleInternal
     ): Promise<Array<SQLColumnMetadata>> => {
       /**
        * This is a bit involved, taking each select, making a

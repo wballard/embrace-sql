@@ -1,5 +1,3 @@
-declare let fetch;
-
 /**
  * This contains base client types used as a seed for generation.
  *

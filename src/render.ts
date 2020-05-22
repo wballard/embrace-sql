@@ -5,8 +5,8 @@ import readFile from "read-file-utf8";
 import frontMatter from "front-matter";
 import handlebars from "handlebars";
 import prettier from "prettier";
-import { SQLModule } from "./shared-context";
 import fs from "fs-extra";
+import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
 /**
  * Code generation is via handlebars, so we take the config, load up all the
@@ -18,7 +18,7 @@ import fs from "fs-extra";
 /**
  * Only contains SELECT statements, so eligible for a GET on HTTP.
  */
-handlebars.registerHelper("allSELECT", (module: SQLModule, options) => {
+handlebars.registerHelper("allSELECT", (module: SQLModuleInternal, options) => {
   const render = module.ast?.type === "select";
   if (render) {
     return options.fn({ module });

@@ -1,4 +1,3 @@
-
 /**
  * This containes context types shared between the EmbraceSQL server
  * and any generated code used by clients.
@@ -259,4 +258,4 @@ export type Context<
 /**
  * Default parameter names.
  */
-export type DefaultParameters = undefined;
+export type DefaultParameters = "";
