@@ -80,7 +80,8 @@ describe("hello world configuration!", () => {
     expect("context.ts").toExist();
   });
   it("generates client library for you", async () => {
-    expect("client/index.ts").toExist();
+    expect("client/node/index.ts").toExist();
+    expect("client/browser/index.ts").toExist();
   });
   it("will run a query in context", async () => {
     const results = await rootContext.databases["default"].execute(
@@ -101,7 +102,8 @@ describe("hello world configuration!", () => {
       const { EmbraceSQL } = require(path.join(
         process.cwd(),
         rootContext.configuration.embraceSQLRoot,
-        "client"
+        "client",
+        "node"
       ));
       const client = EmbraceSQL("http://localhost:4567");
       expect(await client.default.hello.sql()).toMatchSnapshot();

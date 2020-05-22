@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/camelcase */
-import fetch from "isomorphic-fetch";
+import fetch from "node-fetch";
 
 /**
  * This contains base client types used as a seed for generation.
@@ -14,11 +13,6 @@ import fetch from "isomorphic-fetch";
  * handlebars so avoid mustaches.
  */
 
-/**
- * SELECT statments run through a GET, asking the EmbraceSQL server
- * to run a query with optional parameters and come back with
- * a JSON encoded resultset.
- */
 export const post = async (
   serverUrl: string,
   apiPath: string,
@@ -28,9 +22,6 @@ export const post = async (
   // let any exception leak out to the client
   return fetch(`${cleaned}${apiPath}`, {
     method: "POST",
-    mode: "cors",
-    cache: "no-cache",
-    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
     },

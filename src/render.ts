@@ -6,6 +6,7 @@ import frontMatter from "front-matter";
 import handlebars from "handlebars";
 import prettier from "prettier";
 import { SQLModule } from "./shared-context";
+import fs from "fs-extra";
 
 /**
  * Code generation is via handlebars, so we take the config, load up all the
@@ -123,19 +124,34 @@ export const renderTemplates = async (
   rootContext: RootContext,
   templatesInDirectory: string
 ): Promise<Array<ToFile>> => {
-  // set up our partials
-  handlebars.registerPartial(
+  // set up our partials that are shared code-as-template constant
+  const waitForCodePartials = [
     "shared-context.ts",
-    handlebars.compile(
-      await readFile(path.join(__dirname, "./shared-context.ts"))
-    )
+    "shared-browser-client.ts",
+    "shared-node-client.ts",
+  ].map(
+    async (fileName): Promise<void> => {
+      const fileContent = await readFile(path.join(__dirname, fileName));
+      handlebars.registerPartial(fileName, handlebars.compile(fileContent));
+    }
   );
-  handlebars.registerPartial(
-    "shared-client.ts",
-    handlebars.compile(
-      await readFile(path.join(__dirname, "./shared-client.ts"))
-    )
+  await Promise.all(waitForCodePartials);
+  // set up our regular template partials
+  const partialNames = await fs.readdir(
+    path.join(__dirname, "templates", "partials")
   );
+  const waitForPartials = partialNames.map(
+    async (fileName): Promise<void> => {
+      const fileContent = await readFile(
+        path.join(__dirname, "templates", "partials", fileName)
+      );
+      handlebars.registerPartial(
+        `partials/${fileName}`,
+        handlebars.compile(fileContent)
+      );
+    }
+  );
+  await Promise.all(waitForPartials);
   return (
     walk({ path: templatesInDirectory })
       .then((fileNames) =>
