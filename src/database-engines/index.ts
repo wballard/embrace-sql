@@ -1,4 +1,3 @@
-import Url from "url-parse";
 import embraceSQLite from "./sqlite";
 import { RootContext } from "../context";
 import { DatabaseInternal } from "../context";
@@ -11,11 +10,12 @@ import { DatabaseInternal } from "../context";
  */
 const embraceSingleDatabase = async (
   rootContext: RootContext,
-  db: Url
+  databaseName: string
 ): Promise<DatabaseInternal> => {
-  switch (db.protocol.split(":")[0].toLowerCase()) {
+  const dbUrl = rootContext.configuration?.databases[databaseName];
+  switch (dbUrl.protocol.split(":")[0].toLowerCase()) {
     case "sqlite":
-      return embraceSQLite(rootContext.configuration, db);
+      return embraceSQLite(rootContext, databaseName);
     default:
       return undefined;
   }
@@ -34,7 +34,7 @@ export const embraceDatabases = async (
     async (databaseName) =>
       (rootContext.databases[databaseName] = await embraceSingleDatabase(
         rootContext,
-        rootContext.configuration.databases[databaseName]
+        databaseName
       ))
   );
   return databases;

@@ -1,5 +1,3 @@
-import Url from "url-parse";
-import { Configuration } from "../configuration";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import path from "path";
@@ -9,6 +7,7 @@ import { Parser, TableColumnAst } from "node-sql-parser";
 import md5 from "md5";
 import { identifier } from "../event-handlers";
 import { SQLModuleInternal } from "../event-handlers/sqlmodule-pipeline";
+import { RootContext } from "../context";
 
 /**
  * Map SQLite to our neutral type strings.
@@ -28,12 +27,15 @@ const typeMap = (fromSQLite: string): SQLType => {
  * can actually be a network file - so everything can go wrong...
  */
 export default async (
-  configuration: Configuration,
-  db: Url
+  rootContext: RootContext,
+  databaseName: string
 ): Promise<DatabaseInternal> => {
-  const filename = path.isAbsolute(db.pathname)
-    ? db.pathname
-    : path.normalize(path.join(configuration.embraceSQLRoot, db.pathname));
+  const dbUrl = rootContext.configuration?.databases[databaseName];
+  const filename = path.isAbsolute(dbUrl.pathname)
+    ? dbUrl.pathname
+    : path.normalize(
+        path.join(rootContext.configuration.embraceSQLRoot, dbUrl.pathname)
+      );
   // SQLite -- open is connection
   const database = await open({
     filename,
@@ -52,6 +54,7 @@ export default async (
   };
   // TODO -- do we need SAVEPOINT / nesting?
   return {
+    name: databaseName,
     transactions,
     SQLModules: new Map<string, SQLModule>(),
     parse: (sqlModule: SQLModule): TableColumnAst => {

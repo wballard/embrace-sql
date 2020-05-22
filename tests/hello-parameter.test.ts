@@ -5,6 +5,7 @@ import { buildRootContext, RootContext } from "../src/context";
 import { createServer } from "../src/server";
 import request from "supertest";
 import rmfr from "rmfr";
+import { createInProcess } from "../src/inprocess";
 
 /**
  * Let's make sure we can use a parameter with a pbare query.
@@ -60,5 +61,16 @@ describe("hello world with a parameter", () => {
     } finally {
       listening.close();
     }
+  });
+  it("will make an embeddable engine", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { EmbraceSQL } = require(path.join(
+      process.cwd(),
+      rootContext.configuration.embraceSQLRoot,
+      "client",
+      "node-inprocess"
+    ));
+    const client = EmbraceSQL(createInProcess(rootContext));
+    expect(await client.default.hello.sql({ stuff: "hole" })).toMatchSnapshot();
   });
 });

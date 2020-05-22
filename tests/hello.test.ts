@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import { loadConfiguration, Configuration } from "../src/configuration";
 import { buildRootContext, RootContext } from "../src/context";
 import { createServer } from "../src/server";
+import { createInProcess } from "../src/inprocess";
 import request from "supertest";
 import readFile from "read-file-utf8";
 import rmfr from "rmfr";
@@ -110,5 +111,16 @@ describe("hello world configuration!", () => {
     } finally {
       listening.close();
     }
+  });
+  it("will make an embeddable engine", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { EmbraceSQL } = require(path.join(
+      process.cwd(),
+      rootContext.configuration.embraceSQLRoot,
+      "client",
+      "node-inprocess"
+    ));
+    const client = EmbraceSQL(createInProcess(rootContext));
+    expect(await client.default.hello.sql()).toMatchSnapshot();
   });
 });

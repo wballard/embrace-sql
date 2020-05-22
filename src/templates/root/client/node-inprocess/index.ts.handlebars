@@ -1,14 +1,21 @@
+---
+to: "{{configuration.embraceSQLRoot}}/client/node-inprocess/index.ts"
+---
+/* eslint-disable @typescript-eslint/camelcase */
+
+import * as context from "../../context";
+
 /**
 * Create an EmbraceSQL client bound to a specific URL.
 */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const EmbraceSQL = (serverUrl: string) => {
+export const EmbraceSQL = (executor: Map<string, context.Executor>) => {
   const DatabaseMap = {
   {{#eachInMap databases}}
     {{@key}}: {
     {{#treeAMap value.SQLModules database=value}}
       {{#each value}}
-      {{> moduleTree this database=@database}}
+      {{> moduleTree this database=@database }}
       {{/each}}
     {{/treeAMap}}
     },
@@ -22,11 +29,15 @@ export const EmbraceSQL = (serverUrl: string) => {
   {{#if value}}
   {{#if value.namedParameters.length}}
   sql: async (parameters: context.{{value.contextName}}Parameters) : Promise<context.{{value.contextName}}Results> => {
-    return post(serverUrl, "/{{value.relativePath}}", parameters) as unknown as context.{{value.contextName}}Results;
+    const e = executor.get("{{value.contextName}}");
+    const results = e ? await e(parameters) : [];
+    return results as unknown as context.{{value.contextName}}Results;
   }
   {{else}}
   sql: async () : Promise<context.{{value.contextName}}Results> => {
-    return post(serverUrl, "/{{value.relativePath}}", {}) as unknown as context.{{value.contextName}}Results;
+    const e = executor.get("{{value.contextName}}");
+    const results = e ? await e({}) : [];
+    return results as unknown as context.{{value.contextName}}Results;
   }
   {{/if}}
   {{/if}}
