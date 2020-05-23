@@ -124,7 +124,10 @@ export const renderTemplates = async (
   rootContext: RootContext,
   templatesInDirectory: string
 ): Promise<Array<ToFile>> => {
-  // set up our partials that are shared code-as-template constant
+  // set up our partials that are actual code -- not really even handlebars
+  // this is a bit of a trick to allow creating as much code for the templating
+  // as possible as just plain code with syntax highlighting and autocomplete
+  // generated code takes these as a starting point and adds on generated types
   const waitForCodePartials = [
     "shared-context.ts",
     "shared-browser-client.ts",
@@ -136,11 +139,12 @@ export const renderTemplates = async (
     }
   );
   await Promise.all(waitForCodePartials);
-  // set up our regular template partials
-  const partialNames = await fs.readdir(
-    path.join(__dirname, "templates", "partials")
-  );
-  const waitForPartials = partialNames.map(
+  // ok -- these are actual good old fashioned partials -- put shared templates
+  // you need in `templates/partials` and they will be registered by name for you
+  // as "partials/<filename>"
+  const waitForPartials = (
+    await fs.readdir(path.join(__dirname, "templates", "partials"))
+  ).map(
     async (fileName): Promise<void> => {
       const fileContent = await readFile(
         path.join(__dirname, "templates", "partials", fileName)

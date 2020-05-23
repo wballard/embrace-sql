@@ -13,6 +13,12 @@ import fetch from "node-fetch";
  * handlebars so avoid mustaches.
  */
 
+/**
+ * The generated client libraries only use POST. Only once code path needed
+ * this way!
+ *
+ * You are free to GET from the OpenAPI directly.
+ */
 export const post = async (
   serverUrl: string,
   apiPath: string,

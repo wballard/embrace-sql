@@ -6,10 +6,18 @@ to: "{{configuration.embraceSQLRoot}}/client/node-inprocess/index.ts"
 import * as context from "../../context";
 
 /**
-* Create an EmbraceSQL client bound to a specific URL.
+* Create an EmbraceSQL cient for use embedded. This takes an execution map, 
+* which directly executes a SQLModule, by name, with a function, not an HTTP POST.
+* 
+* This function can be any thing that takes SQL Parameters -- name value pairs in 
+* an object, and returns a result set -- an array of objects that are name value pairs
+* that are the resulting rows.
+*
+* To use this client, you need to create and pass in an execution map, which provides
+* a way to execute a SQLModule by its unique `contextName`.
 */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const EmbraceSQL = (executor: Map<string, context.Executor>) => {
+export const EmbraceSQL = (executionMap: Map<string, context.Executor>) => {
   const DatabaseMap = {
   {{#eachInMap databases}}
     {{@key}}: {
@@ -29,13 +37,13 @@ export const EmbraceSQL = (executor: Map<string, context.Executor>) => {
   {{#if value}}
   {{#if value.namedParameters.length}}
   sql: async (parameters: context.{{value.contextName}}Parameters) : Promise<context.{{value.contextName}}Results> => {
-    const e = executor.get("{{value.contextName}}");
+    const e = executionMap.get("{{value.contextName}}");
     const results = e ? await e(parameters) : [];
     return results as unknown as context.{{value.contextName}}Results;
   }
   {{else}}
   sql: async () : Promise<context.{{value.contextName}}Results> => {
-    const e = executor.get("{{value.contextName}}");
+    const e = executionMap.get("{{value.contextName}}");
     const results = e ? await e({}) : [];
     return results as unknown as context.{{value.contextName}}Results;
   }

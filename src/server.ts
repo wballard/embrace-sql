@@ -28,29 +28,29 @@ export const createServer = async (
     )
   );
 
-  // no real need for code generation here, each SQLModule has an operation name
-  // and the module itself
+  // collect every database and module
   type DatabaseModule = {
     database: DatabaseInternal;
-    module: SQLModule;
+    sqlModule: SQLModule;
   };
   const allSQLModules = Object.values(rootContext.databases).flatMap(
     (database) =>
-      Object.values(database.SQLModules).flatMap((module) => ({
+      Object.values(database.SQLModules).flatMap((sqlModule) => ({
         database,
-        module,
+        sqlModule,
       }))
   ) as Array<DatabaseModule>;
 
   // go ahead and make a handler for both GET and POST
-  // even though GET will often not be supported int the OpenAPI
+  // some of these GET handlers may not be connected at the OpenAPI layer
+  // but a few extra functions isn't going to hurt anything
   const getHandlers = Object.fromEntries(
     allSQLModules.map((dbModule) => {
       return [
-        `get__${dbModule.module.contextName}`,
+        `get__${dbModule.sqlModule.contextName}`,
         async (_openAPI, httpContext): Promise<void> => {
           httpContext.body = await dbModule.database.execute(
-            dbModule.module,
+            dbModule.sqlModule,
             httpContext.request.query
           );
           httpContext.status = 200;
@@ -62,10 +62,10 @@ export const createServer = async (
   const postHandlers = Object.fromEntries(
     allSQLModules.map((dbModule) => {
       return [
-        `post__${dbModule.module.contextName}`,
+        `post__${dbModule.sqlModule.contextName}`,
         async (_openAPI, httpContext): Promise<void> => {
           httpContext.body = await dbModule.database.execute(
-            dbModule.module,
+            dbModule.sqlModule,
             httpContext.request.body
           );
           httpContext.status = 200;

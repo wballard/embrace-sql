@@ -3,35 +3,34 @@ import { Executor, SQLModule } from "./shared-context";
 import { DatabaseInternal } from "./context";
 
 /**
- * Create an in process execution engine. This will map 'client' generated types, which are
- * well defined types through to internal databases and SQLModules which have looser dynamic typing.
- *
- * Put well defnined types on in the generated client layer.
+ * In addition to using EmbraceSQL over HTTP clients, you can embed it into a node process
+ * and go right at your databases directly from a node process, this removes the need
+ * for the EmbraceSQL server, and is handy for React Native local SQLite.
  */
 export const createInProcess = (
   rootContext: RootContext
 ): Map<string, Executor> => {
-  // no real need for code generation here, each SQLModule has an operation name
-  // and the module itself
   type DatabaseModule = {
     database: DatabaseInternal;
-    module: SQLModule;
+    sqlModule: SQLModule;
   };
+  // collect every sql module in every database
   const allSQLModules = Object.values(rootContext.databases).flatMap(
     (database) =>
-      Object.values(database.SQLModules).flatMap((module) => ({
+      Object.values(database.SQLModules).flatMap((sqlModule) => ({
         database,
-        module,
+        sqlModule,
       }))
   ) as Array<DatabaseModule>;
 
+  // process any given sqql module by asking it's owning database to execute it
+  // each module has a `contextName` which is a nice key to use in this module Map
   const handlers = new Map<string, Executor>();
-
   allSQLModules.forEach((dbModule) => {
     handlers.set(
-      dbModule.module.contextName,
+      dbModule.sqlModule.contextName,
       async (parameters: object): Promise<object[]> =>
-        dbModule.database.execute(dbModule.module, parameters)
+        dbModule.database.execute(dbModule.sqlModule, parameters)
     );
   });
   return handlers;

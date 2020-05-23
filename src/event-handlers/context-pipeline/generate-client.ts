@@ -5,11 +5,13 @@ import process from "process";
 import fs from "fs-extra";
 
 /**
- * Post processing compilation for clients to bundle these into stand alone,
- * zero dependency modules with typescript type definition support.
+ * Create totally stand alone client files. These bundle in all the
+ * dependencies so you can use a single js file with optional typescript
+ * typings from node or from the browser.
  *
- * The intention here is to make these modules easier to use by not having
- * to fuss with peer dependencies.
+ * This should make the client super easy to include in a project without
+ * needing to know or document which additional modules might be needed
+ * as a dependency in your consuming application.
  *
  * @rootContext - as usual, our root context
  */
@@ -22,7 +24,6 @@ export default async (rootContext: RootContext): Promise<RootContext> => {
   );
   //all the client libraries in this array
   const clientLibrarySources = [
-    path.join(root, "context.ts"),
     path.join(root, "client/node/index.ts"),
     path.join(root, "client/browser/index.ts"),
   ];
@@ -46,8 +47,10 @@ export default async (rootContext: RootContext): Promise<RootContext> => {
           quiet: true, // default
           debugLog: false, // default
         });
-        // js instead of the ts source
+        // js replaces the ts, but type definitions remain
+        await fs.unlink(sourceFile);
         await fs.outputFile(sourceFile.replace(/\.ts$/, ".js"), code);
+        // type definitions are found in the assets
         const waitForAssets = Object.keys(assets).map((assetFileName) => {
           const assetContent = (assets[assetFileName]
             .source as Buffer).toString("utf-8");
