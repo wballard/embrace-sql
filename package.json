@@ -8,6 +8,7 @@
     "start": "",
     "test": "jest",
     "pretty": "prettier --write './src/**/*.ts'",
+    "cli": "ts-node-script src/cli",
     "lint": "eslint ./src/**/*.ts"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "@zeit/ncc": "^0.22.2",
     "caller-callsite": "^4.1.0",
     "callsites": "^3.1.0",
+    "commander": "^5.1.0",
     "cosmiconfig": "^6.0.0",
     "debug": "^4.1.1",
     "eslint": "^7.0.0",
@@ -55,6 +57,7 @@
     "std-mocks": "^1.0.1",
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0",
+    "ts-node": "^8.10.1",
     "typescript": "^3.8.3",
     "url-parse": "^1.4.7",
     "yaml": "^1.10.0"

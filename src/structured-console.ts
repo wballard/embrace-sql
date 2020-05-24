@@ -20,16 +20,6 @@ import path from "path";
 type LogLevel = "debug" | "info" | "error" | "warn" | "debug";
 
 /**
- * And a structured log message.
- */
-type LogMessage = {
-  logLevel: LogLevel;
-  source: string;
-  message: any;
-  additional: any[];
-};
-
-/**
  * Turn those arguments into an object.
  *
  * @param logLevel - enumerated string level value
@@ -40,18 +30,24 @@ const restructure = (
   logLevel: LogLevel,
   message: any,
   ...additional: any[]
-): LogMessage => {
+): string => {
   const call = callsites();
   // up this call, and the log itself back to the call frame
   // in the *actual* source file that called log.
   const properDepth = call[2];
   const relativePath = path.relative(process.cwd(), properDepth.getFileName());
-  return {
+  // it is possible that the message is circular and cannot be sent to JSON
+  try {
+    JSON.stringify(message);
+  } catch {
+    message = message.toString();
+  }
+  return JSON.stringify({
     logLevel,
     source: `${relativePath}#${properDepth.getLineNumber()}`,
     message,
     additional,
-  };
+  });
 };
 
 /**
@@ -66,28 +62,33 @@ let uninstall = (): void => {};
 const install = (): void => {
   const originalLog = console.log;
   console.log = (message: any, ...additional: any[]): void => {
-    const writeThis = JSON.stringify(restructure("info", message, additional));
+    const writeThis = restructure("info", message, additional);
     process.stdout.write(writeThis);
+    process.stdout.write("\n");
   };
   const originalDebug = console.debug;
   console.debug = (message: any, ...additional: any[]): void => {
-    const writeThis = JSON.stringify(restructure("debug", message, additional));
+    const writeThis = restructure("debug", message, additional);
     process.stdout.write(writeThis);
+    process.stdout.write("\n");
   };
   const originalInfo = console.info;
   console.info = (message: any, ...additional: any[]): void => {
-    const writeThis = JSON.stringify(restructure("info", message, additional));
+    const writeThis = restructure("info", message, additional);
     process.stdout.write(writeThis);
+    process.stdout.write("\n");
   };
   const originalWarn = console.warn;
   console.warn = (message: any, ...additional: any[]): void => {
-    const writeThis = JSON.stringify(restructure("warn", message, additional));
+    const writeThis = restructure("warn", message, additional);
     process.stdout.write(writeThis);
+    process.stdout.write("\n");
   };
   const originalError = console.error;
   console.error = (message: any, ...additional: any[]): void => {
-    const writeThis = JSON.stringify(restructure("error", message, additional));
+    const writeThis = restructure("error", message, additional);
     process.stderr.write(writeThis);
+    process.stderr.write("\n");
   };
   uninstall = (): void => {
     console.log = originalLog;
@@ -101,7 +102,4 @@ const install = (): void => {
 /**
  * Direct acess to the logging methods
  */
-export default {
-  install,
-  uninstall,
-};
+export { install, uninstall };

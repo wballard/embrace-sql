@@ -4,7 +4,9 @@ exports[`structured console logging captures debug 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"debug\\",\\"source\\":\\"tests/structured-console.test.ts#21\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"debug\\",\\"source\\":\\"tests/structured-console.test.ts#18\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "
+",
   ],
 }
 `;
@@ -12,7 +14,9 @@ Object {
 exports[`structured console logging captures error 1`] = `
 Object {
   "stderr": Array [
-    "{\\"logLevel\\":\\"error\\",\\"source\\":\\"tests/structured-console.test.ts#39\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"error\\",\\"source\\":\\"tests/structured-console.test.ts#36\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "
+",
   ],
   "stdout": Array [],
 }
@@ -22,7 +26,9 @@ exports[`structured console logging captures info 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#27\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#24\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "
+",
   ],
 }
 `;
@@ -31,7 +37,9 @@ exports[`structured console logging captures log 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#15\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#12\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "
+",
   ],
 }
 `;
@@ -40,7 +48,9 @@ exports[`structured console logging captures warn 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"warn\\",\\"source\\":\\"tests/structured-console.test.ts#33\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"warn\\",\\"source\\":\\"tests/structured-console.test.ts#30\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "
+",
   ],
 }
 `;

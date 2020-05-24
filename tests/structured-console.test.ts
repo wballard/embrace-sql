@@ -1,11 +1,8 @@
 import stdMocks from "std-mocks";
-import sc from "../src/structured-console";
+import { install, uninstall } from "../src/structured-console";
 
 describe("structured console logging", () => {
-  beforeAll(() => sc.install());
-  it("exists", () => {
-    expect(sc).toBeTruthy();
-  });
+  beforeAll(() => install());
   it("captures log", async () => {
     stdMocks.use();
     console.log("Hello World");
@@ -36,5 +33,5 @@ describe("structured console logging", () => {
     stdMocks.restore();
     expect(stdMocks.flush()).toMatchSnapshot();
   });
-  afterAll(() => sc.uninstall());
+  afterAll(() => uninstall());
 });
