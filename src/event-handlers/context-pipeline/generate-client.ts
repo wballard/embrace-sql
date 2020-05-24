@@ -1,7 +1,6 @@
 import { RootContext } from "../../context";
 import ncc from "@zeit/ncc";
 import path from "path";
-import process from "process";
 import fs from "fs-extra";
 
 /**
@@ -18,14 +17,12 @@ import fs from "fs-extra";
 export default async (rootContext: RootContext): Promise<RootContext> => {
   // fully qualified path here -- ncc is relative to itself unless you give
   // it a fully qualified path
-  const root = path.join(
-    process.cwd(),
-    rootContext.configuration.embraceSQLRoot
-  );
+  const root = path.resolve(rootContext.configuration.embraceSQLRoot);
   //all the client libraries in this array
   const clientLibrarySources = [
-    path.join(root, "client/node/index.ts"),
-    path.join(root, "client/browser/index.ts"),
+    path.resolve(path.join(root, "client/node/index.ts")),
+    path.resolve(path.join(root, "client/node-inprocess/index.ts")),
+    path.resolve(path.join(root, "client/browser/index.ts")),
   ];
   const waitForAll = clientLibrarySources.map(
     async (sourceFile): Promise<void> => {
@@ -39,7 +36,7 @@ export default async (rootContext: RootContext): Promise<RootContext> => {
           // directory outside of which never to emit assets
           filterAssetBase: root,
           minify: false, // default
-          sourceMap: false, // default
+          sourceMap: false,
           sourceMapBasePrefix: root, // default treats sources as output-relative
           sourceMapRegister: true, // default
           watch: false, // default
@@ -59,6 +56,7 @@ export default async (rootContext: RootContext): Promise<RootContext> => {
         await Promise.all(waitForAssets);
       } catch (e) {
         console.error(e);
+      } finally {
       }
     }
   );
