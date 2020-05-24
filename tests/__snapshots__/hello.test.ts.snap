@@ -10,7 +10,7 @@ info:
   version: --
 
 paths:
-  /default/hello.sql:
+  /default/hello:
     get:
       operationId: get__default_hello
       description: Read data

@@ -12,4 +12,7 @@ export const init = new Command()
     const root = path.resolve(EMBRACEQL_ROOT || process.cwd());
     const configuration = await loadConfiguration(root);
     await buildRootContext(configuration);
+    console.info("Initialization complete", {
+      EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,
+    });
   });

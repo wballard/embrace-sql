@@ -78,7 +78,7 @@ export type SQLModule = {
   /**
    * Relative path useful for REST.
    */
-  relativePath: string;
+  restPath: string;
   /**
    * Fully qualified file name on disk.
    */

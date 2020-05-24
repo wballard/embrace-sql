@@ -16,10 +16,14 @@ export const start = new Command()
       const root = path.resolve(
         EMBRACEQL_ROOT || process.env.EMBRACEQL_ROOT || process.cwd()
       );
-      const port = parseInt(PORT || process.env.PORT || "4567");
+      const port = parseInt(PORT || process.env.PORT || "8765");
       const configuration = await loadConfiguration(root);
       const rootContext = await buildRootContext(configuration);
       const server = await createServer(rootContext);
       server.listen(port);
+      console.info("Listening", {
+        EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,
+        PORT: port,
+      });
     }
   );

@@ -62,12 +62,12 @@ export const embraceEventHandlers = async (
       rootContext.configuration.embraceSQLRoot,
       SQLFileName
     );
-    const relativePath = SQLFileName;
+    const restPath = SQLFileName.replace(/\.sql$/, "");
     // get all the 'read' IO done
     const sql = await readFile(fullPath);
     // data about each SQL module
     const sqlModule = {
-      relativePath,
+      restPath,
       fullPath,
       sql,
       cacheKey: md5(sql),

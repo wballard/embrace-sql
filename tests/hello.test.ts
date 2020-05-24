@@ -95,7 +95,7 @@ describe("hello world configuration!", () => {
     const listening = server.listen(4567);
     try {
       const response = await request(server.callback()).get(
-        "/default/hello.sql"
+        "/default/hello"
       );
       expect(response.text).toMatchSnapshot();
       // client

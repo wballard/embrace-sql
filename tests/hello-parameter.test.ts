@@ -43,7 +43,7 @@ describe("hello world with a parameter", () => {
     const listening = server.listen(45678);
     try {
       const response = await request(server.callback()).get(
-        "/default/hello.sql?stuff=whirled"
+        "/default/hello?stuff=whirled"
       );
       expect(response.text).toMatchSnapshot();
       // client
