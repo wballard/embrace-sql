@@ -4,6 +4,8 @@ import { loadConfiguration } from "../src/configuration";
 import { buildRootContext, RootContext } from "../src/context";
 import { createServer } from "../src/server";
 import request from "supertest";
+import rmfr from "rmfr";
+import { createInProcess } from "../src/inprocess";
 
 /**
  * Let's make sure we can use a parameter with a pbare query.
@@ -11,13 +13,13 @@ import request from "supertest";
 describe("hello world with a parameter", () => {
   let rootContext: RootContext;
   beforeAll(async () => {
-    const root = (process.env["EMBRACESQL_ROOT"] = path.join(
-      __dirname,
-      "configs/hello-parameter"
-    ));
+    const root = path.relative(
+      process.cwd(),
+      "./tests/configs/hello-parameter"
+    );
     // clean up
     await fs.ensureDir(root);
-    await fs.emptyDir(root);
+    await rmfr(root);
     // set up
     await fs.ensureDir(path.join(root, "default"));
     await fs.writeFile(
@@ -44,8 +46,31 @@ describe("hello world with a parameter", () => {
         "/default/hello.sql?stuff=whirled"
       );
       expect(response.text).toMatchSnapshot();
+      // client
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { EmbraceSQL } = require(path.join(
+        process.cwd(),
+        rootContext.configuration.embraceSQLRoot,
+        "client",
+        "node"
+      ));
+      const client = EmbraceSQL("http://localhost:45678");
+      expect(
+        await client.default.hello.sql({ stuff: "things" })
+      ).toMatchSnapshot();
     } finally {
       listening.close();
     }
+  });
+  it("will make an embeddable engine", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { EmbraceSQL } = require(path.join(
+      process.cwd(),
+      rootContext.configuration.embraceSQLRoot,
+      "client",
+      "node-inprocess"
+    ));
+    const client = EmbraceSQL(createInProcess(rootContext));
+    expect(await client.default.hello.sql({ stuff: "hole" })).toMatchSnapshot();
   });
 });

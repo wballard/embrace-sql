@@ -1,5 +1,3 @@
-import type { AST } from "node-sql-parser";
-
 /**
  * This containes context types shared between the EmbraceSQL server
  * and any generated code used by clients.
@@ -95,10 +93,6 @@ export type SQLModule = {
    */
   cacheKey: string;
   /**
-   * Parsed SQL abstract syntax tree, one AST, only one statement is allowed.
-   */
-  ast?: AST;
-  /**
    * Result set metadata, which may be an array because of semicolon batches.
    */
   resultsetMetadata?: Array<SQLColumnMetadata>;
@@ -139,6 +133,11 @@ export type DatabaseTransactions = {
  */
 export type Database = {
   /**
+   * Every database has a name derived from the config file. This
+   * is used as its map key.
+   */
+  name: string;
+  /**
    * Access transaction control of the database here.
    */
   transactions: DatabaseTransactions;
@@ -163,16 +162,6 @@ export type ParameterValue = {
    */
   toString: () => string;
 };
-/**
- * Parameters as passed to the SQLModule. This can be extended
- * or modified at runtime in handlers.
- *
- * These parameters can be passed by name, so a parameter called `pig` will
- * be used in SQL as `:pig`
- */
-type ContextParameters<ParameterNames extends string> = {
-  [ParameterName in ParameterNames]: ParameterValue | null;
-};
 
 /**
  * This context is the 'one true parameter' passed to every Embrace SQL
@@ -189,10 +178,7 @@ type ContextParameters<ParameterNames extends string> = {
  *
  * @typeParam DatabaseNames - a string literal type union with each of your database names
  */
-export type Context<
-  DatabaseNames extends string,
-  ParameterNames extends string
-> = {
+export type Context<DatabaseNames extends string> = {
   /**
    * Set the current state of security to allow SQL execution against the database.
    *
@@ -253,15 +239,15 @@ export type Context<
    * All available databases.
    */
   databases: Databases<DatabaseNames>;
-
-  /**
-   * Parameters as passed to the SQL. This can be extended
-   * or modified at runtime in handlers.
-   */
-  parameters: ContextParameters<ParameterNames>;
 };
 
 /**
- * Default parameter names.
+ * Generic executor, parameters to resultset via a sql module.
+ *
+ * This is used to bridge the gap between generated in process clients, which will
+ * have well defined parameter and result types, to the internal engine which is looser.
+ *
+ * In process clients execute via a function call, where out of process clients get this
+ * genericicity from JSON serialization over HTTP.
  */
-export type DefaultParameters = undefined;
+export type Executor = (parameters: object) => Promise<object[]>;

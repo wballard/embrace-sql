@@ -4,8 +4,10 @@ import fs from "fs-extra";
 import { loadConfiguration, Configuration } from "../src/configuration";
 import { buildRootContext, RootContext } from "../src/context";
 import { createServer } from "../src/server";
+import { createInProcess } from "../src/inprocess";
 import request from "supertest";
 import readFile from "read-file-utf8";
+import rmfr from "rmfr";
 
 declare global {
   namespace jest {
@@ -26,12 +28,9 @@ describe("hello world configuration!", () => {
   let theConfig: Configuration = undefined;
   let rootContext: RootContext;
   beforeAll(async () => {
-    const root = (process.env["EMBRACESQL_ROOT"] = path.relative(
-      process.cwd(),
-      "./configs/hello"
-    ));
+    const root = path.relative(process.cwd(), "./tests/configs/hello");
     // clean up
-    await fs.emptyDir(root);
+    await rmfr(root);
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration(root);
@@ -60,11 +59,11 @@ describe("hello world configuration!", () => {
     expect("default/hello.sql").toExist();
   });
   it("makes empty handlers for you", async () => {
-    expect("default/hello.sql.beforeBatch.js").toExist();
-    expect("default/hello.sql.before.js").toExist();
-    expect("default/hello.sql.after.js").toExist();
-    expect("default/hello.sql.afterBatch.js").toExist();
-    expect("default/hello.sql.afterError.js").toExist();
+    expect("default/hello.sql.beforeBatch.ts").toExist();
+    expect("default/hello.sql.before.ts").toExist();
+    expect("default/hello.sql.after.ts").toExist();
+    expect("default/hello.sql.afterBatch.ts").toExist();
+    expect("default/hello.sql.afterError.ts").toExist();
   });
   it("exposes methods to run hello sql", async () => {
     expect(
@@ -82,7 +81,8 @@ describe("hello world configuration!", () => {
     expect("context.ts").toExist();
   });
   it("generates client library for you", async () => {
-    expect("client/index.ts").toExist();
+    expect("client/node/index.js").toExist();
+    expect("client/browser/index.js").toExist();
   });
   it("will run a query in context", async () => {
     const results = await rootContext.databases["default"].execute(
@@ -98,8 +98,29 @@ describe("hello world configuration!", () => {
         "/default/hello.sql"
       );
       expect(response.text).toMatchSnapshot();
+      // client
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { EmbraceSQL } = require(path.join(
+        process.cwd(),
+        rootContext.configuration.embraceSQLRoot,
+        "client",
+        "node"
+      ));
+      const client = EmbraceSQL("http://localhost:4567");
+      expect(await client.default.hello.sql()).toMatchSnapshot();
     } finally {
       listening.close();
     }
+  });
+  it("will make an embeddable engine", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { EmbraceSQL } = require(path.join(
+      process.cwd(),
+      rootContext.configuration.embraceSQLRoot,
+      "client",
+      "node-inprocess"
+    ));
+    const client = EmbraceSQL(createInProcess(rootContext));
+    expect(await client.default.hello.sql()).toMatchSnapshot();
   });
 });

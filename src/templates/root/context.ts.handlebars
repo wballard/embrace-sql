@@ -8,22 +8,27 @@ to: "{{configuration.embraceSQLRoot}}/context.ts"
 // Generation starts here
 
 // All named databases
-export type AvailableDatabases = 
+export type AvailableDatabaseNames = 
   {{#eachInMap databases}}
   "{{@key}}" {{#if @last}};{{else}}|{{/if}}
   {{/eachInMap}}
-
-// Partial context binds databases, leaves open parameters
-export type DatabaseContext<ParameterNames extends string> = 
-  Context<AvailableDatabases, ParameterNames>;
+export type AvailableDatabases = Databases<AvailableDatabaseNames>;
 
 // each different API endpoint gets a context type with parameters and results
 {{#eachInMap databases}}
 {{#eachInMap value.SQLModules}}
-export type {{value.contextName}}Parameters = DefaultParameters;
 {{> resultsetMetadata value}}
+{{#if value.namedParameters.length }}
+{{> parametersMetadata value}}
 export type {{value.contextName}}Context = 
-  DatabaseContext<{{value.contextName}}Parameters> & { results: {{value.contextName}}Results};
+  Context<AvailableDatabaseNames> & { 
+    results: {{value.contextName}}Results, 
+    parameters: {{value.contextName}}Parameters
+  };
+{{else}}
+export type {{value.contextName}}Context = 
+  Context<AvailableDatabaseNames> & { results: {{value.contextName}}Results};
+{{/if}}
 {{/eachInMap}}
 {{/eachInMap}}
 
@@ -35,5 +40,15 @@ export type {{contextName}}Results = Array<
     {{name}}: {{type}}
   {{/each}}
 }
->
+>;
+{{/inline}}
+
+{{#*inline "parametersMetadata"}}
+export type {{contextName}}Parameters = 
+{
+  {{#each namedParameters}}
+    {{name}}: {{type}}
+  {{/each}}
+};
+
 {{/inline}}

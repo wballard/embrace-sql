@@ -4,6 +4,17 @@ import parseSQL from "./parse-sql";
 import transformResultTypes from "./transform-result-types";
 import transformParameterTypes from "./transform-parameter-types";
 import generateDefaultHandlers from "./generate-default-handlers";
+import type { AST } from "node-sql-parser";
+
+/**
+ * Inside the EmbraceSQL exgine extension to the SQLModule type.
+ */
+export type SQLModuleInternal = SQLModule & {
+  /**
+   * Parsed SQL abstract syntax tree, one AST, only one statement is allowed.
+   */
+  ast?: AST;
+};
 
 /**
  * Each SQLModule runs through a transformation pipeline. This differs slightly
@@ -15,10 +26,11 @@ export default async (
   database: DatabaseInternal,
   sqlModule: SQLModule
 ): Promise<RootContext> => {
+  const sqlModuleInternal = sqlModule as SQLModuleInternal;
   // await makes this a lot less goofy than a promise chain
-  await parseSQL(rootContext, database, sqlModule);
-  await transformParameterTypes(rootContext, database, sqlModule);
-  await transformResultTypes(rootContext, database, sqlModule);
-  await generateDefaultHandlers(rootContext, sqlModule);
+  await parseSQL(rootContext, database, sqlModuleInternal);
+  await transformParameterTypes(rootContext, database, sqlModuleInternal);
+  await transformResultTypes(rootContext, database, sqlModuleInternal);
+  await generateDefaultHandlers(rootContext, sqlModuleInternal);
   return rootContext;
 };

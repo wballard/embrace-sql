@@ -5,7 +5,8 @@ import readFile from "read-file-utf8";
 import frontMatter from "front-matter";
 import handlebars from "handlebars";
 import prettier from "prettier";
-import { SQLModule } from "./shared-context";
+import fs from "fs-extra";
+import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
 /**
  * Code generation is via handlebars, so we take the config, load up all the
@@ -17,7 +18,7 @@ import { SQLModule } from "./shared-context";
 /**
  * Only contains SELECT statements, so eligible for a GET on HTTP.
  */
-handlebars.registerHelper("allSELECT", (module: SQLModule, options) => {
+handlebars.registerHelper("allSELECT", (module: SQLModuleInternal, options) => {
   const render = module.ast?.type === "select";
   if (render) {
     return options.fn({ module });
@@ -123,19 +124,38 @@ export const renderTemplates = async (
   rootContext: RootContext,
   templatesInDirectory: string
 ): Promise<Array<ToFile>> => {
-  // set up our partials
-  handlebars.registerPartial(
+  // set up our partials that are actual code -- not really even handlebars
+  // this is a bit of a trick to allow creating as much code for the templating
+  // as possible as just plain code with syntax highlighting and autocomplete
+  // generated code takes these as a starting point and adds on generated types
+  const waitForCodePartials = [
     "shared-context.ts",
-    handlebars.compile(
-      await readFile(path.join(__dirname, "./shared-context.ts"))
-    )
+    "shared-browser-client.ts",
+    "shared-node-client.ts",
+  ].map(
+    async (fileName): Promise<void> => {
+      const fileContent = await readFile(path.join(__dirname, fileName));
+      handlebars.registerPartial(fileName, handlebars.compile(fileContent));
+    }
   );
-  handlebars.registerPartial(
-    "shared-client.ts",
-    handlebars.compile(
-      await readFile(path.join(__dirname, "./shared-client.ts"))
-    )
+  await Promise.all(waitForCodePartials);
+  // ok -- these are actual good old fashioned partials -- put shared templates
+  // you need in `templates/partials` and they will be registered by name for you
+  // as "partials/<filename>"
+  const waitForPartials = (
+    await fs.readdir(path.join(__dirname, "templates", "partials"))
+  ).map(
+    async (fileName): Promise<void> => {
+      const fileContent = await readFile(
+        path.join(__dirname, "templates", "partials", fileName)
+      );
+      handlebars.registerPartial(
+        `partials/${fileName}`,
+        handlebars.compile(fileContent)
+      );
+    }
   );
+  await Promise.all(waitForPartials);
   return (
     walk({ path: templatesInDirectory })
       .then((fileNames) =>

@@ -26,17 +26,57 @@ paths:
                   properties:
                     hello_world:
                       type: string
+    post:
+      operationId: post__default_hello
+      description: Read data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hello_world:
+                  type: string
+      responses:
+        \\"200\\":
+          description: Sucess
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hello_world:
+                      type: string
 "
 `;
 
 exports[`hello world configuration! reads a config 1`] = `
 Object {
   "databases": Map {},
-  "embraceSQLRoot": "configs/hello",
+  "embraceSQLRoot": "tests/configs/hello",
 }
 `;
 
 exports[`hello world configuration! will make a runnable server 1`] = `"[{\\"\\\\\\"hello world\\\\\\"\\":\\"hello world\\"}]"`;
+
+exports[`hello world configuration! will make a runnable server 2`] = `
+Array [
+  Object {
+    "\\"hello world\\"": "hello world",
+  },
+]
+`;
+
+exports[`hello world configuration! will make an embeddable engine 1`] = `
+Array [
+  Object {
+    "\\"hello world\\"": "hello world",
+  },
+]
+`;
 
 exports[`hello world configuration! will run a query in context 1`] = `
 Array [

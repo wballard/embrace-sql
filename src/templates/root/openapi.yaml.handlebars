@@ -22,11 +22,20 @@ paths:
 get:
   operationId: get__{{module.contextName}}
   description: Read data
+  {{> parameters module=module}}
   responses:
     '200':
       description: Sucess
       {{> resultset module=module}}
 {{/allSELECT}}
+post:
+  operationId: post__{{module.contextName}}
+  description: Read data
+  {{> request module=module}}
+  responses:
+    '200':
+      description: Sucess
+      {{> resultset module=module}}
 {{/inline}}
 
 {{#*inline "post"}}
@@ -44,4 +53,30 @@ content:
           {{name}}:
             type: {{type}}
         {{/each}}
+{{/inline}}
+
+{{#*inline "parameters"}}
+{{#if module.namedParameters.length}}
+parameters:
+  {{#each module.namedParameters}}
+  - in: query
+    name: {{name}}
+    schema:
+      type: {{type}}
+  {{/each}}
+{{/if}}
+{{/inline}}
+
+{{#*inline "request"}}
+requestBody:
+  required: true
+  content: 
+    application/json:
+      schema:
+        type: object
+        properties: 
+        {{#each module.resultsetMetadata}}
+          {{name}}:
+            type: {{type}}
+        {{/each}} 
 {{/inline}}
