@@ -4,4 +4,4 @@ WORKDIR /usr/embracesql
 COPY . .
 RUN yarn
 
-ENTRYPOINT ["yarn", "cli"]
+ENTRYPOINT ["yarn", "run", "--silent", "cli"]

@@ -1,18 +1,11 @@
 import { Command } from "commander";
-import path from "path";
-import { loadConfiguration } from "../configuration";
-import { buildRootContext } from "../context";
+import { generateFromTemplates } from "../generator";
 /**
  * Initialization action.
  */
 export const init = new Command()
-  .command("init [EMBRACEQL_ROOT")
+  .command("init")
   .description("Initialize the current working directory with EmbraceSQL.")
-  .action(async (EMBRACEQL_ROOT: string) => {
-    const root = path.resolve(EMBRACEQL_ROOT || process.cwd());
-    const configuration = await loadConfiguration(root);
-    await buildRootContext(configuration);
-    console.info("Initialization complete", {
-      EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,
-    });
+  .action(async () => {
+    await generateFromTemplates(undefined, "cli", true);
   });

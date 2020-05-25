@@ -22,13 +22,22 @@ export const generateFromTemplates = async (
     rootContext,
     path.join(__dirname, "templates", templatesInDirectory)
   );
+  const output = async (fileName: string, content: string): Promise<void> => {
+    if (fileName === "/dev/stdout") {
+      return new Promise((resolve, reject) => {
+        process.stdout.write(content, (err) => (err ? reject(err) : resolve()));
+      });
+    } else {
+      return fs.outputFile(fileName, content);
+    }
+  };
   // one big promise array, wait till it is done
   const waitForThem = renderedFiles.map((toFile) =>
     fs
       .pathExists(toFile.fileName)
       .then((exists) =>
         !exists || overwrite
-          ? fs.outputFile(toFile.fileName, toFile.content)
+          ? output(toFile.fileName, toFile.content)
           : undefined
       )
   );

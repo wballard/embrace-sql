@@ -10,7 +10,7 @@
     "pretty": "prettier --write './src/**/*.ts'",
     "cli": "ts-node-script src/cli",
     "lint": "eslint ./src/**/*.ts",
-    "docker": "docker build -t embracesql ."
+    "docker": "docker build -t embracesql/server ."
   },
   "dependencies": {
     "@types/fs-extra": "^8.1.0",
