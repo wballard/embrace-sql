@@ -4,7 +4,6 @@ import path from "path";
 import { SQLModule, SQLType, SQLColumnMetadata } from "../shared-context";
 import { DatabaseInternal } from "../context";
 import { Parser, TableColumnAst } from "node-sql-parser";
-import md5 from "md5";
 import { identifier } from "../event-handlers";
 import { SQLModuleInternal } from "../event-handlers/sqlmodule-pipeline";
 import { RootContext } from "../context";
@@ -91,9 +90,10 @@ export default async (
       if (sqlModule.ast?.type === "select") {
         const parser = new Parser();
         const sql = parser.sqlify(sqlModule.ast, { database: "postgresql" });
-        const create = `CREATE TABLE ${md5(sql)} AS ${sql};`;
+        const create = `CREATE TABLE __analyze__ AS ${sql};`;
+        const drop = `DROP TABLE __analyze__;`;
         const preparedCreate = await database.prepare(create);
-        const describe = `pragma table_info('${md5(sql)}')`;
+        const describe = `pragma table_info('__analyze__')`;
         // run with all nulls for all parameters by default
         if (sqlModule.namedParameters?.length) {
           const withParameters = Object.fromEntries(
@@ -105,6 +105,7 @@ export default async (
           await preparedCreate.all();
         }
         const readDescribeRows = await database.all(describe);
+        await database.all(drop);
         // OK so something to know -- columns with spaces in them are quoted
         // by sqlite so if a column is named
         // hi mom

@@ -85,3 +85,13 @@ Array [
   },
 ]
 `;
+
+exports[`hello world configuration! will watch for changes and create a new context 1`] = `
+Object {
+  "configuration": Object {
+    "databases": Map {},
+    "embraceSQLRoot": "tests/configs/hello",
+  },
+  "databases": Map {},
+}
+`;

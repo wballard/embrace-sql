@@ -12,7 +12,7 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-      "args": ["--runInBand", "--coverage", "false", "-t", "parameter"],
+      "args": ["--runInBand", "--coverage", "false", "-t", "watch"],
       "internalConsoleOptions": "openOnSessionStart"
     },
   ]

@@ -5,7 +5,7 @@ import { generateFromTemplates } from "../generator";
  */
 export const init = new Command()
   .command("init")
-  .description("Initialize the current working directory with EmbraceSQL.")
+  .description("Generates a docker-compose.yaml so you can get started.")
   .action(async () => {
     await generateFromTemplates(undefined, "cli", true);
   });

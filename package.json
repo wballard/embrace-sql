@@ -24,6 +24,7 @@
     "@types/rmfr": "^2.0.0",
     "@types/std-mocks": "^1.0.0",
     "@types/url-parse": "^1.4.3",
+    "@types/watchpack": "^1.1.5",
     "@types/whatwg-fetch": "^0.0.33",
     "@types/yaml": "^1.9.7",
     "@typescript-eslint/eslint-plugin": "^2.32.0",
@@ -50,9 +51,11 @@
     "node-fetch": "^2.6.0",
     "node-sql-parser": "^2.0.4-beta",
     "openapi-backend": "^3.4.2",
+    "p-limit": "^2.3.0",
     "prettier": "^2.0.5",
     "read-file-utf8": "^2.0.4",
     "rmfr": "^2.0.0",
+    "sinon": "^9.0.2",
     "sqlite": "^4.0.7",
     "sqlite3": "^4.2.0",
     "std-mocks": "^1.0.1",
@@ -61,6 +64,7 @@
     "ts-node": "^8.10.1",
     "typescript": "^3.8.3",
     "url-parse": "^1.4.7",
+    "watchpack": "^1.7.2",
     "yaml": "^1.10.0"
   },
   "devDependencies": {}
