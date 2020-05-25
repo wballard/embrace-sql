@@ -1,8 +1,9 @@
 import { Command } from "commander";
 import path from "path";
 import { loadConfiguration } from "../configuration";
-import { buildRootContext } from "../context";
+import { buildRootContext, RootContext } from "../context";
 import { createServer } from "../server";
+import { watchRoot } from "../watcher";
 
 /**
  * Initialization action.
@@ -18,12 +19,22 @@ export const start = new Command()
       );
       const port = parseInt(PORT || process.env.PORT || "8765");
       const configuration = await loadConfiguration(root);
-      const rootContext = await buildRootContext(configuration);
-      const server = await createServer(rootContext);
-      server.listen(port);
-      console.info("Listening", {
-        EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,
-        PORT: port,
+
+      const listen = async (rootContext: RootContext) => {
+        const server = await createServer(rootContext);
+        console.info("Listening", {
+          EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,
+          PORT: port,
+        });
+        return server.listen(port);
+      };
+      const initialContext = await buildRootContext(configuration);
+      let listener = await listen(initialContext);
+      const watcher = watchRoot(root);
+      watcher.emitter.on("reload", async (newContext: RootContext) => {
+        console.info("Reloading");
+        listener.close();
+        listener = await listen(newContext);
       });
     }
   );

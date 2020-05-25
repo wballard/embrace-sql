@@ -125,11 +125,12 @@ describe("hello world configuration!", () => {
   });
   it("will watch for changes and create a new context", async (done) => {
     const watcher = watchRoot(root);
-    watcher.on("reload", (newContext: RootContext) => {
+    watcher.emitter.on("reload", async (newContext: RootContext) => {
       // it's a new object
       expect(newContext).not.toBe(rootContext);
       // and it has the values we expect
       expect(newContext).toMatchSnapshot();
+      await watcher.close();
       // and let Jest finish
       done();
     });
