@@ -3798,9 +3798,10 @@ node-pre-gyp@^0.11.0:
     semver "^5.3.0"
     tar "^4"
 
-node-sql-parser@wballard/node-sql-parser:
-  version "2.0.1-beta"
-  resolved "https://codeload.github.com/wballard/node-sql-parser/tar.gz/152453db42b8de8fb0f4302f5cdcb2f63b3c911d"
+node-sql-parser@^2.0.4-beta:
+  version "2.0.4-beta"
+  resolved "https://registry.yarnpkg.com/node-sql-parser/-/node-sql-parser-2.0.4-beta.tgz#33241d052a153a99528024864f6dfcfa346e132a"
+  integrity sha512-TRrEqGM0Zpp7kP57PsTIRBVZ7hfgtUEydSxFO/Rk/rCr6Wp8U6Gf7/5715yS0UZx/8jTg129O+Uiz13317qrpQ==
   dependencies:
     big-integer "^1.6.48"
 

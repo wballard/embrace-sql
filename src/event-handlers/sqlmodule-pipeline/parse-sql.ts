@@ -14,16 +14,12 @@ export default async (
   database: DatabaseInternal,
   sqlModule: SQLModuleInternal
 ): Promise<RootContext> => {
-  const { ast, namedParameters } = database.parse(sqlModule);
+  const { ast } = database.parse(sqlModule);
   if (Array.isArray(ast)) {
     // we are only supporting single statements
+    throw new Error("Only one SQL statement is supported per .sql file.");
   } else {
     sqlModule.ast = ast;
   }
-  // all the parameters, string is the default and can be mutated later
-  sqlModule.namedParameters = namedParameters.map((p) => ({
-    name: p,
-    type: "string",
-  }));
   return rootContext;
 };

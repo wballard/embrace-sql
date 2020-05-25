@@ -94,9 +94,7 @@ describe("hello world configuration!", () => {
     const server = await createServer(rootContext);
     const listening = server.listen(4567);
     try {
-      const response = await request(server.callback()).get(
-        "/default/hello"
-      );
+      const response = await request(server.callback()).get("/default/hello");
       expect(response.text).toMatchSnapshot();
       // client
       // eslint-disable-next-line @typescript-eslint/no-var-requires
