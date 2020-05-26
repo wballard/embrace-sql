@@ -107,7 +107,7 @@ describe("hello world configuration!", () => {
         "node"
       ));
       const client = EmbraceSQL("http://localhost:4567");
-      expect(await client.default.hello.sql()).toMatchSnapshot();
+      expect(await client.databases.default.hello.sql()).toMatchSnapshot();
     } finally {
       listening.close();
     }
@@ -121,7 +121,7 @@ describe("hello world configuration!", () => {
       "node-inprocess"
     ));
     const client = EmbraceSQL(createInProcess(rootContext));
-    expect(await client.default.hello.sql()).toMatchSnapshot();
+    expect(await client.databases.default.hello.sql()).toMatchSnapshot();
   });
   it("will watch for changes and create a new context", async (done) => {
     const watcher = watchRoot(root);

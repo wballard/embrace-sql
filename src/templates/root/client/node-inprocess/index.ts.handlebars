@@ -19,15 +19,17 @@ import * as context from "../../context";
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const EmbraceSQL = (executionMap: Map<string, context.Executor>) => {
   const DatabaseMap = {
-  {{#eachInMap databases}}
-    {{@key}}: {
-    {{#treeAMap value.SQLModules database=value}}
-      {{#each value}}
-      {{> moduleTree this database=@database }}
-      {{/each}}
-    {{/treeAMap}}
-    },
-  {{/eachInMap}}
+    databases: {
+    {{#eachInMap databases}}
+      {{@key}}: {
+      {{#treeAMap value.SQLModules database=value}}
+        {{#each value}}
+        {{> moduleTree this database=@database }}
+        {{/each}}
+      {{/treeAMap}}
+      },
+    {{/eachInMap}}
+    }
   };
   return DatabaseMap;
 };

@@ -6,6 +6,6 @@ module.exports = {
   collectCoverage: true,
   preset: "ts-jest",
   testEnvironment: "node",
-  testTimeout: 10000,
+  testTimeout: 30000,
   watchPathIgnorePatterns: ["<rootDir>/tests/configs"],
 };

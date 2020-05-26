@@ -76,7 +76,7 @@ describe("hello world with a parameter", () => {
       ));
       const client = EmbraceSQL("http://localhost:45678");
       expect(
-        await client.default.hello.sql({ stuff: "nodey thing" })
+        await client.databases.default.hello.sql({ stuff: "nodey thing" })
       ).toMatchSnapshot();
     } finally {
       listening.close();
@@ -91,6 +91,8 @@ describe("hello world with a parameter", () => {
       "node-inprocess"
     ));
     const client = EmbraceSQL(createInProcess(rootContext));
-    expect(await client.default.hello.sql({ stuff: "hole" })).toMatchSnapshot();
+    expect(
+      await client.databases.default.hello.sql({ stuff: "hole" })
+    ).toMatchSnapshot();
   });
 });

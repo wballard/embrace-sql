@@ -37,8 +37,11 @@ const restructure = (
   const properDepth = call[2];
   const relativePath = path.relative(process.cwd(), properDepth.getFileName());
   // it is possible that the message is circular and cannot be sent to JSON
+  // this I wasn't expecting, JSON.stringify returning {} when there is an actual message
   try {
-    JSON.stringify(message);
+    if (JSON.stringify(message) === "{}") {
+      message = message.toString();
+    }
   } catch {
     message = message.toString();
   }
