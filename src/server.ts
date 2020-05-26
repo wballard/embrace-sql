@@ -49,11 +49,17 @@ export const createServer = async (
       return [
         `get__${dbModule.sqlModule.contextName}`,
         async (_openAPI, httpContext): Promise<void> => {
-          httpContext.body = await dbModule.database.execute(
-            dbModule.sqlModule,
-            httpContext.request.query
-          );
-          httpContext.status = 200;
+          try {
+            httpContext.body = await dbModule.database.execute(
+              dbModule.sqlModule,
+              httpContext.request.query
+            );
+            httpContext.status = 200;
+          } catch (e) {
+            console.error(e);
+            httpContext.status = 500;
+            httpContext.body = e;
+          }
         },
       ];
     })
@@ -64,11 +70,17 @@ export const createServer = async (
       return [
         `post__${dbModule.sqlModule.contextName}`,
         async (_openAPI, httpContext): Promise<void> => {
-          httpContext.body = await dbModule.database.execute(
-            dbModule.sqlModule,
-            httpContext.request.body
-          );
-          httpContext.status = 200;
+          try {
+            httpContext.body = await dbModule.database.execute(
+              dbModule.sqlModule,
+              httpContext.request.body
+            );
+            httpContext.status = 200;
+          } catch (e) {
+            console.error(e);
+            httpContext.status = 500;
+            httpContext.body = e;
+          }
         },
       ];
     })

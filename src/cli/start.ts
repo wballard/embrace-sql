@@ -1,9 +1,11 @@
 import { Command } from "commander";
-import path from "path";
 import { loadConfiguration } from "../configuration";
 import { buildRootContext, RootContext } from "../context";
 import { createServer } from "../server";
 import { watchRoot } from "../watcher";
+import { Server } from "http";
+import expandHomeDir from "expand-home-dir";
+import path from "path";
 
 /**
  * Initialization action.
@@ -14,13 +16,16 @@ export const start = new Command()
 
   .action(
     async (EMBRACEQL_ROOT: string, PORT: string): Promise<void> => {
+      // fully qualified path from here on down will make things a lot simpler
       const root = path.resolve(
-        EMBRACEQL_ROOT || process.env.EMBRACEQL_ROOT || process.cwd()
+        expandHomeDir(
+          EMBRACEQL_ROOT || process.env.EMBRACEQL_ROOT || process.cwd()
+        )
       );
       const port = parseInt(PORT || process.env.PORT || "8765");
       const configuration = await loadConfiguration(root);
 
-      const listen = async (rootContext: RootContext) => {
+      const listen = async (rootContext: RootContext): Promise<Server> => {
         const server = await createServer(rootContext);
         console.info("Listening", {
           EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,

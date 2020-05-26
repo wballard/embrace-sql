@@ -12,8 +12,23 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-      "args": ["--runInBand", "--coverage", "false", "-t", "watch"],
+      "args": ["--runInBand", "--coverage", "false", "-t", "parameter"],
       "internalConsoleOptions": "openOnSessionStart"
+    }, {
+      "type": "node",
+      "request": "launch",
+      "name": "CLI start",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "args": ["${workspaceRoot}/src/cli/index.ts", "start", "~/scratch"],
+      "internalConsoleOptions": "openOnSessionStart",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "cwd": "${workspaceRoot}",
+			"protocol": "inspector",
+      "env": {
+				"TS_NODE_IGNORE": "false"
+			}
     },
   ]
 }
