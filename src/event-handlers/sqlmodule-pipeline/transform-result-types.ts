@@ -14,11 +14,6 @@ export default async (
   database: DatabaseInternal,
   sqlModule: SQLModuleInternal
 ): Promise<RootContext> => {
-  try {
-    await database.transactions.begin();
-    sqlModule.resultsetMetadata = await database.analyze(sqlModule);
-  } finally {
-    await database.transactions.rollback();
-  }
+  sqlModule.resultsetMetadata = await database.analyze(sqlModule);
   return rootContext;
 };

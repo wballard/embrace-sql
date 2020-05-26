@@ -1,6 +1,14 @@
 import embraceSQLite from "./sqlite";
 import { RootContext } from "../context";
 import { DatabaseInternal } from "../context";
+import pLimit from "p-limit";
+import { SQLModule, SQLColumnMetadata } from "../../scratch/context";
+import { SQLModuleInternal } from "../event-handlers/sqlmodule-pipeline";
+
+/**
+ * Serialize database use per process as we really only have one connection.
+ */
+const oneAtATime = pLimit(1);
 
 /**
  * Embrace a database, bringing it into context.
@@ -31,11 +39,30 @@ export const embraceDatabases = async (
   // typed generated context type available to the generator itself
   const databases = new Map<string, DatabaseInternal>();
   Object.keys(rootContext.configuration.databases).forEach(
-    async (databaseName) =>
-      (rootContext.databases[databaseName] = await embraceSingleDatabase(
-        rootContext,
-        databaseName
-      ))
+    async (databaseName) => {
+      const database = await embraceSingleDatabase(rootContext, databaseName);
+      rootContext.databases[databaseName] = {
+        ...database,
+        // here is wrapping the individual database driver execute and analyze
+        // with a throttled promise limit -- since we have only one connection
+        // these are not re-entrant
+        execute: async (
+          sqlModule: SQLModule,
+          parameters: object
+        ): Promise<object[]> => {
+          const results = await oneAtATime(() =>
+            database.execute(sqlModule, parameters)
+          );
+          return results as object[];
+        },
+        analyze: async (
+          sqlModule: SQLModuleInternal
+        ): Promise<Array<SQLColumnMetadata>> => {
+          const results = await oneAtATime(() => database.analyze(sqlModule));
+          return results as Array<SQLColumnMetadata>;
+        },
+      };
+    }
   );
   return databases;
 };
