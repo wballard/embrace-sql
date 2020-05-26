@@ -23,7 +23,7 @@ export const createInProcess = (
       }))
   ) as Array<DatabaseModule>;
 
-  // process any given sqql module by asking it's owning database to execute it
+  // process any given sql module by asking it's owning database to execute it
   // each module has a `contextName` which is a nice key to use in this module Map
   const handlers = new Map<string, Executor>();
   allSQLModules.forEach((dbModule) => {

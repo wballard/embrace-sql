@@ -93,7 +93,10 @@ describe("hello world configuration!", () => {
     expect(results).toMatchSnapshot();
   });
   it("will make a runnable server", async () => {
-    const server = await createServer(rootContext);
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
     const listening = server.listen(4567);
     try {
       const response = await request(server.callback()).get("/default/hello");
