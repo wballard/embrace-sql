@@ -39,7 +39,10 @@ describe("hello world with a parameter", () => {
     expect(results).toMatchSnapshot();
   });
   it("will make a runnable server - GET", async () => {
-    const server = await createServer(rootContext);
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
     const listening = server.listen(45678);
     try {
       const response = await request(server.callback()).get(
@@ -51,7 +54,10 @@ describe("hello world with a parameter", () => {
     }
   });
   it("will make a runnable server - POST", async () => {
-    const server = await createServer(rootContext);
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
     const listening = server.listen(45678);
     try {
       const postResponse = await request(server.callback())
@@ -63,7 +69,10 @@ describe("hello world with a parameter", () => {
     }
   });
   it("will make a runnable server - node client", async () => {
-    const server = await createServer(rootContext);
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
     const listening = server.listen(45678);
     try {
       // client
