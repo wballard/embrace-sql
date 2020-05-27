@@ -11,7 +11,7 @@ info:
 paths:
 {{#eachInMap databases}}
 {{#eachInMap value.SQLModules}}
-  /{{value.relativePath}}:
+  /{{value.restPath}}:
     {{> get module=value}}
 {{/eachInMap}}
 {{/eachInMap}}

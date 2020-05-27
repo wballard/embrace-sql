@@ -8,6 +8,7 @@ import { createInProcess } from "../src/inprocess";
 import request from "supertest";
 import readFile from "read-file-utf8";
 import rmfr from "rmfr";
+import { watchRoot } from "../src/watcher";
 
 declare global {
   namespace jest {
@@ -27,8 +28,9 @@ declare global {
 describe("hello world configuration!", () => {
   let theConfig: Configuration = undefined;
   let rootContext: RootContext;
+  let root = "";
   beforeAll(async () => {
-    const root = path.relative(process.cwd(), "./tests/configs/hello");
+    root = path.relative(process.cwd(), "./tests/configs/hello");
     // clean up
     await rmfr(root);
     // get the configuration and generate - let's do this just the once
@@ -91,12 +93,13 @@ describe("hello world configuration!", () => {
     expect(results).toMatchSnapshot();
   });
   it("will make a runnable server", async () => {
-    const server = await createServer(rootContext);
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
     const listening = server.listen(4567);
     try {
-      const response = await request(server.callback()).get(
-        "/default/hello.sql"
-      );
+      const response = await request(server.callback()).get("/default/hello");
       expect(response.text).toMatchSnapshot();
       // client
       // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -107,7 +110,7 @@ describe("hello world configuration!", () => {
         "node"
       ));
       const client = EmbraceSQL("http://localhost:4567");
-      expect(await client.default.hello.sql()).toMatchSnapshot();
+      expect(await client.databases.default.hello.sql()).toMatchSnapshot();
     } finally {
       listening.close();
     }
@@ -121,6 +124,24 @@ describe("hello world configuration!", () => {
       "node-inprocess"
     ));
     const client = EmbraceSQL(createInProcess(rootContext));
-    expect(await client.default.hello.sql()).toMatchSnapshot();
+    expect(await client.databases.default.hello.sql()).toMatchSnapshot();
+  });
+  it("will watch for changes and create a new context", async (done) => {
+    const watcher = watchRoot(root);
+    watcher.emitter.on("reload", async (newContext: RootContext) => {
+      // it's a new object
+      expect(newContext).not.toBe(rootContext);
+      // and it has the values we expect
+      expect(newContext).toMatchSnapshot();
+      await watcher.close();
+      // and let Jest finish
+      done();
+    });
+    // adding a new file should trigger the watcher
+    // calling back to the event, which should tell jest we are all done
+    await fs.outputFile(
+      path.join(theConfig.embraceSQLRoot, "default", "yo.sql"),
+      "SELECT 'yo'"
+    );
   });
 });

@@ -1,11 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`hello world with a parameter will make a runnable server 1`] = `"[{\\"message\\":\\"whirled\\"}]"`;
+exports[`hello world with a parameter will make a runnable server - GET 1`] = `"[{\\"message\\":\\"whirled\\"}]"`;
 
-exports[`hello world with a parameter will make a runnable server 2`] = `
+exports[`hello world with a parameter will make a runnable server - POST 1`] = `"[{\\"message\\":\\"amazing\\"}]"`;
+
+exports[`hello world with a parameter will make a runnable server - node client 1`] = `
 Array [
   Object {
-    "message": "things",
+    "message": "nodey thing",
   },
 ]
 `;

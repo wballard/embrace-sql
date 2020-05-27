@@ -1,5 +1,6 @@
 import { RootContext, DatabaseInternal } from "../../context";
 import { SQLModuleInternal } from ".";
+
 /**
  * Run the query -- but in a transaction so the database doesn't get
  * modified. This allows an inspection of the resultset(s) to figure out
@@ -13,11 +14,6 @@ export default async (
   database: DatabaseInternal,
   sqlModule: SQLModuleInternal
 ): Promise<RootContext> => {
-  try {
-    await database.transactions.begin();
-    sqlModule.resultsetMetadata = await database.analyze(sqlModule);
-  } finally {
-    await database.transactions.rollback();
-  }
+  sqlModule.resultsetMetadata = await database.analyze(sqlModule);
   return rootContext;
 };

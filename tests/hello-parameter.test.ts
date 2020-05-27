@@ -38,14 +38,43 @@ describe("hello world with a parameter", () => {
     );
     expect(results).toMatchSnapshot();
   });
-  it("will make a runnable server", async () => {
-    const server = await createServer(rootContext);
+  it("will make a runnable server - GET", async () => {
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
     const listening = server.listen(45678);
     try {
       const response = await request(server.callback()).get(
-        "/default/hello.sql?stuff=whirled"
+        "/default/hello?stuff=whirled"
       );
       expect(response.text).toMatchSnapshot();
+    } finally {
+      listening.close();
+    }
+  });
+  it("will make a runnable server - POST", async () => {
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
+    const listening = server.listen(45678);
+    try {
+      const postResponse = await request(server.callback())
+        .post("/default/hello")
+        .send({ stuff: "amazing" });
+      expect(postResponse.text).toMatchSnapshot();
+    } finally {
+      listening.close();
+    }
+  });
+  it("will make a runnable server - node client", async () => {
+    const server = await createServer(
+      rootContext,
+      createInProcess(rootContext)
+    );
+    const listening = server.listen(45678);
+    try {
       // client
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { EmbraceSQL } = require(path.join(
@@ -56,7 +85,7 @@ describe("hello world with a parameter", () => {
       ));
       const client = EmbraceSQL("http://localhost:45678");
       expect(
-        await client.default.hello.sql({ stuff: "things" })
+        await client.databases.default.hello.sql({ stuff: "nodey thing" })
       ).toMatchSnapshot();
     } finally {
       listening.close();
@@ -71,6 +100,8 @@ describe("hello world with a parameter", () => {
       "node-inprocess"
     ));
     const client = EmbraceSQL(createInProcess(rootContext));
-    expect(await client.default.hello.sql({ stuff: "hole" })).toMatchSnapshot();
+    expect(
+      await client.databases.default.hello.sql({ stuff: "hole" })
+    ).toMatchSnapshot();
   });
 });

@@ -7,6 +7,6 @@ import { generateFromTemplates } from "../../generator";
  * @rootContext - as usual, our root context
  */
 export default async (rootContext: RootContext): Promise<RootContext> => {
-  await generateFromTemplates(Object.assign({}, rootContext), "root");
+  await generateFromTemplates(Object.assign({}, rootContext), "root", true);
   return rootContext;
 };

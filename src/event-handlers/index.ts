@@ -1,4 +1,4 @@
-import { RootContext } from "../context";
+import { RootContext, DatabaseInternal } from "../context";
 import readFile from "read-file-utf8";
 import walk from "ignore-walk";
 import path from "path";
@@ -62,12 +62,12 @@ export const embraceEventHandlers = async (
       rootContext.configuration.embraceSQLRoot,
       SQLFileName
     );
-    const relativePath = SQLFileName;
+    const restPath = SQLFileName.replace(/\.sql$/, "");
     // get all the 'read' IO done
     const sql = await readFile(fullPath);
     // data about each SQL module
     const sqlModule = {
-      relativePath,
+      restPath,
       fullPath,
       sql,
       cacheKey: md5(sql),
@@ -82,15 +82,21 @@ export const embraceEventHandlers = async (
   // checkpoint -- wait for finish
   await Promise.all(allSQLModules);
   const allDatabases = Object.values(rootContext.databases).map(
-    async (database) => {
-      const compiledSQLModules = Object.values<SQLModule>(
-        database.SQLModules
-      ).map(async (sqlModule) =>
-        sqlModulePipeline(rootContext, database, sqlModule)
-      );
-      // let them all finish
-      await Promise.all(compiledSQLModules);
-      return database;
+    async (database: DatabaseInternal) => {
+      try {
+        // one big transaction around all oof our module building
+        // so we can roll back and know we didn't modify our database
+        database.transactions.begin();
+        // one at a time iteration and wait
+        for (const sqlModule of Object.values(database.SQLModules) as Array<
+          SQLModule
+        >) {
+          await sqlModulePipeline(rootContext, database, sqlModule);
+        }
+        return database;
+      } finally {
+        database.transactions.rollback();
+      }
     }
   );
   // let them all finish

@@ -4,15 +4,17 @@
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const EmbraceSQL = (serverUrl: string) => {
   const DatabaseMap = {
-  {{#eachInMap databases}}
-    {{@key}}: {
-    {{#treeAMap value.SQLModules database=value}}
-      {{#each value}}
-      {{> moduleTree this database=@database}}
-      {{/each}}
-    {{/treeAMap}}
-    },
-  {{/eachInMap}}
+    databases: {
+    {{#eachInMap databases}}
+      {{@key}}: {
+      {{#treeAMap value.SQLModules database=value}}
+        {{#each value}}
+        {{> moduleTree this database=@database}}
+        {{/each}}
+      {{/treeAMap}}
+      },
+    {{/eachInMap}}
+    }
   };
   return DatabaseMap;
 };
@@ -22,16 +24,16 @@ export const EmbraceSQL = (serverUrl: string) => {
   {{#if value}}
   {{#if value.namedParameters.length}}
   sql: async (parameters: context.{{value.contextName}}Parameters) : Promise<context.{{value.contextName}}Results> => {
-    return post(serverUrl, "/{{value.relativePath}}", parameters) as unknown as context.{{value.contextName}}Results;
+    return post(serverUrl, "/{{value.restPath}}", parameters) as unknown as context.{{value.contextName}}Results;
   }
   {{else}}
   sql: async () : Promise<context.{{value.contextName}}Results> => {
-    return post(serverUrl, "/{{value.relativePath}}", {}) as unknown as context.{{value.contextName}}Results;
+    return post(serverUrl, "/{{value.restPath}}", {}) as unknown as context.{{value.contextName}}Results;
   }
   {{/if}}
   {{/if}}
   {{#each children}}
     {{> moduleTree this database=database}}
   {{/each}}
-}
+},
 {{/inline}}

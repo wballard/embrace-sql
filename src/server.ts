@@ -5,8 +5,7 @@ import OpenAPIBackend from "openapi-backend";
 import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
-import { SQLModule } from "./shared-context";
-import { DatabaseInternal } from "./context";
+import { Executor } from "./shared-context";
 
 /**
  * Create a HTTP server exposing an OpenAPI style set of endpoints for each Database
@@ -14,9 +13,13 @@ import { DatabaseInternal } from "./context";
  *
  * This does not actually start the server, it just hands you an instance that you
  * can start listening to later.
+ *
+ * @param rootContext - root server context with configuration
+ * @param executionMap - context name to execution function mapping to actually 'run' a query
  */
 export const createServer = async (
-  rootContext: RootContext
+  rootContext: RootContext,
+  executionMap: Map<string, Executor>
 ): Promise<Koa<Koa.DefaultState, Koa.DefaultContext>> => {
   const server = new Koa();
 
@@ -28,58 +31,48 @@ export const createServer = async (
     )
   );
 
-  // collect every database and module
-  type DatabaseModule = {
-    database: DatabaseInternal;
-    sqlModule: SQLModule;
-  };
-  const allSQLModules = Object.values(rootContext.databases).flatMap(
-    (database) =>
-      Object.values(database.SQLModules).flatMap((sqlModule) => ({
-        database,
-        sqlModule,
-      }))
-  ) as Array<DatabaseModule>;
+  const handlers = {};
 
   // go ahead and make a handler for both GET and POST
   // some of these GET handlers may not be connected at the OpenAPI layer
   // but a few extra functions isn't going to hurt anything
-  const getHandlers = Object.fromEntries(
-    allSQLModules.map((dbModule) => {
-      return [
-        `get__${dbModule.sqlModule.contextName}`,
-        async (_openAPI, httpContext): Promise<void> => {
-          httpContext.body = await dbModule.database.execute(
-            dbModule.sqlModule,
-            httpContext.request.query
-          );
-          httpContext.status = 200;
-        },
-      ];
-    })
-  );
-  // everything gets a POST
-  const postHandlers = Object.fromEntries(
-    allSQLModules.map((dbModule) => {
-      return [
-        `post__${dbModule.sqlModule.contextName}`,
-        async (_openAPI, httpContext): Promise<void> => {
-          httpContext.body = await dbModule.database.execute(
-            dbModule.sqlModule,
-            httpContext.request.body
-          );
-          httpContext.status = 200;
-        },
-      ];
-    })
-  );
+  executionMap.forEach((executor, contextName) => {
+    handlers[`get__${contextName}`] = async (
+      _openAPI,
+      httpContext
+    ): Promise<void> => {
+      try {
+        // parameters from the query
+        httpContext.body = await executor(httpContext.request.query);
+        httpContext.status = 200;
+      } catch (e) {
+        console.error(e);
+        httpContext.status = 500;
+        httpContext.body = e;
+      }
+    };
+    handlers[`post__${contextName}`] = async (
+      _openAPI,
+      httpContext
+    ): Promise<void> => {
+      try {
+        // parameters from the body
+        httpContext.body = await executor(httpContext.request.body);
+        httpContext.status = 200;
+      } catch (e) {
+        console.error(e);
+        httpContext.status = 500;
+        httpContext.body = e;
+      }
+    };
+  });
 
+  // merge up all the handlers just created with the OpenAPI definition
+  // and we are ready to go -- this counts on OpenAPI doing some validation
+  // before our handlers get called
   const api = new OpenAPIBackend({
     definition,
-    handlers: {
-      ...getHandlers,
-      ...postHandlers,
-    },
+    handlers,
   });
   api.init();
 
