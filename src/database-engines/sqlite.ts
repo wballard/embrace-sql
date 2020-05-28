@@ -147,7 +147,7 @@ export default async (
         a.name > b.name ? 1 : -1
       )) {
         try {
-          transactions.begin();
+          await transactions.begin();
           if (migrated.indexOf(migrationFile.content) >= 0) {
             // already done!
           } else {
@@ -166,9 +166,9 @@ export default async (
             });
             await markOff.all();
           }
-          transactions.commit();
+          await transactions.commit();
         } catch (e) {
-          transactions.rollback();
+          await transactions.rollback();
           throw e;
         }
       }
