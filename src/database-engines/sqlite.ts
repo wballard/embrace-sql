@@ -151,6 +151,7 @@ export default async (
           if (migrated.indexOf(migrationFile.content) >= 0) {
             // already done!
           } else {
+            console.info("migrating", migrationFile.name);
             // time to migrate -- there might be multiple statements
             // and sqllite doesn't -- really allow that so we're gonna loop
             for (const bitOfBatch of migrationFile.content

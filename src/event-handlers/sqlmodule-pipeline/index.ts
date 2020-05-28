@@ -27,10 +27,15 @@ export default async (
   sqlModule: SQLModule
 ): Promise<RootContext> => {
   const sqlModuleInternal = sqlModule as SQLModuleInternal;
-  // await makes this a lot less goofy than a promise chain
-  await parseSQL(rootContext, database, sqlModuleInternal);
-  await transformParameterTypes(rootContext, database, sqlModuleInternal);
-  await transformResultTypes(rootContext, database, sqlModuleInternal);
-  await generateDefaultHandlers(rootContext, sqlModuleInternal);
+  try {
+    // await makes this a lot less goofy than a promise chain
+    await parseSQL(rootContext, database, sqlModuleInternal);
+    await transformParameterTypes(rootContext, database, sqlModuleInternal);
+    await transformResultTypes(rootContext, database, sqlModuleInternal);
+    await generateDefaultHandlers(rootContext, sqlModuleInternal);
+  } catch (e) {
+    // a single module failing isn't fatal, it's gonna happen all the type with typos
+    console.warn(sqlModule.fullPath, e.message);
+  }
   return rootContext;
 };

@@ -1,7 +1,8 @@
 import { program } from "commander";
 import pj from "../../package.json";
-import { init } from "./init";
-import { start } from "./start";
+import init from "./init";
+import start from "./start";
+import migrate from "./migrate";
 import { install } from "../structured-console";
 
 /**
@@ -14,6 +15,7 @@ const main = async (): Promise<void> => {
   program.description(`Command line interface to EmbraceSQL.`);
   program.addCommand(init);
   program.addCommand(start);
+  program.addCommand(migrate);
   // GO!
   await program.parseAsync(process.argv);
 };

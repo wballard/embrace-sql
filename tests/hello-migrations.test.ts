@@ -28,6 +28,7 @@ describe("hello world of migrations", () => {
       path.join(root, "migrations", "default", "002.sql"),
       `
       INSERT INTO strings(string) VALUES("hello world");
+      INSERT INTO strings(string) VALUES("laser power");
       `
     );
     // get the configuration and generate - let's do this just the once

@@ -11,7 +11,7 @@ import { createInProcess } from "../inprocess";
 /**
  * Initialization action.
  */
-export const start = new Command()
+export default new Command()
   .command("start [EMBRACEQL_ROOT] [PORT]")
   .description("Start up EmbraceSQL. ")
 
@@ -20,7 +20,7 @@ export const start = new Command()
       // fully qualified path from here on down will make things a lot simpler
       const root = path.resolve(
         expandHomeDir(
-          EMBRACEQL_ROOT || process.env.EMBRACEQL_ROOT || process.cwd()
+          EMBRACEQL_ROOT || process.env.EMBRACEQL_ROOT || "/var/embracesql"
         )
       );
       const port = parseInt(PORT || process.env.PORT || "8765");

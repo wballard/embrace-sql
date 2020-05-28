@@ -4,4 +4,5 @@ yarn-error.logA
 # only the one yaml file in this directory is to be saved
 tests/configs/hello/*
 tests/configs/hello-parameter/*
+tests/configs/hello-migrations/*
 scratch
