@@ -145,4 +145,7 @@ describe("hello world configuration!", () => {
       "SELECT 'yo'"
     );
   });
+  it("will make migrations directories", async () => {
+    expect("migrations/default").toExist();
+  });
 });

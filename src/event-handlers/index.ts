@@ -41,9 +41,9 @@ export const embraceEventHandlers = async (
     path: rootContext.configuration.embraceSQLRoot,
   });
   // just the SQL files
-  const sqlFileNames = await fileNames.filter((fileName) =>
-    fileName.toLowerCase().endsWith(".sql")
-  );
+  const sqlFileNames = await fileNames
+    .filter((fileName) => fileName.toLowerCase().endsWith(".sql"))
+    .filter((fileName) => !fileName.startsWith("migrations/"));
   // root folders are databases, so attach there
   const allSQLModules = await sqlFileNames.map(async (SQLFileName) => {
     const parsedPath = path.parse(SQLFileName);

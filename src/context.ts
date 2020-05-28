@@ -6,6 +6,14 @@ import { TableColumnAst } from "node-sql-parser";
 import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
 /**
+ * Keep track of individual migration files with this type.
+ */
+export type MigrationFile = {
+  name: string;
+  content: string;
+};
+
+/**
  * A single instance of a database for use internally.
  */
 export type DatabaseInternal = Database & {
@@ -30,6 +38,10 @@ export type DatabaseInternal = Database & {
    * Parse out the SQL.
    */
   parse: (SQLModule) => TableColumnAst;
+  /**
+   * Do a migration.
+   */
+  migrate: (migrationFiles: Array<MigrationFile>) => Promise<void>;
 };
 
 /**
