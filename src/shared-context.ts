@@ -176,19 +176,19 @@ export type Context = {
    *
    * @param message - Any helpful message you see fit, will be appended to [[grants]].
    */
-  allow: (message: Message) => void;
+  allow?: (message: Message) => void;
 
   /**
    * Set the current start of security to deny SQL execution against the database.
    *
    * @param message - Any helpful message you see fit, will be appended to [[grants]].
    */
-  deny: (message: Message) => void;
+  deny?: (message: Message) => void;
 
   /**
    * View all the reasons security might have been [[allow]] or [[deny]].
    */
-  grants: Array<Grant>;
+  grants?: Array<Grant>;
 
   /**
    * If a JWT token from an `Authorization: Bearer <token>` header has been successfully
@@ -255,4 +255,15 @@ export type Executor = (parameters: SQLParameters) => Promise<SQLRow[]>;
  */
 export type Executors = {
   [index: string]: Executor;
+};
+
+/**
+ * This map is the ability to go from a SQL module `contextName` to a function
+ * that will let you really query the database.
+ */
+export type SQLModuleDirectExecutors = {
+  /**
+   * Store function mapping for query execution here.
+   */
+  directQueryExecutors: Executors;
 };

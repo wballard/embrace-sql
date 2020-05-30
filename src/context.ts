@@ -7,7 +7,7 @@ import {
   SQLColumnMetadata,
   SQLParameters,
   SQLRow,
-  Executors,
+  SQLModuleDirectExecutors,
 } from "./shared-context";
 import { TableColumnAst } from "node-sql-parser";
 import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
@@ -74,7 +74,7 @@ export type AllDatabasesInternal = {
  *
  * The type here is a bit different from the context used in handlers, it has more metadata!
  */
-export type InternalContext = {
+export type InternalContext = SQLModuleDirectExecutors & {
   /**
    * The configuration used to build this context.
    */
@@ -83,11 +83,6 @@ export type InternalContext = {
    * All configured databases, by name.
    */
   databases: AllDatabasesInternal;
-  /**
-   * Direct to database query execution, no handlers here -- this is the
-   * 'real' query interface.
-   */
-  directQueryExecutors: Executors;
 };
 
 /**

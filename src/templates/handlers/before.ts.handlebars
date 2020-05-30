@@ -5,7 +5,7 @@ to: "{{module.fullPath}}.before.ts"
 /* eslint-disable @typescript-eslint/camelcase */
 import * as types from "{{relativeToRoot}}/context";
 
-export const before : types.{{module.contextName}}BeforeHandler = async (context) => {
+export const before : types.{{module.contextName}}Handler = async (context) => {
 // handle me!
 return context;
 }

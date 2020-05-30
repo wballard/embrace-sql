@@ -41,7 +41,7 @@ export default async (
     : path.normalize(
         path.join(rootContext.configuration.embraceSQLRoot, dbUrl.pathname)
       );
-  // SQLite -- open is connection
+  // SQLite -- open is connection -- each database 'is' its own connection
   const database = await open({
     filename,
     driver: sqlite3.Database,

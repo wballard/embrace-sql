@@ -23,7 +23,7 @@ Array [
 exports[`hello world with a handler will honor handlers with an embeddable engine 1`] = `
 Array [
   Object {
-    "message": "hole",
+    "message": "hole!!!",
   },
 ]
 `;

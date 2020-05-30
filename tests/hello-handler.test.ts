@@ -25,6 +25,18 @@ describe("hello world with a handler", () => {
       path.join(root, "default", "hello.sql"),
       "SELECT :stuff as message"
     );
+    await fs.writeFile(
+      path.join(root, "default", "hello.sql.before.ts"),
+      `
+/* eslint-disable @typescript-eslint/camelcase */
+import * as types from "../context";
+
+export const before: types.default_helloHandler = async (context) => {
+  context.parameters.stuff = context.parameters.stuff + "!!!";
+  return context;
+};
+      `
+    );
     // get the configuration and generate - let's do this just the once for speed
     const configuration = await loadConfiguration(root);
     rootContext = await buildInternalContext(configuration);

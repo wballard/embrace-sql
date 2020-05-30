@@ -5,4 +5,5 @@ yarn-error.logA
 tests/configs/hello/*
 tests/configs/hello-parameter/*
 tests/configs/hello-migrations/*
+tests/configs/hello-handler/*
 scratch

@@ -17,10 +17,8 @@ import * as types from "../../context";
 * a way to execute a SQLModule by its unique `contextName`.
 */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-type EmbraceSQLParameters = {
-  directQueryExecutors: types.Executors;
-}
-export const EmbraceSQL = ({directQueryExecutors} : EmbraceSQLParameters) => {
+export const EmbraceSQL = ({directQueryExecutors} : types.SQLModuleDirectExecutors) => {
+  const handlerWrappedExecutors = types.SQLModuleExecutorsWithHandlers({directQueryExecutors});
   const DatabaseMap = {
     databases: {
     {{#eachInMap databases}}
@@ -40,16 +38,8 @@ export const EmbraceSQL = ({directQueryExecutors} : EmbraceSQLParameters) => {
 {{#*inline "moduleTree"}}
 {{name}}: {
   {{#if value}}
-  {{#if value.namedParameters.length}}
   sql: async (parameters: types.{{value.contextName}}Parameters) : Promise<types.{{value.contextName}}Results> => {
-  {{else}}
-  sql: async () : Promise<types.{{value.contextName}}Results> => {
-    const parameters = {};
-  {{/if}}
-    // database {{database.name}} module {{value.fullPath}}
-    const e = directQueryExecutors.{{value.contextName}};
-    const results = e ? await e(parameters) : [];
-    return results as unknown as types.{{value.contextName}}Results;
+    return (await handlerWrappedExecutors.{{value.contextName}}({parameters, results: []})).results;
   }
   {{/if}}
   {{#each children}}

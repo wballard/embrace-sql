@@ -1,1 +1,0 @@
-SELECT :stuff as message

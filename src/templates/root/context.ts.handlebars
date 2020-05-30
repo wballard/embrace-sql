@@ -17,19 +17,16 @@ export type AvailableDatabaseNames =
 {{#eachInMap databases}}
 {{#eachInMap value.SQLModules}}
 {{> resultsetMetadata value}}
-{{#if value.namedParameters.length }}
 {{> parametersMetadata value}}
 export type {{value.contextName}}Context = 
   Context & { 
     results: {{value.contextName}}Results, 
     parameters: {{value.contextName}}Parameters
   };
-{{else}}
-export type {{value.contextName}}Context = 
-  Context & { results: {{value.contextName}}Results};
-{{/if}}
-export type {{value.contextName}}BeforeHandler = 
+export type {{value.contextName}}Handler = 
   (context: {{value.contextName}}Context) => Promise<{{value.contextName}}Context>;
+// generated imports for handlers
+import {before as {{value.contextName}}BeforeHandler} from "./{{value.restPath}}.sql.before";
 {{/eachInMap}}
 {{/eachInMap}}
 
@@ -53,3 +50,24 @@ SQLParameters & {
 };
 {{/inline}}
 
+
+// all database all modules direct handlers
+// each SQL Module has a direct execution decorator to attach handlers
+export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModuleDirectExecutors) => {
+{{#eachInMap databases}}
+  return {
+    // database{{@key}}
+    {{#eachInMap value.SQLModules}}
+      {{value.contextName}}:  async (context: {{value.contextName}}Context) : Promise<{{value.contextName}}Context> => {
+        await {{value.contextName}}BeforeHandler(context);
+        const executor = directQueryExecutors["{{value.contextName}}"];
+        const results = executor ? await executor(context.parameters) : [];
+        context.results = results as unknown as {{value.contextName}}Results;
+        return context;
+      },
+    {{/eachInMap}}
+  }
+{{/eachInMap}}
+};
+
+// each folder has a direct execution decorator to attach handlers
