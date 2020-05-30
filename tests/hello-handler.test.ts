@@ -11,15 +11,12 @@ import http from "http";
 /**
  * Let's make sure we can use a parameter with a pbare query.
  */
-describe("hello world with a parameter", () => {
+describe("hello world with a handler", () => {
   let rootContext: InternalContext;
   let listening: http.Server;
   let callback;
   beforeAll(async () => {
-    const root = path.relative(
-      process.cwd(),
-      "./tests/configs/hello-parameter"
-    );
+    const root = path.relative(process.cwd(), "./tests/configs/hello-handler");
     // clean up
     await fs.ensureDir(root);
     await rmfr(root);
@@ -37,31 +34,31 @@ describe("hello world with a parameter", () => {
       createInProcess(rootContext)
     );
     callback = server.callback();
-    listening = server.listen(45678);
+    listening = server.listen(45679);
   });
   afterAll(async (done) => {
     listening.close(() => done());
   });
-  it("will run a query in context", async () => {
+  it("will alter a parameter with before and after handlers", async () => {
     const results = await rootContext.databases["default"].execute(
       rootContext.databases["default"].SQLModules["hello"],
       { stuff: "Whirled" }
     );
     expect(results).toMatchSnapshot();
   });
-  it("will make a runnable server - GET", async () => {
+  it("will honor handlers over an HTTP call - GET", async () => {
     const response = await request(callback).get(
       "/default/hello?stuff=whirled"
     );
     expect(response.text).toMatchSnapshot();
   });
-  it("will make a runnable server - POST", async () => {
+  it("will honor handlers over an HTTP call - GET", async () => {
     const postResponse = await request(callback)
       .post("/default/hello")
       .send({ stuff: "amazing" });
     expect(postResponse.text).toMatchSnapshot();
   });
-  it("will make a runnable server - node client", async () => {
+  it("will honor handlers with a client call", async () => {
     // client
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { EmbraceSQL } = require(path.join(
@@ -70,12 +67,12 @@ describe("hello world with a parameter", () => {
       "client",
       "node"
     ));
-    const client = EmbraceSQL("http://localhost:45678");
+    const client = EmbraceSQL("http://localhost:45679");
     expect(
       await client.databases.default.hello.sql({ stuff: "nodey thing" })
     ).toMatchSnapshot();
   });
-  it("will make an embeddable engine", async () => {
+  it("will honor handlers with an embeddable engine", async () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { EmbraceSQL } = require(path.join(
       process.cwd(),

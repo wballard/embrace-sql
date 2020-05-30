@@ -1,11 +1,11 @@
-import { RootContext } from "./context";
+import { InternalContext } from "./context";
 import Koa from "koa";
 import bodyparser from "koa-bodyparser";
 import OpenAPIBackend from "openapi-backend";
 import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
-import { Executor } from "./shared-context";
+import { Executors } from "./shared-context";
 
 /**
  * Create a HTTP server exposing an OpenAPI style set of endpoints for each Database
@@ -18,8 +18,8 @@ import { Executor } from "./shared-context";
  * @param executionMap - context name to execution function mapping to actually 'run' a query
  */
 export const createServer = async (
-  rootContext: RootContext,
-  executionMap: Map<string, Executor>
+  rootContext: InternalContext,
+  executionMap: Executors
 ): Promise<Koa<Koa.DefaultState, Koa.DefaultContext>> => {
   const server = new Koa();
 
@@ -36,14 +36,16 @@ export const createServer = async (
   // go ahead and make a handler for both GET and POST
   // some of these GET handlers may not be connected at the OpenAPI layer
   // but a few extra functions isn't going to hurt anything
-  executionMap.forEach((executor, contextName) => {
+  Object.keys(executionMap).forEach((contextName) => {
     handlers[`get__${contextName}`] = async (
       _openAPI,
       httpContext
     ): Promise<void> => {
       try {
         // parameters from the query
-        httpContext.body = await executor(httpContext.request.query);
+        httpContext.body = await executionMap[contextName](
+          httpContext.request.query
+        );
         httpContext.status = 200;
       } catch (e) {
         console.error(e);
@@ -57,7 +59,9 @@ export const createServer = async (
     ): Promise<void> => {
       try {
         // parameters from the body
-        httpContext.body = await executor(httpContext.request.body);
+        httpContext.body = await executionMap[contextName](
+          httpContext.request.body
+        );
         httpContext.status = 200;
       } catch (e) {
         console.error(e);

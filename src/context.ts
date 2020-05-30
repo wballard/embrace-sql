@@ -1,7 +1,13 @@
 import { Configuration } from "./configuration";
 import { embraceDatabases } from "./database-engines";
 import { embraceEventHandlers } from "./event-handlers";
-import { Database, SQLModule, SQLColumnMetadata } from "./shared-context";
+import {
+  Database,
+  SQLModule,
+  SQLColumnMetadata,
+  SQLParameters,
+  SQLRow,
+} from "./shared-context";
 import { TableColumnAst } from "node-sql-parser";
 import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
@@ -14,26 +20,36 @@ export type MigrationFile = {
 };
 
 /**
+ * This is the tree of paths derived from SQL files on disk. This is in
+ * a compressed path format, so each key can have / in it.
+ */
+export type SQLModules = {
+  [index: string]: SQLModule;
+};
+
+/**
  * A single instance of a database for use internally.
  */
 export type DatabaseInternal = Database & {
   /**
-   * This is the tree of paths derived from SQL files on disk. This is in
-   * a compressed path format, so each key can have / in it.
+   * All modules for this database.
    */
-  SQLModules: Map<string, SQLModule>;
+  SQLModules: SQLModules;
   /**
    * Execute the sql module query on this database, and
    * promise some result.
    *
    * @param SQLModule - execute this module, returning results
-   * @param parameters - name value has object of parameters
+   * @param parameters - name value pairs are the passed parameters
    */
-  execute: (sqlModule: SQLModule, parameters: object) => Promise<Array<object>>;
+  execute: (
+    sqlModule: SQLModule,
+    parameters?: SQLParameters
+  ) => Promise<SQLRow[]>;
   /**
    * Analyze the passed module and determine the resultset type(s).
    */
-  analyze: (sqlModule: SQLModuleInternal) => Promise<Array<SQLColumnMetadata>>;
+  analyze: (sqlModule: SQLModuleInternal) => Promise<SQLColumnMetadata[]>;
   /**
    * Parse out the SQL.
    */
@@ -41,26 +57,31 @@ export type DatabaseInternal = Database & {
   /**
    * Do a migration.
    */
-  migrate: (migrationFiles: Array<MigrationFile>) => Promise<void>;
+  migrate: (migrationFiles: MigrationFile[]) => Promise<void>;
 };
 
 /**
- * This is the default to set up a new context on each API invocation, as well as 'the' context
- * for internal code generation.
- *
- * The type here is a bit different as the context used in 'client code' is generated
- * with database type names. Here on the inside
+ * All the databases from the internal point of view.
  */
-export type RootContext = {
+export type AllDatabasesInternal = {
+  [index: string]: DatabaseInternal;
+};
+
+/**
+ * The root context is the context of configuration, databases, and sql modules and is
+ * used to drive code generation and runtime execution 'in the engine' of EmbraceSQL
+ *
+ * The type here is a bit different from the context used in handlers, it has more metadata!
+ */
+export type InternalContext = {
   /**
    * The configuration used to build this context.
    */
   configuration: Configuration;
   /**
-   * All configured databases, by name. This is the internal root context, so this is a hash and
-   * not named properties. Client contexts will be generated with names to provide awesome autocomplete.
+   * All configured databases, by name.
    */
-  databases: Map<string, DatabaseInternal>;
+  databases: AllDatabasesInternal;
 };
 
 /**
@@ -69,17 +90,19 @@ export type RootContext = {
  * This is built to be called -- repeatedly if needed. The idea is you can watch, and
  * rebuild a whole new context as needed -- swapping the root context at runtime to
  * hot-reconfigure the system without worrying about any state leaking.
+ *
+ * @param configuration - build a root context from this configuration.
  */
-export const buildRootContext = async (
+export const buildInternalContext = async (
   configuration: Configuration
-): Promise<RootContext> => {
-  const rootContext = {
+): Promise<InternalContext> => {
+  const internalContext = {
     configuration,
-    databases: new Map<string, DatabaseInternal>(),
+    databases: {},
   };
   // need the database first, their connections are used
   // to mine metadata
-  await embraceDatabases(rootContext);
-  await embraceEventHandlers(rootContext);
-  return rootContext;
+  await embraceDatabases(internalContext);
+  await embraceEventHandlers(internalContext);
+  return internalContext;
 };

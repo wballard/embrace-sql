@@ -1,4 +1,4 @@
-import { RootContext, DatabaseInternal } from "../context";
+import { InternalContext, DatabaseInternal } from "../context";
 import readFile from "read-file-utf8";
 import walk from "ignore-walk";
 import path from "path";
@@ -34,8 +34,8 @@ export const identifier = (key: string): string => {
  * @param rootContext - like other internal methods, run off the root context
  */
 export const embraceEventHandlers = async (
-  rootContext: RootContext
-): Promise<RootContext> => {
+  rootContext: InternalContext
+): Promise<InternalContext> => {
   // this should be the only place where a file walk happens
   const fileNames = await walk({
     path: rootContext.configuration.embraceSQLRoot,

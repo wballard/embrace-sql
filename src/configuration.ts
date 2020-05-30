@@ -3,6 +3,13 @@ import Url from "url-parse";
 import { generateFromTemplates } from "./generator";
 
 /**
+ * Named URLs to databases.
+ */
+type Databases = {
+  [index: string]: Url;
+};
+
+/**
  * The all important root configuration. This tells EmbraceSQL which databases to manage.
  */
 export type Configuration = {
@@ -17,7 +24,7 @@ export type Configuration = {
   /**
    * All available databases.
    */
-  databases?: Map<string, Url>;
+  databases?: Databases;
 };
 
 /**
@@ -50,10 +57,12 @@ export const loadConfiguration = async (
   const config = result.config as Configuration;
   config.embraceSQLRoot = root;
   // pop in some types so we are working with actual URLs
-  const databases = new Map<string, Url>();
-  Object.keys(result.config.databases).forEach((databaseName) => {
-    databases[databaseName] = new Url(result.config.databases[databaseName]);
-  });
+  const databases = Object.fromEntries(
+    Object.keys(result.config.databases).map((databaseName) => [
+      databaseName,
+      new Url(result.config.databases[databaseName]),
+    ])
+  );
   return {
     embraceSQLRoot: result.config.embraceSQLRoot,
     databases,

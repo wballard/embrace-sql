@@ -1,4 +1,4 @@
-import { RootContext } from "./context";
+import { InternalContext } from "./context";
 import path from "path";
 import walk from "ignore-walk";
 import readFile from "read-file-utf8";
@@ -7,7 +7,7 @@ import readFile from "read-file-utf8";
  * Run migrations for all databases. Each database is contained in its
  * own transaction.
  */
-export const migrate = async (rootContext: RootContext): Promise<void> => {
+export const migrate = async (rootContext: InternalContext): Promise<void> => {
   for (const databaseName of Object.keys(rootContext.databases)) {
     const migrationPath = path.join(
       rootContext.configuration.embraceSQLRoot,

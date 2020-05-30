@@ -1,5 +1,5 @@
-import { RootContext } from "./context";
-import { Executor, SQLModule } from "./shared-context";
+import { InternalContext } from "./context";
+import { Executors, SQLModule, SQLParameters, SQLRow } from "./shared-context";
 import { DatabaseInternal } from "./context";
 
 /**
@@ -7,9 +7,7 @@ import { DatabaseInternal } from "./context";
  * and go right at your databases directly from a node process, this removes the need
  * for the EmbraceSQL server, and is handy for React Native local SQLite.
  */
-export const createInProcess = (
-  rootContext: RootContext
-): Map<string, Executor> => {
+export const createInProcess = (rootContext: InternalContext): Executors => {
   type DatabaseModule = {
     database: DatabaseInternal;
     sqlModule: SQLModule;
@@ -21,17 +19,16 @@ export const createInProcess = (
         database,
         sqlModule,
       }))
-  ) as Array<DatabaseModule>;
+  ) as DatabaseModule[];
 
   // process any given sql module by asking it's owning database to execute it
   // each module has a `contextName` which is a nice key to use in this module Map
-  const handlers = new Map<string, Executor>();
-  allSQLModules.forEach((dbModule) => {
-    handlers.set(
+  const handlers = Object.fromEntries(
+    allSQLModules.map((dbModule) => [
       dbModule.sqlModule.contextName,
-      async (parameters: object): Promise<object[]> =>
-        dbModule.database.execute(dbModule.sqlModule, parameters)
-    );
-  });
+      async (parameters: SQLParameters): Promise<SQLRow[]> =>
+        dbModule.database.execute(dbModule.sqlModule, parameters),
+    ])
+  );
   return handlers;
 };

@@ -2,7 +2,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { loadConfiguration, Configuration } from "../src/configuration";
-import { buildRootContext, RootContext } from "../src/context";
+import { buildInternalContext, InternalContext } from "../src/context";
 import { createServer } from "../src/server";
 import { createInProcess } from "../src/inprocess";
 import request from "supertest";
@@ -27,7 +27,7 @@ declare global {
  */
 describe("hello world configuration!", () => {
   let theConfig: Configuration = undefined;
-  let rootContext: RootContext;
+  let rootContext: InternalContext;
   let root = "";
   beforeAll(async () => {
     root = path.relative(process.cwd(), "./tests/configs/hello");
@@ -37,7 +37,7 @@ describe("hello world configuration!", () => {
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration(root);
     theConfig = configuration;
-    rootContext = await buildRootContext(configuration);
+    rootContext = await buildInternalContext(configuration);
   });
   expect.extend({
     toExist(fileName) {
@@ -61,10 +61,8 @@ describe("hello world configuration!", () => {
     expect("default/hello.sql").toExist();
   });
   it("makes empty handlers for you", async () => {
-    expect("default/hello.sql.beforeBatch.ts").toExist();
     expect("default/hello.sql.before.ts").toExist();
     expect("default/hello.sql.after.ts").toExist();
-    expect("default/hello.sql.afterBatch.ts").toExist();
     expect("default/hello.sql.afterError.ts").toExist();
   });
   it("exposes methods to run hello sql", async () => {
@@ -129,7 +127,7 @@ describe("hello world configuration!", () => {
   });
   it("will watch for changes and create a new context", async (done) => {
     const watcher = watchRoot(root);
-    watcher.emitter.on("reload", async (newContext: RootContext) => {
+    watcher.emitter.on("reload", async (newContext: InternalContext) => {
       // it's a new object
       expect(newContext).not.toBe(rootContext);
       // and it has the values we expect

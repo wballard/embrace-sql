@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { loadConfiguration } from "../configuration";
-import { buildRootContext, RootContext } from "../context";
+import { buildInternalContext, InternalContext } from "../context";
 import { createServer } from "../server";
 import { watchRoot } from "../watcher";
 import { Server } from "http";
@@ -26,7 +26,7 @@ export default new Command()
       const port = parseInt(PORT || process.env.PORT || "8765");
       const configuration = await loadConfiguration(root);
 
-      const listen = async (rootContext: RootContext): Promise<Server> => {
+      const listen = async (rootContext: InternalContext): Promise<Server> => {
         const server = await createServer(
           rootContext,
           createInProcess(rootContext)
@@ -37,10 +37,10 @@ export default new Command()
         });
         return server.listen(port);
       };
-      const initialContext = await buildRootContext(configuration);
+      const initialContext = await buildInternalContext(configuration);
       let listener = await listen(initialContext);
       const watcher = watchRoot(root);
-      watcher.emitter.on("reload", async (newContext: RootContext) => {
+      watcher.emitter.on("reload", async (newContext: InternalContext) => {
         console.info("Reloading");
         listener.close();
         listener = await listen(newContext);

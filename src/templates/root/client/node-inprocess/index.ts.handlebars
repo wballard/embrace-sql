@@ -3,10 +3,10 @@ to: "{{configuration.embraceSQLRoot}}/client/node-inprocess/index.ts"
 ---
 /* eslint-disable @typescript-eslint/camelcase */
 
-import * as context from "../../context";
+import * as types from "../../context";
 
 /**
-* Create an EmbraceSQL cient for use embedded. This takes an execution map, 
+* Create an EmbraceSQL cient for use embedded in process. This takes an execution map, 
 * which directly executes a SQLModule, by name, with a function, not an HTTP POST.
 * 
 * This function can be any thing that takes SQL Parameters -- name value pairs in 
@@ -17,7 +17,7 @@ import * as context from "../../context";
 * a way to execute a SQLModule by its unique `contextName`.
 */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const EmbraceSQL = (executionMap: Map<string, context.Executor>) => {
+export const EmbraceSQL = (executionMap: types.Executors) => {
   const DatabaseMap = {
     databases: {
     {{#eachInMap databases}}
@@ -38,18 +38,16 @@ export const EmbraceSQL = (executionMap: Map<string, context.Executor>) => {
 {{name}}: {
   {{#if value}}
   {{#if value.namedParameters.length}}
-  sql: async (parameters: context.{{value.contextName}}Parameters) : Promise<context.{{value.contextName}}Results> => {
-    const e = executionMap.get("{{value.contextName}}");
-    const results = e ? await e(parameters) : [];
-    return results as unknown as context.{{value.contextName}}Results;
-  }
+  sql: async (parameters: types.{{value.contextName}}Parameters) : Promise<types.{{value.contextName}}Results> => {
   {{else}}
-  sql: async () : Promise<context.{{value.contextName}}Results> => {
-    const e = executionMap.get("{{value.contextName}}");
-    const results = e ? await e({}) : [];
-    return results as unknown as context.{{value.contextName}}Results;
-  }
+  sql: async () : Promise<types.{{value.contextName}}Results> => {
+    const parameters = {};
   {{/if}}
+    // database {{database.name}} module {{value.fullPath}}
+    const e = executionMap.{{value.contextName}};
+    const results = e ? await e(parameters) : [];
+    return results as unknown as types.{{value.contextName}}Results;
+  }
   {{/if}}
   {{#each children}}
     {{> moduleTree this database=database}}

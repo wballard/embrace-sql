@@ -1,4 +1,4 @@
-import { RootContext } from "../../context";
+import { InternalContext } from "../../context";
 import { generateFromTemplates } from "../../generator";
 
 /**
@@ -6,7 +6,9 @@ import { generateFromTemplates } from "../../generator";
  *
  * @rootContext - as usual, our root context
  */
-export default async (rootContext: RootContext): Promise<RootContext> => {
+export default async (
+  rootContext: InternalContext
+): Promise<InternalContext> => {
   await generateFromTemplates(Object.assign({}, rootContext), "root", true);
   return rootContext;
 };

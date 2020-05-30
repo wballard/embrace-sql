@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { loadConfiguration } from "../configuration";
-import { buildRootContext } from "../context";
+import { buildInternalContext } from "../context";
 import { migrate } from "../migrations";
 import expandHomeDir from "expand-home-dir";
 import path from "path";
@@ -22,7 +22,7 @@ export default new Command()
       );
       console.info("beginning migration", root);
       const configuration = await loadConfiguration(root);
-      const initialContext = await buildRootContext(configuration);
+      const initialContext = await buildInternalContext(configuration);
       await migrate(initialContext);
     }
   );

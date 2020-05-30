@@ -1,4 +1,4 @@
-import { RootContext, DatabaseInternal } from "../../context";
+import { InternalContext, DatabaseInternal } from "../../context";
 import { SQLModuleInternal } from ".";
 
 /**
@@ -10,10 +10,10 @@ import { SQLModuleInternal } from ".";
  * @param SQLFileName - full file path to a single SQL
  */
 export default async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   database: DatabaseInternal,
   sqlModule: SQLModuleInternal
-): Promise<RootContext> => {
+): Promise<InternalContext> => {
   sqlModule.resultsetMetadata = await database.analyze(sqlModule);
   return rootContext;
 };

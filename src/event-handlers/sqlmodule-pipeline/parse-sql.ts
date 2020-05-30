@@ -1,4 +1,4 @@
-import { RootContext, DatabaseInternal } from "../../context";
+import { InternalContext, DatabaseInternal } from "../../context";
 import { SQLModuleInternal } from ".";
 
 /**
@@ -10,10 +10,10 @@ import { SQLModuleInternal } from ".";
  * @param sqlModule - parse and update this module
  */
 export default async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   database: DatabaseInternal,
   sqlModule: SQLModuleInternal
-): Promise<RootContext> => {
+): Promise<InternalContext> => {
   const { ast } = database.parse(sqlModule);
   if (Array.isArray(ast)) {
     // we are only supporting single statements

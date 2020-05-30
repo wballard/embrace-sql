@@ -1,4 +1,4 @@
-import { RootContext } from "./context";
+import { InternalContext } from "./context";
 import walk from "ignore-walk";
 import path from "path";
 import readFile from "read-file-utf8";
@@ -121,7 +121,7 @@ export type ToFile = {
  * @returns - a promise of the named files -- but this function doesn't do the writing
  */
 export const renderTemplates = async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   templatesInDirectory: string
 ): Promise<Array<ToFile>> => {
   // set up our partials that are actual code -- not really even handlebars

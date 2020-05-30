@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { loadConfiguration } from "./configuration";
-import { buildRootContext } from "./context";
+import { buildInternalContext } from "./context";
 import chokidar from "chokidar";
 
 /**
@@ -29,7 +29,7 @@ export const watchRoot = (embraceSQLRoot: string): CloseableEventEmitter => {
   const reload = async (path): Promise<void> => {
     console.info("reload needed", path);
     const configuration = await loadConfiguration(embraceSQLRoot);
-    const newRootContext = await buildRootContext(configuration);
+    const newRootContext = await buildInternalContext(configuration);
     emitter.emit("reload", newRootContext);
   };
   // this is super convenient to not drown in a pile of single file changes

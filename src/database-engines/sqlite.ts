@@ -1,17 +1,23 @@
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import path from "path";
-import { SQLModule, SQLType, SQLColumnMetadata } from "../shared-context";
+import {
+  SQLModule,
+  SQLTypeName,
+  SQLColumnMetadata,
+  SQLRow,
+  SQLParameters,
+} from "../shared-context";
 import { DatabaseInternal, MigrationFile } from "../context";
 import { Parser, TableColumnAst } from "node-sql-parser";
 import { identifier } from "../event-handlers";
 import { SQLModuleInternal } from "../event-handlers/sqlmodule-pipeline";
-import { RootContext } from "../context";
+import { InternalContext } from "../context";
 
 /**
  * Map SQLite to our neutral type strings.
  */
-const typeMap = (fromSQLite: string): SQLType => {
+const typeMap = (fromSQLite: string): SQLTypeName => {
   switch (fromSQLite) {
     default:
       return "string";
@@ -26,7 +32,7 @@ const typeMap = (fromSQLite: string): SQLType => {
  * can actually be a network file - so everything can go wrong...
  */
 export default async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   databaseName: string
 ): Promise<DatabaseInternal> => {
   const dbUrl = rootContext.configuration?.databases[databaseName];
@@ -55,7 +61,7 @@ export default async (
   return {
     name: databaseName,
     transactions,
-    SQLModules: new Map<string, SQLModule>(),
+    SQLModules: {},
     parse: (sqlModule: SQLModule): TableColumnAst => {
       const parser = new Parser();
       const parsed = parser.parse(sqlModule.sql, { database: "postgresql" });
@@ -63,8 +69,8 @@ export default async (
     },
     execute: async (
       sqlModule: SQLModule,
-      parameters: object
-    ): Promise<Array<object>> => {
+      parameters?: SQLParameters
+    ): Promise<SQLRow[]> => {
       const statement = await database.prepare(sqlModule.sql);
       if (parameters && Object.keys(parameters).length) {
         // map to SQLite names
@@ -82,10 +88,10 @@ export default async (
     ): Promise<Array<SQLColumnMetadata>> => {
       /**
        * This is a bit involved, taking each select, making a
-       * temp table from it, inspecting -- and rolling the whole
-       * thing back.
+       * temp table from it, inspecting, and tossing the temp table.
+       *
+       * This temp table 'figures out' the columns and types for us.
        */
-      sqlModule.resultsetMetadata = [];
 
       if (sqlModule.ast?.type === "select") {
         const parser = new Parser();
@@ -125,7 +131,7 @@ export default async (
         return [];
       }
     },
-    migrate: async (migrationFiles: Array<MigrationFile>): Promise<void> => {
+    migrate: async (migrationFiles: MigrationFile[]): Promise<void> => {
       /**
        * Migrations want to run only once, we we'l need a tracking table to
        * mark of what's already been run.

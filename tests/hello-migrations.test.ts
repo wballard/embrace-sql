@@ -1,12 +1,12 @@
 import path from "path";
 import fs from "fs-extra";
 import { loadConfiguration } from "../src/configuration";
-import { buildRootContext, RootContext } from "../src/context";
+import { buildInternalContext, InternalContext } from "../src/context";
 import { migrate } from "../src/migrations";
 import rmfr from "rmfr";
 
 describe("hello world of migrations", () => {
-  let rootContext: RootContext;
+  let rootContext: InternalContext;
   let root: string;
   beforeAll(async () => {
     root = path.relative(process.cwd(), "./tests/configs/hello-migrations");
@@ -34,7 +34,7 @@ describe("hello world of migrations", () => {
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration(root);
-    rootContext = await buildRootContext(configuration);
+    rootContext = await buildInternalContext(configuration);
     await migrate(rootContext);
     // and post migration to query
     // set up
@@ -43,7 +43,7 @@ describe("hello world of migrations", () => {
       path.join(root, "default", "hello.sql"),
       "SELECT * FROM strings"
     );
-    rootContext = await buildRootContext(configuration);
+    rootContext = await buildInternalContext(configuration);
     const results = await rootContext.databases["default"].execute(
       rootContext.databases["default"].SQLModules["hello"]
     );

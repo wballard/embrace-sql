@@ -12,30 +12,31 @@ export type AvailableDatabaseNames =
   {{#eachInMap databases}}
   "{{@key}}" {{#if @last}};{{else}}|{{/if}}
   {{/eachInMap}}
-export type AvailableDatabases = Databases<AvailableDatabaseNames>;
 
-// each different API endpoint gets a context type with parameters and results
+// each SQLModule  gets a context type with parameters (if present) and results
 {{#eachInMap databases}}
 {{#eachInMap value.SQLModules}}
 {{> resultsetMetadata value}}
 {{#if value.namedParameters.length }}
 {{> parametersMetadata value}}
 export type {{value.contextName}}Context = 
-  Context<AvailableDatabaseNames> & { 
+  Context & { 
     results: {{value.contextName}}Results, 
     parameters: {{value.contextName}}Parameters
   };
 {{else}}
 export type {{value.contextName}}Context = 
-  Context<AvailableDatabaseNames> & { results: {{value.contextName}}Results};
+  Context & { results: {{value.contextName}}Results};
 {{/if}}
+export type {{value.contextName}}BeforeHandler = 
+  (context: {{value.contextName}}Context) => Promise<{{value.contextName}}Context>;
 {{/eachInMap}}
 {{/eachInMap}}
 
 
 {{#*inline "resultsetMetadata"}}
 export type {{contextName}}Results = Array<
-{
+SQLRow & {
   {{#each resultsetMetadata}}
     {{name}}: {{type}}
   {{/each}}
@@ -45,10 +46,10 @@ export type {{contextName}}Results = Array<
 
 {{#*inline "parametersMetadata"}}
 export type {{contextName}}Parameters = 
-{
+SQLParameters & {
   {{#each namedParameters}}
     {{name}}: {{type}}
   {{/each}}
 };
-
 {{/inline}}
+

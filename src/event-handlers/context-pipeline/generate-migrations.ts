@@ -1,4 +1,4 @@
-import { RootContext } from "../../context";
+import { InternalContext } from "../../context";
 import path from "path";
 import fs from "fs-extra";
 
@@ -7,7 +7,9 @@ import fs from "fs-extra";
  *
  * @rootContext - as usual, our root context
  */
-export default async (rootContext: RootContext): Promise<RootContext> => {
+export default async (
+  rootContext: InternalContext
+): Promise<InternalContext> => {
   for (const databaseName of Object.keys(rootContext.databases)) {
     await fs.ensureDir(
       path.join(

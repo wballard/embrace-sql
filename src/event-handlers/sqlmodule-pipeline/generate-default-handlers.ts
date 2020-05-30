@@ -1,6 +1,7 @@
-import { RootContext } from "../../context";
+import { InternalContext } from "../../context";
 import { generateFromTemplates } from "../../generator";
 import { SQLModuleInternal } from ".";
+import path from "path";
 
 /**
  * Every SQL file needs its handlers
@@ -9,13 +10,19 @@ import { SQLModuleInternal } from ".";
  * @param SQLFileName - full file path to a single SQL
  */
 export default async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   sqlModule: SQLModuleInternal
-): Promise<RootContext> => {
+): Promise<InternalContext> => {
   // smells like SQLSpirit...
   if (sqlModule.ast) {
     await generateFromTemplates(
-      Object.assign({}, rootContext, { module: sqlModule }),
+      Object.assign({}, rootContext, {
+        module: sqlModule,
+        relativeToRoot: path.relative(
+          path.dirname(sqlModule.fullPath),
+          rootContext.configuration.embraceSQLRoot
+        ),
+      }),
       "handlers"
     );
   }

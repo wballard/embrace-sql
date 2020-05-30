@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+
 /**
  * This containes context types shared between the EmbraceSQL server
  * and any generated code used by clients.
@@ -256,3 +258,25 @@ export type Executor = (parameters: SQLParameters) => Promise<SQLRow[]>;
 export type Executors = {
   [index: string]: Executor;
 };
+
+// Generation starts here
+
+// All named databases
+export type AvailableDatabaseNames = "default";
+
+// each SQLModule  gets a context type with parameters (if present) and results
+export type default_helloResults = Array<
+  SQLRow & {
+    message: string;
+  }
+>;
+export type default_helloParameters = SQLParameters & {
+  stuff: string;
+};
+export type default_helloContext = Context & {
+  results: default_helloResults;
+  parameters: default_helloParameters;
+};
+export type default_helloBeforeHandler = (
+  context: default_helloContext
+) => Promise<default_helloContext>;
