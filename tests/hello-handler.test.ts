@@ -25,6 +25,7 @@ describe("hello world with a handler", () => {
       path.join(root, "default", "hello.sql"),
       "SELECT :stuff as message"
     );
+    // before handlers are exciting, as noted by three exclamation points added to the parameter
     await fs.writeFile(
       path.join(root, "default", "hello.sql.before.ts"),
       `
@@ -33,6 +34,22 @@ import * as types from "../context";
 
 export const before: types.default_helloHandler = async (context) => {
   context.parameters.stuff = context.parameters.stuff + "!!!";
+  return context;
+};
+      `
+    );
+    // double results === double fun
+    await fs.writeFile(
+      path.join(root, "default", "hello.sql.after.ts"),
+      `
+/* eslint-disable @typescript-eslint/camelcase */
+import * as types from "../context";
+
+export const after: types.default_helloHandler = async (context) => {
+  context.results = [
+    ...context.results,
+    ...context.results,
+  ];
   return context;
 };
       `

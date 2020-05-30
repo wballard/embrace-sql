@@ -27,6 +27,7 @@ export type {{value.contextName}}Handler =
   (context: {{value.contextName}}Context) => Promise<{{value.contextName}}Context>;
 // generated imports for handlers
 import {before as {{value.contextName}}BeforeHandler} from "./{{value.restPath}}.sql.before";
+import {after as {{value.contextName}}AfterHandler} from "./{{value.restPath}}.sql.after";
 {{/eachInMap}}
 {{/eachInMap}}
 
@@ -51,8 +52,8 @@ SQLParameters & {
 {{/inline}}
 
 
-// all database all modules direct handlers
-// each SQL Module has a direct execution decorator to attach handlers
+// each SQL Module has a direct execution decorator to attach handlers both before and after
+// wrapping the direct executor that just interacts with the underlying database
 export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModuleDirectExecutors) => {
 {{#eachInMap databases}}
   return {
@@ -63,6 +64,7 @@ export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModule
         const executor = directQueryExecutors["{{value.contextName}}"];
         const results = executor ? await executor(context.parameters) : [];
         context.results = results as unknown as {{value.contextName}}Results;
+        await {{value.contextName}}AfterHandler(context);
         return context;
       },
     {{/eachInMap}}
@@ -71,11 +73,12 @@ export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModule
 };
 
 // each folder has a direct execution decorator to attach handlers
+// TODO
 
 // combine the results of generated code -- handlers, parameters, and results
 // with an existing direct executor -- which is going to be an internal context
 // this is now a full featured EmbraceSQL that can be mounted in process or
-// in an OpenAPI server
+// in an OpenAPI server to invoke a SQLModule with a context, handle it, execute it, an return
 
 export const decorateInternalContext = (internalContext: SQLModuleDirectExecutors) => {
   return {
