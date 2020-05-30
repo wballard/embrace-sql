@@ -40,7 +40,13 @@ export const before: types.default_helloHandler = async (context) => {
     // get the configuration and generate - let's do this just the once for speed
     const configuration = await loadConfiguration(root);
     rootContext = await buildInternalContext(configuration);
-    const server = await createServer(rootContext);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { decorateInternalContext } = require(path.join(
+      process.cwd(),
+      rootContext.configuration.embraceSQLRoot,
+      "context"
+    ));
+    const server = await createServer(decorateInternalContext(rootContext));
     callback = server.callback();
     listening = server.listen(45679);
   });

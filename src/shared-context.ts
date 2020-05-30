@@ -267,3 +267,19 @@ export type SQLModuleDirectExecutors = {
    */
   directQueryExecutors: Executors;
 };
+
+/**
+ * A map of named, fully contextualized executors, complete
+ * with handlers. This is used to wrap and mount the generated code in a runtime
+ * server.
+ */
+export type ContextualSQLModuleExecutors = {
+  [index: string]: (Context) => Promise<Context>;
+};
+
+/**
+ * An object with fully contextualized execution capability.
+ */
+export type HasContextualSQLModuleExecutors = {
+  contextualSQLModuleExecutors: ContextualSQLModuleExecutors;
+};

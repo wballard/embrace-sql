@@ -71,3 +71,15 @@ export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModule
 };
 
 // each folder has a direct execution decorator to attach handlers
+
+// combine the results of generated code -- handlers, parameters, and results
+// with an existing direct executor -- which is going to be an internal context
+// this is now a full featured EmbraceSQL that can be mounted in process or
+// in an OpenAPI server
+
+export const decorateInternalContext = (internalContext: SQLModuleDirectExecutors) => {
+  return {
+    ...internalContext,
+    contextualSQLModuleExecutors: SQLModuleExecutorsWithHandlers(internalContext),
+  };
+}

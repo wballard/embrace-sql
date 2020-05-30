@@ -8,14 +8,14 @@ Array [
 ]
 `;
 
-exports[`hello world with a handler will honor handlers over an HTTP call - GET 1`] = `"[{\\"message\\":\\"whirled\\"}]"`;
+exports[`hello world with a handler will honor handlers over an HTTP call - GET 1`] = `"[{\\"message\\":\\"whirled!!!\\"}]"`;
 
-exports[`hello world with a handler will honor handlers over an HTTP call - GET 2`] = `"[{\\"message\\":\\"amazing\\"}]"`;
+exports[`hello world with a handler will honor handlers over an HTTP call - GET 2`] = `"[{\\"message\\":\\"amazing!!!\\"}]"`;
 
 exports[`hello world with a handler will honor handlers with a client call 1`] = `
 Array [
   Object {
-    "message": "nodey thing",
+    "message": "nodey thing!!!",
   },
 ]
 `;

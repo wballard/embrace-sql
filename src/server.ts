@@ -5,6 +5,7 @@ import OpenAPIBackend from "openapi-backend";
 import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
+import { HasContextualSQLModuleExecutors } from "./shared-context";
 
 /**
  * Create a HTTP server exposing an OpenAPI style set of endpoints for each Database
@@ -17,7 +18,7 @@ import path from "path";
  * @param executionMap - context name to execution function mapping to actually 'run' a query
  */
 export const createServer = async (
-  rootContext: InternalContext
+  rootContext: InternalContext & HasContextualSQLModuleExecutors
 ): Promise<Koa<Koa.DefaultState, Koa.DefaultContext>> => {
   const server = new Koa();
 
@@ -41,9 +42,12 @@ export const createServer = async (
     ): Promise<void> => {
       try {
         // parameters from the query
-        httpContext.body = await rootContext.directQueryExecutors[contextName](
-          httpContext.request.query
-        );
+        const context = {
+          parameters: httpContext.request.query,
+          results: [],
+        };
+        await rootContext.contextualSQLModuleExecutors[contextName](context);
+        httpContext.body = context.results;
         httpContext.status = 200;
       } catch (e) {
         console.error(e);
@@ -57,9 +61,12 @@ export const createServer = async (
     ): Promise<void> => {
       try {
         // parameters from the body
-        httpContext.body = await rootContext.directQueryExecutors[contextName](
-          httpContext.request.body
-        );
+        const context = {
+          parameters: httpContext.request.body,
+          results: [],
+        };
+        await rootContext.contextualSQLModuleExecutors[contextName](context);
+        httpContext.body = context.results;
         httpContext.status = 200;
       } catch (e) {
         console.error(e);
