@@ -210,5 +210,9 @@ Object {
       },
     },
   },
+  "directQueryExecutors": Object {
+    "default_hello": [Function],
+    "default_yo": [Function],
+  },
 }
 `;

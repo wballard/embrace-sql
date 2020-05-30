@@ -5,7 +5,6 @@ import { buildInternalContext, InternalContext } from "../src/context";
 import { createServer } from "../src/server";
 import request from "supertest";
 import rmfr from "rmfr";
-import { createInProcess } from "../src/inprocess";
 import http from "http";
 
 /**
@@ -32,10 +31,7 @@ describe("hello world with a parameter", () => {
     // get the configuration and generate - let's do this just the once for speed
     const configuration = await loadConfiguration(root);
     rootContext = await buildInternalContext(configuration);
-    const server = await createServer(
-      rootContext,
-      createInProcess(rootContext)
-    );
+    const server = await createServer(rootContext);
     callback = server.callback();
     listening = server.listen(45678);
   });
@@ -83,7 +79,7 @@ describe("hello world with a parameter", () => {
       "client",
       "node-inprocess"
     ));
-    const client = EmbraceSQL(createInProcess(rootContext));
+    const client = EmbraceSQL(rootContext);
     expect(
       await client.databases.default.hello.sql({ stuff: "hole" })
     ).toMatchSnapshot();

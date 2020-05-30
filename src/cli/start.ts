@@ -6,7 +6,6 @@ import { watchRoot } from "../watcher";
 import { Server } from "http";
 import expandHomeDir from "expand-home-dir";
 import path from "path";
-import { createInProcess } from "../inprocess";
 
 /**
  * Initialization action.
@@ -27,10 +26,7 @@ export default new Command()
       const configuration = await loadConfiguration(root);
 
       const listen = async (rootContext: InternalContext): Promise<Server> => {
-        const server = await createServer(
-          rootContext,
-          createInProcess(rootContext)
-        );
+        const server = await createServer(rootContext);
         console.info("Listening", {
           EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,
           PORT: port,

@@ -5,7 +5,6 @@ import OpenAPIBackend from "openapi-backend";
 import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
-import { Executors } from "./shared-context";
 
 /**
  * Create a HTTP server exposing an OpenAPI style set of endpoints for each Database
@@ -18,8 +17,7 @@ import { Executors } from "./shared-context";
  * @param executionMap - context name to execution function mapping to actually 'run' a query
  */
 export const createServer = async (
-  rootContext: InternalContext,
-  executionMap: Executors
+  rootContext: InternalContext
 ): Promise<Koa<Koa.DefaultState, Koa.DefaultContext>> => {
   const server = new Koa();
 
@@ -36,14 +34,14 @@ export const createServer = async (
   // go ahead and make a handler for both GET and POST
   // some of these GET handlers may not be connected at the OpenAPI layer
   // but a few extra functions isn't going to hurt anything
-  Object.keys(executionMap).forEach((contextName) => {
+  Object.keys(rootContext.directQueryExecutors).forEach((contextName) => {
     handlers[`get__${contextName}`] = async (
       _openAPI,
       httpContext
     ): Promise<void> => {
       try {
         // parameters from the query
-        httpContext.body = await executionMap[contextName](
+        httpContext.body = await rootContext.directQueryExecutors[contextName](
           httpContext.request.query
         );
         httpContext.status = 200;
@@ -59,7 +57,7 @@ export const createServer = async (
     ): Promise<void> => {
       try {
         // parameters from the body
-        httpContext.body = await executionMap[contextName](
+        httpContext.body = await rootContext.directQueryExecutors[contextName](
           httpContext.request.body
         );
         httpContext.status = 200;

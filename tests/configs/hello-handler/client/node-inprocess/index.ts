@@ -14,7 +14,10 @@ import * as types from "../../context";
  * a way to execute a SQLModule by its unique `contextName`.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const EmbraceSQL = (executionMap: types.Executors) => {
+type EmbraceSQLParameters = {
+  directQueryExecutors: types.Executors;
+};
+export const EmbraceSQL = ({ directQueryExecutors }: EmbraceSQLParameters) => {
   const DatabaseMap = {
     databases: {
       default: {
@@ -23,7 +26,7 @@ export const EmbraceSQL = (executionMap: types.Executors) => {
             parameters: types.default_helloParameters
           ): Promise<types.default_helloResults> => {
             // database default module tests/configs/hello-handler/default/hello.sql
-            const e = executionMap.default_hello;
+            const e = directQueryExecutors.default_hello;
             const results = e ? await e(parameters) : [];
             return (results as unknown) as types.default_helloResults;
           },

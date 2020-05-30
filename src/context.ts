@@ -7,6 +7,7 @@ import {
   SQLColumnMetadata,
   SQLParameters,
   SQLRow,
+  Executors,
 } from "./shared-context";
 import { TableColumnAst } from "node-sql-parser";
 import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
@@ -82,6 +83,11 @@ export type InternalContext = {
    * All configured databases, by name.
    */
   databases: AllDatabasesInternal;
+  /**
+   * Direct to database query execution, no handlers here -- this is the
+   * 'real' query interface.
+   */
+  directQueryExecutors: Executors;
 };
 
 /**
@@ -99,6 +105,7 @@ export const buildInternalContext = async (
   const internalContext = {
     configuration,
     databases: {},
+    directQueryExecutors: {},
   };
   // need the database first, their connections are used
   // to mine metadata

@@ -4,7 +4,6 @@ import fs from "fs-extra";
 import { loadConfiguration, Configuration } from "../src/configuration";
 import { buildInternalContext, InternalContext } from "../src/context";
 import { createServer } from "../src/server";
-import { createInProcess } from "../src/inprocess";
 import request from "supertest";
 import readFile from "read-file-utf8";
 import rmfr from "rmfr";
@@ -93,8 +92,7 @@ describe("hello world configuration!", () => {
   });
   it("will make a runnable server", async () => {
     const server = await createServer(
-      rootContext,
-      createInProcess(rootContext)
+      rootContext
     );
     const listening = server.listen(4567);
     try {
@@ -122,7 +120,7 @@ describe("hello world configuration!", () => {
       "client",
       "node-inprocess"
     ));
-    const client = EmbraceSQL(createInProcess(rootContext));
+    const client = EmbraceSQL(rootContext);
     expect(await client.databases.default.hello.sql()).toMatchSnapshot();
   });
   it("will watch for changes and create a new context", async (done) => {

@@ -17,7 +17,10 @@ import * as types from "../../context";
 * a way to execute a SQLModule by its unique `contextName`.
 */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const EmbraceSQL = (executionMap: types.Executors) => {
+type EmbraceSQLParameters = {
+  directQueryExecutors: types.Executors;
+}
+export const EmbraceSQL = ({directQueryExecutors} : EmbraceSQLParameters) => {
   const DatabaseMap = {
     databases: {
     {{#eachInMap databases}}
@@ -44,7 +47,7 @@ export const EmbraceSQL = (executionMap: types.Executors) => {
     const parameters = {};
   {{/if}}
     // database {{database.name}} module {{value.fullPath}}
-    const e = executionMap.{{value.contextName}};
+    const e = directQueryExecutors.{{value.contextName}};
     const results = e ? await e(parameters) : [];
     return results as unknown as types.{{value.contextName}}Results;
   }
