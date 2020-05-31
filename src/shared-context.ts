@@ -123,6 +123,10 @@ export type SQLModule = {
    * Result set metadata, which may be an array because of semicolon batches.
    */
   resultsetMetadata?: SQLColumnMetadata[];
+  /**
+   * When true, this module may modify data.
+   */
+  canModifyData?: boolean;
 };
 
 /**

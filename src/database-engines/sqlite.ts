@@ -9,7 +9,7 @@ import {
   SQLParameters,
 } from "../shared-context";
 import { DatabaseInternal, MigrationFile } from "../context";
-import { Parser, TableColumnAst } from "node-sql-parser";
+import { Parser, AST } from "node-sql-parser";
 import { identifier } from "../event-handlers";
 import { SQLModuleInternal } from "../event-handlers/sqlmodule-pipeline";
 import { InternalContext } from "../context";
@@ -19,6 +19,8 @@ import { InternalContext } from "../context";
  */
 const typeMap = (fromSQLite: string): SQLTypeName => {
   switch (fromSQLite) {
+    case "INT":
+      return "number";
     default:
       return "string";
   }
@@ -62,9 +64,11 @@ export default async (
     name: databaseName,
     transactions,
     SQLModules: {},
-    parse: (sqlModule: SQLModule): TableColumnAst => {
+    parse: (sqlModule: SQLModule): AST[] | AST => {
       const parser = new Parser();
-      const parsed = parser.parse(sqlModule.sql, { database: "postgresql" });
+      const parsed = parser.astify(sqlModule.sql.trim(), {
+        database: "postgresql",
+      });
       return parsed;
     },
     execute: async (

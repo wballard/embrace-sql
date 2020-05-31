@@ -32,7 +32,7 @@ const restructure = (
   ...additional: any[]
 ): string => {
   const siteInfo = () => {
-    if (message.stack) {
+    if (message?.stack) {
       const stack = stackTraceParser.parse(message.stack);
       return {
         path: path.relative(process.cwd(), stack[0].file),

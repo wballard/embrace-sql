@@ -5,7 +5,7 @@ import OpenAPIBackend from "openapi-backend";
 import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
-import { HasContextualSQLModuleExecutors } from "./shared-context";
+import { HasContextualSQLModuleExecutors, SQLModule } from "./shared-context";
 import { restructure } from "./structured-console";
 
 /**
@@ -30,35 +30,46 @@ export const createServer = async (
       path.join(rootContext.configuration.embraceSQLRoot, "openapi.yaml")
     )
   );
+  // all the modules by context name
+  const allSQLModules = new Map<string, SQLModule>();
+  for (const databaseName of Object.keys(rootContext.databases)) {
+    for (const moduleName of Object.keys(
+      rootContext.databases[databaseName].SQLModules
+    )) {
+      const sqlModule =
+        rootContext.databases[databaseName].SQLModules[moduleName];
+      allSQLModules[sqlModule.contextName] = sqlModule;
+    }
+  }
 
   const handlers = {};
 
   // go ahead and make a handler for both GET and POST
-  // some of these GET handlers may not be connected at the OpenAPI layer
-  // but a few extra functions isn't going to hurt anything
   Object.keys(rootContext.directQueryExecutors).forEach((contextName) => {
-    handlers[`get__${contextName}`] = async (
-      _openAPI,
-      httpContext
-    ): Promise<void> => {
-      try {
-        // parameters from the query
-        const context = {
-          parameters: httpContext.request.query,
-          results: [],
-        };
-        await rootContext.contextualSQLModuleExecutors[contextName](context);
-        httpContext.body = context.results;
-        httpContext.status = 200;
-      } catch (e) {
-        // this is the very far edge of the system, time for a log
-        if (rootContext.configuration.logLevels.includes("error"))
-          console.error(e);
-        // send the full error to the client
-        httpContext.status = 500;
-        httpContext.body = restructure("error", e);
-      }
-    };
+    if (!allSQLModules[contextName].canModifyData) {
+      handlers[`get__${contextName}`] = async (
+        _openAPI,
+        httpContext
+      ): Promise<void> => {
+        try {
+          // parameters from the query
+          const context = {
+            parameters: httpContext.request.query,
+            results: [],
+          };
+          await rootContext.contextualSQLModuleExecutors[contextName](context);
+          httpContext.body = context.results;
+          httpContext.status = 200;
+        } catch (e) {
+          // this is the very far edge of the system, time for a log
+          if (rootContext.configuration.logLevels.includes("error"))
+            console.error(e);
+          // send the full error to the client
+          httpContext.status = 500;
+          httpContext.body = restructure("error", e);
+        }
+      };
+    }
     handlers[`post__${contextName}`] = async (
       _openAPI,
       httpContext

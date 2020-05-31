@@ -6,7 +6,6 @@ import frontMatter from "front-matter";
 import handlebars from "handlebars";
 import prettier from "prettier";
 import fs from "fs-extra";
-import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
 /**
  * Code generation is via handlebars, so we take the config, load up all the
@@ -14,18 +13,6 @@ import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
  *
  * Up here -- setting up handlebars with some helpers.
  */
-
-/**
- * Only contains SELECT statements, so eligible for a GET on HTTP.
- */
-handlebars.registerHelper("allSELECT", (module: SQLModuleInternal, options) => {
-  const render = module.ast?.type === "select";
-  if (render) {
-    return options.fn({ module });
-  } else {
-    return options.inverse({ module });
-  }
-});
 
 /**
  * Map iteration, lots of maps in our metadata and handlebars is

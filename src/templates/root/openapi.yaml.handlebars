@@ -20,7 +20,8 @@ paths:
 
 
 {{#*inline "get"}}
-{{#allSELECT module}}
+{{#if module.canModifyData}}
+{{else}}
 get:
   operationId: get__{{module.contextName}}
   description: Read data
@@ -29,10 +30,14 @@ get:
     '200':
       description: Sucess
       {{> resultset module=module}}
-{{/allSELECT}}
+{{/if}}
 post:
   operationId: post__{{module.contextName}}
+  {{#if module.resultsetMetadata.length}}
   description: Read data
+  {{else}}
+  description: Write data
+  {{/if}}
   {{> request module=module}}
   responses:
     '200':
@@ -44,6 +49,7 @@ post:
 {{/inline}}
 
 {{#*inline "resultset"}}
+{{#if module.resultsetMetadata.length}}
 content:
   application/json:
     schema:
@@ -55,6 +61,7 @@ content:
           {{name}}:
             type: {{type}}
         {{/each}}
+{{/if}}
 {{/inline}}
 
 {{#*inline "parameters"}}
@@ -76,9 +83,11 @@ requestBody:
     application/json:
       schema:
         type: object
+        {{#if module.namedParameters.length}}
         properties: 
-        {{#each module.resultsetMetadata}}
+        {{#each module.namedParameters}}
           {{name}}:
             type: {{type}}
         {{/each}} 
+        {{/if}}
 {{/inline}}

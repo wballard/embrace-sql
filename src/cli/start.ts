@@ -40,8 +40,7 @@ export default new Command()
       const watcher = watchRoot(root);
       watcher.emitter.on("reload", async (newContext: InternalContext) => {
         console.info("Reloading");
-        listener.close();
-        listener = await listen(newContext);
+        listener.close(async () => (listener = await listen(newContext)));
       });
     }
   );

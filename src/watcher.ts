@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { loadConfiguration } from "./configuration";
-import { buildInternalContext } from "./context";
+import { buildInternalContext, InternalContext } from "./context";
 import chokidar from "chokidar";
 
 /**
@@ -10,6 +10,14 @@ import chokidar from "chokidar";
 export type CloseableEventEmitter = {
   emitter: EventEmitter;
   close: () => Promise<void>;
+};
+/**
+ * Create a whole new context..
+ */
+export const reload = async (embraceSQLRoot): Promise<InternalContext> => {
+  const configuration = await loadConfiguration(embraceSQLRoot);
+  const newRootContext = await buildInternalContext(configuration);
+  return newRootContext;
 };
 
 /**
@@ -24,16 +32,12 @@ export const watchRoot = (embraceSQLRoot: string): CloseableEventEmitter => {
   // watch the whole directory
   const watcher = chokidar.watch([`${embraceSQLRoot}/**/*.sql`]);
 
-  // reload on any change -- count on the context builder
-  // to figure out what has really changed and throttle
-  const reload = async (path): Promise<void> => {
-    console.info("reload needed", path);
-    const configuration = await loadConfiguration(embraceSQLRoot);
-    const newRootContext = await buildInternalContext(configuration);
-    emitter.emit("reload", newRootContext);
-  };
   // this is super convenient to not drown in a pile of single file changes
-  watcher.on("change", reload);
+  watcher.on("change", async () => {
+    console.info("reload needed", embraceSQLRoot);
+    const newRootContext = await reload(embraceSQLRoot);
+    emitter.emit("reload", newRootContext);
+  });
   return {
     emitter,
     close: (): Promise<void> => watcher.close(),

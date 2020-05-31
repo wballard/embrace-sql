@@ -19,7 +19,9 @@ export type AvailableDatabaseNames =
 
 // each SQLModule  gets a context type with parameters (if present) and results
 {{#eachInMap databases}}
+// database {{@key}}
 {{#eachInMap value.SQLModules}}
+// module {{value.restPath}}
 {{> resultsetMetadata value}}
 {{> parametersMetadata value}}
 export type {{value.contextName}}Context = 
@@ -58,7 +60,7 @@ SQLParameters & {
 export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModuleDirectExecutors) => {
 {{#eachInMap databases}}
   return {
-    // database{{@key}}
+    // database {{@key}}
     {{#eachInMap value.SQLModules}}
       {{value.contextName}}:  async (context: {{value.contextName}}Context) : Promise<{{value.contextName}}Context> => {
         const {afterError} = require("./{{value.restPath}}.sql.afterError");
@@ -89,9 +91,6 @@ export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModule
   }
 {{/eachInMap}}
 };
-
-// each folder has a direct execution decorator to attach handlers
-// TODO
 
 // combine the results of generated code -- handlers, parameters, and results
 // with an existing direct executor -- which is going to be an internal context

@@ -9,7 +9,7 @@ import {
   SQLRow,
   SQLModuleDirectExecutors,
 } from "./shared-context";
-import { TableColumnAst } from "node-sql-parser";
+import { AST } from "node-sql-parser";
 import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
 /**
@@ -54,7 +54,7 @@ export type DatabaseInternal = Database & {
   /**
    * Parse out the SQL.
    */
-  parse: (SQLModule) => TableColumnAst;
+  parse: (SQLModule) => AST[] | AST;
   /**
    * Do a migration.
    */
