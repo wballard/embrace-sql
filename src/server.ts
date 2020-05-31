@@ -6,6 +6,7 @@ import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
 import { HasContextualSQLModuleExecutors } from "./shared-context";
+import { restructure } from "./structured-console";
 
 /**
  * Create a HTTP server exposing an OpenAPI style set of endpoints for each Database
@@ -50,9 +51,12 @@ export const createServer = async (
         httpContext.body = context.results;
         httpContext.status = 200;
       } catch (e) {
-        console.error(e);
+        // this is the very far edge of the system, time for a log
+        if (rootContext.configuration.logLevels.includes("error"))
+          console.error(e);
+        // send the full error to the client
         httpContext.status = 500;
-        httpContext.body = e;
+        httpContext.body = restructure("error", e);
       }
     };
     handlers[`post__${contextName}`] = async (
@@ -69,9 +73,10 @@ export const createServer = async (
         httpContext.body = context.results;
         httpContext.status = 200;
       } catch (e) {
-        console.error(e);
+        if (rootContext.configuration.logLevels.includes("error"))
+          console.error(e);
         httpContext.status = 500;
-        httpContext.body = e;
+        httpContext.body = restructure("error", e);
       }
     };
   });

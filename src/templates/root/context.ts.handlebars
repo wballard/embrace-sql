@@ -3,6 +3,10 @@ to: "{{configuration.embraceSQLRoot}}/context.ts"
 ---
 /* eslint-disable @typescript-eslint/camelcase */
 
+/**
+* THIS FILE IS GENERATED -- edits will be lost
+*/
+
 {{> shared-context.ts}}
 
 // Generation starts here
@@ -25,9 +29,6 @@ export type {{value.contextName}}Context =
   };
 export type {{value.contextName}}Handler = 
   (context: {{value.contextName}}Context) => Promise<{{value.contextName}}Context>;
-// generated imports for handlers
-import {before as {{value.contextName}}BeforeHandler} from "./{{value.restPath}}.sql.before";
-import {after as {{value.contextName}}AfterHandler} from "./{{value.restPath}}.sql.after";
 {{/eachInMap}}
 {{/eachInMap}}
 
@@ -60,12 +61,21 @@ export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModule
     // database{{@key}}
     {{#eachInMap value.SQLModules}}
       {{value.contextName}}:  async (context: {{value.contextName}}Context) : Promise<{{value.contextName}}Context> => {
-        await {{value.contextName}}BeforeHandler(context);
-        const executor = directQueryExecutors["{{value.contextName}}"];
-        const results = executor ? await executor(context.parameters) : [];
-        context.results = results as unknown as {{value.contextName}}Results;
-        await {{value.contextName}}AfterHandler(context);
-        return context;
+        const {afterError} = require("./{{value.restPath}}.sql.afterError");
+        try {
+          const {before} = require("./{{value.restPath}}.sql.before");
+          await before(context);
+          const executor = directQueryExecutors["{{value.contextName}}"];
+          const results = executor ? await executor(context.parameters) : [];
+          context.results = results as unknown as {{value.contextName}}Results;
+          const {after} = require("./{{value.restPath}}.sql.after");
+          await after(context);
+          return context;
+        } catch (error) {
+          context.error = error;
+          if (afterError) afterError(context);
+          throw error;
+        }
       },
     {{/eachInMap}}
   }

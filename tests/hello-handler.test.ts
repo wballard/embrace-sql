@@ -8,7 +8,11 @@ import rmfr from "rmfr";
 import http from "http";
 
 /**
- * Let's make sure we can use a parameter with a pbare query.
+ * Let's test handlers. These rely on generated code, so the internal context
+ * needs to be decorated with the handlers.
+ *
+ * The setup in beforeAll is a rough simulation of using the system there is a context
+ * and directory, with some custom code inserted into handlers.
  */
 describe("hello world with a handler", () => {
   let rootContext: InternalContext;
@@ -33,6 +37,10 @@ describe("hello world with a handler", () => {
 import * as types from "../context";
 
 export const before: types.default_helloHandler = async (context) => {
+  // simulated error
+  if (context.parameters.stuff === "error") {
+    throw new Error("Simulated Error");
+  }
   context.parameters.stuff = context.parameters.stuff + "!!!";
   return context;
 };
@@ -54,6 +62,18 @@ export const after: types.default_helloHandler = async (context) => {
 };
       `
     );
+    // error handling
+    await fs.writeFile(
+      path.join(root, "default", "hello.sql.afterError.ts"),
+      `
+/* eslint-disable @typescript-eslint/camelcase */
+import * as types from "../context";
+
+export const afterError: types.default_helloHandler = async (context) => {
+  return context;
+};
+      `
+    );
     // get the configuration and generate - let's do this just the once for speed
     const configuration = await loadConfiguration(root);
     rootContext = await buildInternalContext(configuration);
@@ -66,16 +86,11 @@ export const after: types.default_helloHandler = async (context) => {
     const server = await createServer(decorateInternalContext(rootContext));
     callback = server.callback();
     listening = server.listen(45679);
+    // non logging
+    rootContext.configuration.logLevels = [];
   });
   afterAll(async (done) => {
     listening.close(() => done());
-  });
-  it("will alter a parameter with before and after handlers", async () => {
-    const results = await rootContext.databases["default"].execute(
-      rootContext.databases["default"].SQLModules["hello"],
-      { stuff: "Whirled" }
-    );
-    expect(results).toMatchSnapshot();
   });
   it("will honor handlers over an HTTP call - GET", async () => {
     const response = await request(callback).get(
@@ -83,7 +98,7 @@ export const after: types.default_helloHandler = async (context) => {
     );
     expect(response.text).toMatchSnapshot();
   });
-  it("will honor handlers over an HTTP call - GET", async () => {
+  it("will honor handlers over an HTTP call - POST", async () => {
     const postResponse = await request(callback)
       .post("/default/hello")
       .send({ stuff: "amazing" });
@@ -115,5 +130,30 @@ export const after: types.default_helloHandler = async (context) => {
     expect(
       await client.databases.default.hello.sql({ stuff: "hole" })
     ).toMatchSnapshot();
+  });
+  it("will return errors via HTTP - GET", async () => {
+    const response = await request(callback).get("/default/hello?stuff=error");
+    expect({ status: response.status, text: response.text }).toMatchSnapshot();
+  });
+  it("will return errors via HTTP - POST", async () => {
+    const response = await request(callback)
+      .post("/default/hello")
+      .send({ stuff: "error" });
+    expect({ status: response.status, text: response.text }).toMatchSnapshot();
+  });
+  it("will throw errors back out to the client", async () => {
+    // client
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { EmbraceSQL } = require(path.join(
+      process.cwd(),
+      rootContext.configuration.embraceSQLRoot,
+      "client",
+      "node"
+    ));
+    const client = EmbraceSQL("http://localhost:45679");
+    // simulated error throw
+    expect(
+      client.databases.default.hello.sql({ stuff: "error" })
+    ).rejects.toMatchSnapshot();
   });
 });

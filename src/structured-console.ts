@@ -17,7 +17,7 @@ import path from "path";
 /**
  * Four levels.
  */
-type LogLevel = "debug" | "info" | "error" | "warn" | "debug";
+export type LogLevel = "debug" | "info" | "error" | "warn" | "debug";
 
 /**
  * Turn those arguments into an object.
@@ -105,4 +105,4 @@ const install = (): void => {
 /**
  * Direct acess to the logging methods
  */
-export { install, uninstall };
+export { install, uninstall, restructure };

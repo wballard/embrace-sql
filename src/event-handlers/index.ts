@@ -63,12 +63,17 @@ export const embraceEventHandlers = async (
       SQLFileName
     );
     const restPath = SQLFileName.replace(/\.sql$/, "");
+    // take the path segments and build up a path list
+    const handlerPaths = segments.map((_segment, index, array) => {
+      return path.join(...array.slice(0, index + 1));
+    });
     // get all the 'read' IO done
     const sql = await readFile(fullPath);
     // data about each SQL module
     const sqlModule = {
       restPath,
       fullPath,
+      handlerPaths,
       sql,
       cacheKey: md5(sql),
       contextName: identifier(path.join(parsedPath.dir, parsedPath.name)),

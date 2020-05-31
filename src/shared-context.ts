@@ -92,6 +92,11 @@ export type SQLModule = {
    */
   readonly fullPath: string;
   /**
+   * Chain of relative to EmbraceSQLRoot folder paths, shallow to deep,
+   * that is used to build up handler chains.
+   */
+  readonly handlerPaths: string[];
+  /**
    * Actual SQL text source, unmodified, read from disk
    */
   readonly sql: string;
@@ -108,11 +113,11 @@ export type SQLModule = {
    * All the parameters we found by looking at the query. These are in an array
    * to facilitate conversion of named to positional parameters.
    */
-  namedParameters?: Array<SQLParameter>;
+  namedParameters?: SQLParameter[];
   /**
    * Result set metadata, which may be an array because of semicolon batches.
    */
-  resultsetMetadata?: Array<SQLColumnMetadata>;
+  resultsetMetadata?: SQLColumnMetadata[];
 };
 
 /**
@@ -281,5 +286,10 @@ export type ContextualSQLModuleExecutors = {
  * An object with fully contextualized execution capability.
  */
 export type HasContextualSQLModuleExecutors = {
+  /**
+   * `contextName` to function mapping. The idea is you get a fully enabled
+   * execution chain for a given SQLModule, and use the function to actually
+   * run a a SQLModule.
+   */
   contextualSQLModuleExecutors: ContextualSQLModuleExecutors;
 };

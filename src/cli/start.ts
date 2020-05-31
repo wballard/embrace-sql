@@ -26,7 +26,9 @@ export default new Command()
       const configuration = await loadConfiguration(root);
 
       const listen = async (rootContext: InternalContext): Promise<Server> => {
-        const server = await createServer(rootContext);
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { decorateInternalContext } = require(path.join(root, "context"));
+        const server = await createServer(decorateInternalContext(rootContext));
         console.info("Listening", {
           EMBRACE_SQL_ROOT: configuration.embraceSQLRoot,
           PORT: port,

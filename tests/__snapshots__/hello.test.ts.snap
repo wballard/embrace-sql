@@ -3,7 +3,9 @@
 exports[`hello world configuration! exposes methods to run hello sql 1`] = `"SELECT \\"hello world\\""`;
 
 exports[`hello world configuration! generates an open api doc 1`] = `
-"openapi: 3.0.0
+"# THIS FILE IS GENERATED -- edits will be lost
+
+openapi: 3.0.0
 info:
   title: --
   description: --
@@ -73,6 +75,9 @@ Object {
     },
   },
   "embraceSQLRoot": "tests/configs/hello",
+  "logLevels": Array [
+    "error",
+  ],
 }
 `;
 
@@ -123,6 +128,9 @@ Object {
       },
     },
     "embraceSQLRoot": "tests/configs/hello",
+    "logLevels": Array [
+      "error",
+    ],
   },
   "databases": Object {
     "default": Object {
@@ -152,6 +160,9 @@ Object {
           "cacheKey": "4726f48a1467bab00568c7c5b8610040",
           "contextName": "default_hello",
           "fullPath": "tests/configs/hello/default/hello.sql",
+          "handlerPaths": Array [
+            "default",
+          ],
           "namedParameters": Array [],
           "restPath": "default/hello",
           "resultsetMetadata": Array [
@@ -187,6 +198,9 @@ Object {
           "cacheKey": "54d6f4897bf10f8219c6fc94e11bf7a4",
           "contextName": "default_yo",
           "fullPath": "tests/configs/hello/default/yo.sql",
+          "handlerPaths": Array [
+            "default",
+          ],
           "namedParameters": Array [],
           "restPath": "default/yo",
           "resultsetMetadata": Array [

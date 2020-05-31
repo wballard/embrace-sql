@@ -1,6 +1,7 @@
 import { cosmiconfig } from "cosmiconfig";
 import Url from "url-parse";
 import { generateFromTemplates } from "./generator";
+import { LogLevel } from "./structured-console";
 
 /**
  * Named URLs to databases.
@@ -25,6 +26,10 @@ export type Configuration = {
    * All available databases.
    */
   databases?: Databases;
+  /**
+   * Logging control
+   */
+  logLevels: LogLevel[];
 };
 
 /**
@@ -43,8 +48,10 @@ export const loadConfiguration = async (
     {
       configuration: {
         embraceSQLRoot: root,
+        logLevels: ["info", "error"],
       },
       databases: undefined,
+      directQueryExecutors: {},
     },
     "default"
   );
@@ -65,6 +72,7 @@ export const loadConfiguration = async (
   );
   return {
     embraceSQLRoot: result.config.embraceSQLRoot,
+    logLevels: ["error"] || result.config.logLevels,
     databases,
   };
 };
