@@ -58,7 +58,7 @@ export type DatabaseInternal = Database & {
   /**
    * Do a migration.
    */
-  migrate: (migrationFiles: MigrationFile[]) => Promise<void>;
+  migrate: (migrationFile: MigrationFile) => Promise<void>;
 };
 
 /**

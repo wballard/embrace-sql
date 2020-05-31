@@ -131,7 +131,7 @@ export default async (
         return [];
       }
     },
-    migrate: async (migrationFiles: MigrationFile[]): Promise<void> => {
+    migrate: async (migrationFile: MigrationFile): Promise<void> => {
       /**
        * Migrations want to run only once, we we'l need a tracking table to
        * mark of what's already been run.
@@ -149,35 +149,31 @@ export default async (
       const markOff = await database.prepare(
         "INSERT INTO __embracesql_migrations__(content, run_at) VALUES(:content, :run_at)"
       );
-      for (const migrationFile of migrationFiles.sort((a, b) =>
-        a.name > b.name ? 1 : -1
-      )) {
-        try {
-          await transactions.begin();
-          if (migrated.indexOf(migrationFile.content) >= 0) {
-            // already done!
-          } else {
-            console.info("migrating", migrationFile.name);
-            // time to migrate -- there might be multiple statements
-            // and sqllite doesn't -- really allow that so we're gonna loop
-            for (const bitOfBatch of migrationFile.content
-              .split(";")
-              .map((sql) => sql.trim())
-              .filter((sql) => sql.length > 0)) {
-              await database.run(bitOfBatch);
-            }
-            // and mark it off -- but mark off the whole batch
-            await markOff.bind({
-              ":content": migrationFile.content,
-              ":run_at": Date.now(),
-            });
-            await markOff.all();
+      try {
+        await transactions.begin();
+        if (migrated.indexOf(migrationFile.content) >= 0) {
+          // already done!
+        } else {
+          console.info("migrating", migrationFile.name);
+          // time to migrate -- there might be multiple statements
+          // and sqllite doesn't -- really allow that so we're gonna loop
+          for (const bitOfBatch of migrationFile.content
+            .split(";")
+            .map((sql) => sql.trim())
+            .filter((sql) => sql.length > 0)) {
+            await database.run(bitOfBatch);
           }
-          await transactions.commit();
-        } catch (e) {
-          await transactions.rollback();
-          throw e;
+          // and mark it off -- but mark off the whole batch
+          await markOff.bind({
+            ":content": migrationFile.content,
+            ":run_at": Date.now(),
+          });
+          await markOff.all();
         }
+        await transactions.commit();
+      } catch (e) {
+        await transactions.rollback();
+        throw e;
       }
     },
   };

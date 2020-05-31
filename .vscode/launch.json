@@ -10,7 +10,7 @@
       "name": "Jest Tests",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-      "args": ["--runInBand", "--coverage", "false", "-t", "handler"],
+      "args": ["--runInBand", "--coverage", "false", "-t", "migrat"],
       "internalConsoleOptions": "openOnSessionStart"
     },
     {

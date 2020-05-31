@@ -13,6 +13,7 @@
     "docker": "docker build -t embracesql/server ."
   },
   "dependencies": {
+    "@types/await-timeout": "^0.3.1",
     "@types/fs-extra": "^8.1.0",
     "@types/handlebars": "^4.1.0",
     "@types/ignore-walk": "^3.0.1",
@@ -31,7 +32,6 @@
     "@typescript-eslint/parser": "^2.32.0",
     "@zeit/ncc": "^0.22.2",
     "caller-callsite": "^4.1.0",
-    "callsites": "^3.1.0",
     "chokidar": "^3.4.0",
     "commander": "^5.1.0",
     "cosmiconfig": "^6.0.0",

@@ -180,7 +180,7 @@ export type Database = {
  * that will be generated will be noted in comments.
  *
  */
-export type Context = {
+export type Context<RowType> = {
   /**
    * Set the current state of security to allow SQL execution against the database.
    *
@@ -237,7 +237,7 @@ export type Context = {
    * Results may be on here for the default context. This will get generated
    * and specified per SQLModule.
    */
-  results?: SQLRow[];
+  results?: RowType[];
 };
 
 /**
@@ -290,13 +290,17 @@ export type SQLModuleDirectExecutors = {
   directQueryExecutors: Executors;
 };
 
+export type DefaultContext = Context<SQLRow>;
+export type DefaultContextualExecutor = (
+  context: Context<DefaultContext>
+) => Promise<DefaultContext>;
 /**
  * A map of named, fully contextualized executors, complete
  * with handlers. This is used to wrap and mount the generated code in a runtime
  * server.
  */
 export type ContextualSQLModuleExecutors = {
-  [index: string]: (Context) => Promise<Context>;
+  [index: string]: DefaultContextualExecutor;
 };
 
 /**

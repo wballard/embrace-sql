@@ -38,7 +38,7 @@ export const EmbraceSQL = ({directQueryExecutors} : types.SQLModuleDirectExecuto
 {{#*inline "moduleTree"}}
 {{name}}: {
   {{#if value}}
-  sql: async (parameters: types.{{value.contextName}}Parameters) : Promise<types.{{value.contextName}}Results> => {
+  sql: async (parameters: types.{{value.contextName}}Parameters) : Promise<types.{{value.contextName}}Row[]> => {
     return (await handlerWrappedExecutors.{{value.contextName}}({parameters, results: []})).results;
   }
   {{/if}}

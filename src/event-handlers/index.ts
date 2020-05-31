@@ -5,7 +5,10 @@ import path from "path";
 import md5 from "md5";
 import sqlModulePipeline from "./sqlmodule-pipeline";
 import contextPipeline from "./context-pipeline";
-import { SQLModule } from "../shared-context";
+import limit from "p-limit";
+
+// thottling
+const oneAtATime = limit(1);
 
 /**
  * Scrub up identifiers to be valid JavaScript names.
@@ -38,12 +41,13 @@ export const embraceEventHandlers = async (
 ): Promise<InternalContext> => {
   // this should be the only place where a file walk happens
   const fileNames = await walk({
+    ignoreFiles: [".sqlmoduleignore"],
     path: rootContext.configuration.embraceSQLRoot,
   });
   // just the SQL files
-  const sqlFileNames = await fileNames
-    .filter((fileName) => fileName.toLowerCase().endsWith(".sql"))
-    .filter((fileName) => !fileName.startsWith("migrations/"));
+  const sqlFileNames = await fileNames.filter((fileName) =>
+    fileName.toLowerCase().endsWith(".sql")
+  );
   // root folders are databases, so attach there
   const allSQLModules = await sqlFileNames.map(async (SQLFileName) => {
     const parsedPath = path.parse(SQLFileName);
@@ -87,18 +91,23 @@ export const embraceEventHandlers = async (
   });
   // checkpoint -- wait for finish
   await Promise.all(allSQLModules);
-  const allDatabases = Object.values(rootContext.databases).map(
+  // with all sql modules enumerated time to build up metadata from each database
+  const allDatabases = Object.values(rootContext.databases).flatMap(
     async (database: DatabaseInternal) => {
       try {
         // one big transaction around all oof our module building
         // so we can roll back and know we didn't modify our database
         database.transactions.begin();
-        // one at a time iteration and wait
-        for (const sqlModule of Object.values(database.SQLModules) as Array<
-          SQLModule
-        >) {
-          await sqlModulePipeline(rootContext, database, sqlModule);
-        }
+        // one at a time iteration -- our database isn't re-entrant
+        const waitForThem = Object.values(
+          database.SQLModules
+        ).map(async (sqlModule) =>
+          oneAtATime(
+            async () =>
+              await sqlModulePipeline(rootContext, database, sqlModule)
+          )
+        );
+        await Promise.all(waitForThem);
         return database;
       } finally {
         database.transactions.rollback();

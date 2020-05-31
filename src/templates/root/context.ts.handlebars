@@ -23,8 +23,7 @@ export type AvailableDatabaseNames =
 {{> resultsetMetadata value}}
 {{> parametersMetadata value}}
 export type {{value.contextName}}Context = 
-  Context & { 
-    results: {{value.contextName}}Results, 
+  Context<{{value.contextName}}Row> & { 
     parameters: {{value.contextName}}Parameters
   };
 export type {{value.contextName}}Handler = 
@@ -32,17 +31,16 @@ export type {{value.contextName}}Handler =
 {{/eachInMap}}
 {{/eachInMap}}
 
-export type FolderHandler = (context: Context) => Promise<Context>;
+export type FolderHandler = (context: Context<SQLRow>) => Promise<Context<SQLRow>>;
 
 
 {{#*inline "resultsetMetadata"}}
-export type {{contextName}}Results = Array<
+export type {{contextName}}Row = 
 SQLRow & {
   {{#each resultsetMetadata}}
     {{name}}: {{type}}
   {{/each}}
-}
->;
+};
 {{/inline}}
 
 {{#*inline "parametersMetadata"}}
@@ -73,7 +71,7 @@ export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModule
           await before(context);
           const executor = directQueryExecutors["{{value.contextName}}"];
           const results = executor ? await executor(context.parameters) : [];
-          context.results = results as unknown as {{value.contextName}}Results;
+          context.results = results as {{value.contextName}}Row[];
           const after = require("./{{value.restPath}}.sql.after").after;
           await after(context);
           {{#each value.afterHandlerPaths}}

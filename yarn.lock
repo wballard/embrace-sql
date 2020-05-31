@@ -562,6 +562,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/await-timeout@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@types/await-timeout/-/await-timeout-0.3.1.tgz#3a0baafc3a96c7a14447a4dcfdcc76b21ce97c3b"
+  integrity sha512-H5PzROT4KuP7XQDua13Iw8did//OCKAZ/3TL15DjvMzDonrk4HvhH1+tLko96f2guU6XaD3AoqRa49ZOwbwNig==
+
 "@types/babel__core@^7.1.7":
   version "7.1.7"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.7.tgz#1dacad8840364a57c98d0dd4855c6dd3752c6b89"
