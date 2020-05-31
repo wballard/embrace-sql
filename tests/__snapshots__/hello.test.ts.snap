@@ -136,6 +136,9 @@ Object {
     "default": Object {
       "SQLModules": Object {
         "hello": Object {
+          "afterHandlerPaths": Array [
+            "default",
+          ],
           "ast": Object {
             "columns": Array [
               Object {
@@ -157,12 +160,12 @@ Object {
             "where": null,
             "with": null,
           },
+          "beforeHandlerPaths": Array [
+            "default",
+          ],
           "cacheKey": "4726f48a1467bab00568c7c5b8610040",
           "contextName": "default_hello",
           "fullPath": "tests/configs/hello/default/hello.sql",
-          "handlerPaths": Array [
-            "default",
-          ],
           "namedParameters": Array [],
           "restPath": "default/hello",
           "resultsetMetadata": Array [
@@ -174,6 +177,9 @@ Object {
           "sql": "SELECT \\"hello world\\"",
         },
         "yo": Object {
+          "afterHandlerPaths": Array [
+            "default",
+          ],
           "ast": Object {
             "columns": Array [
               Object {
@@ -195,12 +201,12 @@ Object {
             "where": null,
             "with": null,
           },
+          "beforeHandlerPaths": Array [
+            "default",
+          ],
           "cacheKey": "54d6f4897bf10f8219c6fc94e11bf7a4",
           "contextName": "default_yo",
           "fullPath": "tests/configs/hello/default/yo.sql",
-          "handlerPaths": Array [
-            "default",
-          ],
           "namedParameters": Array [],
           "restPath": "default/yo",
           "resultsetMetadata": Array [

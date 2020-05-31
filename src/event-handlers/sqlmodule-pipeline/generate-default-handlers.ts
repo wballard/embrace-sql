@@ -26,5 +26,22 @@ export default async (
       "handlers"
     );
   }
+  // folder level handlers that are not module specific
+  const waitForThem = sqlModule.beforeHandlerPaths.map(async (folderPath) => {
+    const fullFolderPath = path.resolve(
+      path.join(rootContext.configuration.embraceSQLRoot, folderPath)
+    );
+    return generateFromTemplates(
+      Object.assign({}, rootContext, {
+        folderPath: fullFolderPath,
+        relativeToRoot: path.relative(
+          fullFolderPath,
+          rootContext.configuration.embraceSQLRoot
+        ),
+      }),
+      "folder-handlers"
+    );
+  });
+  await Promise.all(waitForThem);
   return rootContext;
 };

@@ -37,10 +37,6 @@ describe("hello world with a handler", () => {
 import * as types from "../context";
 
 export const before: types.default_helloHandler = async (context) => {
-  // simulated error
-  if (context.parameters.stuff === "error") {
-    throw new Error("Simulated Error");
-  }
   context.parameters.stuff = context.parameters.stuff + "!!!";
   return context;
 };
@@ -72,6 +68,38 @@ import * as types from "../context";
 export const afterError: types.default_helloHandler = async (context) => {
   return context;
 };
+      `
+    );
+    // folder before
+    await fs.writeFile(
+      path.join(root, "default", "before.ts"),
+      `
+/* eslint-disable @typescript-eslint/camelcase */
+import * as types from "../context";
+
+export const before: types.FolderHandler = async (context) => {
+  // simulated error
+  if (context.parameters.stuff === "error") {
+    throw new Error("Simulated Error");
+  }
+  return context;
+};
+
+      `
+    );
+    // folder after
+    await fs.writeFile(
+      path.join(root, "default", "after.ts"),
+      `
+/* eslint-disable @typescript-eslint/camelcase */
+import * as types from "../context";
+
+export const after: types.FolderHandler = async (context) => {
+  // even MOAR results
+  context.results = [...context.results, ...context.results];
+  return context;
+};
+
       `
     );
     // get the configuration and generate - let's do this just the once for speed

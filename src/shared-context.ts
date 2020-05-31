@@ -95,7 +95,12 @@ export type SQLModule = {
    * Chain of relative to EmbraceSQLRoot folder paths, shallow to deep,
    * that is used to build up handler chains.
    */
-  readonly handlerPaths: string[];
+  readonly beforeHandlerPaths: string[];
+  /**
+   * Chain of relative to EmbraceSQLRoot folder paths, deep to shallow,
+   * that is used to build up handler chains.
+   */
+  readonly afterHandlerPaths: string[];
   /**
    * Actual SQL text source, unmodified, read from disk
    */
@@ -221,6 +226,18 @@ export type Context = {
    * The current unhandled exception error.
    */
   error?: Error;
+
+  /**
+   * Parameters may be on here for the default context. This will get
+   * generated and specified with specific named parameters per SQLModule.
+   */
+  parameters?: SQLParameters;
+
+  /**
+   * Results may be on here for the default context. This will get generated
+   * and specified per SQLModule.
+   */
+  results?: SQLRow[];
 };
 
 /**

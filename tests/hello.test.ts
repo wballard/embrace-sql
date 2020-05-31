@@ -74,8 +74,10 @@ describe("hello world configuration!", () => {
     expect("default/hello.sql").toExist();
   });
   it("makes empty handlers for you", async () => {
+    expect("default/before.ts").toExist();
     expect("default/hello.sql.before.ts").toExist();
     expect("default/hello.sql.after.ts").toExist();
+    expect("default/after.ts").toExist();
     expect("default/hello.sql.afterError.ts").toExist();
   });
   it("exposes methods to run hello sql", async () => {

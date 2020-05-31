@@ -73,7 +73,8 @@ export const embraceEventHandlers = async (
     const sqlModule = {
       restPath,
       fullPath,
-      handlerPaths,
+      beforeHandlerPaths: handlerPaths,
+      afterHandlerPaths: [...handlerPaths].reverse(),
       sql,
       cacheKey: md5(sql),
       contextName: identifier(path.join(parsedPath.dir, parsedPath.name)),

@@ -60,6 +60,7 @@
     "sinon": "^9.0.2",
     "sqlite": "^4.0.7",
     "sqlite3": "^4.2.0",
+    "stacktrace-parser": "^0.1.10",
     "std-mocks": "^1.0.1",
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0",

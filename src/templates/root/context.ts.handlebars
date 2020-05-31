@@ -32,6 +32,8 @@ export type {{value.contextName}}Handler =
 {{/eachInMap}}
 {{/eachInMap}}
 
+export type FolderHandler = (context: Context) => Promise<Context>;
+
 
 {{#*inline "resultsetMetadata"}}
 export type {{contextName}}Results = Array<
@@ -63,13 +65,21 @@ export const SQLModuleExecutorsWithHandlers = ({directQueryExecutors}: SQLModule
       {{value.contextName}}:  async (context: {{value.contextName}}Context) : Promise<{{value.contextName}}Context> => {
         const {afterError} = require("./{{value.restPath}}.sql.afterError");
         try {
-          const {before} = require("./{{value.restPath}}.sql.before");
+          {{#each value.beforeHandlerPaths}}
+          const before{{@index}} = require("./{{this}}/before").before;
+          await before{{@index}}(context);
+          {{/each}}
+          const before = require("./{{value.restPath}}.sql.before").before;
           await before(context);
           const executor = directQueryExecutors["{{value.contextName}}"];
           const results = executor ? await executor(context.parameters) : [];
           context.results = results as unknown as {{value.contextName}}Results;
-          const {after} = require("./{{value.restPath}}.sql.after");
+          const after = require("./{{value.restPath}}.sql.after").after;
           await after(context);
+          {{#each value.afterHandlerPaths}}
+          const after{{@index}} = require("./{{this}}/after").after;
+          await after{{@index}}(context);
+          {{/each}}
           return context;
         } catch (error) {
           context.error = error;
