@@ -71,7 +71,7 @@ Object {
       "username": "",
     },
   },
-  "embraceSQLRoot": "tests/configs/hello",
+  "embraceSQLRoot": ".tests/hello",
   "logLevels": Array [
     "error",
   ],
@@ -106,6 +106,7 @@ Array [
 
 exports[`hello world configuration! will watch for changes and create a new context 1`] = `
 Object {
+  "close": [Function],
   "configuration": Object {
     "databases": Object {
       "default": Object {
@@ -124,7 +125,7 @@ Object {
         "username": "",
       },
     },
-    "embraceSQLRoot": "tests/configs/hello",
+    "embraceSQLRoot": ".tests/hello",
     "logLevels": Array [
       "error",
     ],
@@ -163,7 +164,7 @@ Object {
           "cacheKey": "4726f48a1467bab00568c7c5b8610040",
           "canModifyData": false,
           "contextName": "default_hello",
-          "fullPath": "tests/configs/hello/default/hello.sql",
+          "fullPath": ".tests/hello/default/hello.sql",
           "namedParameters": Array [],
           "restPath": "default/hello",
           "resultsetMetadata": Array [
@@ -205,7 +206,7 @@ Object {
           "cacheKey": "54d6f4897bf10f8219c6fc94e11bf7a4",
           "canModifyData": false,
           "contextName": "default_yo",
-          "fullPath": "tests/configs/hello/default/yo.sql",
+          "fullPath": ".tests/hello/default/yo.sql",
           "namedParameters": Array [],
           "restPath": "default/yo",
           "resultsetMetadata": Array [
@@ -218,6 +219,7 @@ Object {
         },
       },
       "analyze": [Function],
+      "close": [Function],
       "execute": [Function],
       "migrate": [Function],
       "name": "default",

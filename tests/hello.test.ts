@@ -32,7 +32,7 @@ describe("hello world configuration!", () => {
   let listening: http.Server;
   let callback;
   beforeAll(async () => {
-    root = path.relative(process.cwd(), "./tests/configs/hello");
+    root = path.relative(process.cwd(), "./.tests/hello");
     // clean up
     await rmfr(root);
     // get the configuration and generate - let's do this just the once

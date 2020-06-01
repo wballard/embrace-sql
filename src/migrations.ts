@@ -18,8 +18,8 @@ export const migrate = async (rootContext: InternalContext): Promise<void> => {
       "migrations",
       databaseName
     );
-    const migrationFileNames = walk({ path: migrationPath });
-    const migrationFiles = (await migrationFileNames)
+    const migrationFileNames = await walk({ path: migrationPath });
+    const migrationFiles = migrationFileNames
       .map((fileName) => path.join(migrationPath, fileName))
       .sort()
       .map(async (fullMigrationFilename) => ({

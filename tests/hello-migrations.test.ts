@@ -9,40 +9,24 @@ describe("hello world of migrations", () => {
   let rootContext: InternalContext;
   let root: string;
   beforeAll(async () => {
-    root = path.relative(process.cwd(), "./tests/configs/hello-migrations");
+    root = path.relative(process.cwd(), "./.tests/hello-migrations");
     // clean up
     await fs.ensureDir(root);
     await rmfr(root);
   });
   it("will migrate", async () => {
-    await fs.ensureDir(path.join(root, "migrations", "default"));
-    await fs.writeFile(
-      path.join(root, "migrations", "default", "001.sql"),
-      `
-      CREATE TABLE strings(
-        string text PRIMARY KEY
-      );
-      `
-    );
-    await fs.writeFile(
-      path.join(root, "migrations", "default", "002.sql"),
-      `
-      INSERT INTO strings(string) VALUES("hello world");
-      INSERT INTO strings(string) VALUES("laser power");
-      `
-    );
     // get the configuration and generate - let's do this just the once
     // and have a few tests that asser things happened
     const configuration = await loadConfiguration(root);
+    // set up
+    await fs.copy(path.join(__dirname, "configs/hello-migrations"), root);
+    console.warn(
+      "The upcoming warning that strings does not exist is expected -- cause it is true! -- not created just yet"
+    );
     rootContext = await buildInternalContext(configuration);
     await migrate(rootContext);
-    // and post migration to query
-    // set up
-    await fs.ensureDir(path.join(root, "default"));
-    await fs.writeFile(
-      path.join(root, "default", "hello.sql"),
-      "SELECT * FROM strings"
-    );
+    // need a fresh context
+    await rootContext.close();
     rootContext = await buildInternalContext(configuration);
     const results = await rootContext.databases["default"].execute(
       rootContext.databases["default"].SQLModules["hello"]

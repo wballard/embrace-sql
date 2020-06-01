@@ -15,21 +15,14 @@ describe("hello world with a parameter", () => {
   let listening: http.Server;
   let callback;
   beforeAll(async () => {
-    const root = path.relative(
-      process.cwd(),
-      "./tests/configs/hello-parameter"
-    );
+    const root = path.relative(process.cwd(), "./.tests/hello-parameter");
     // clean up
     await fs.ensureDir(root);
     await rmfr(root);
-    // set up
-    await fs.ensureDir(path.join(root, "default"));
-    await fs.writeFile(
-      path.join(root, "default", "hello.sql"),
-      "SELECT :stuff as message"
-    );
     // get the configuration and generate - let's do this just the once for speed
     const configuration = await loadConfiguration(root);
+    // set up
+    await fs.copy(path.join(__dirname, "configs/hello-parameter"), root);
     rootContext = await buildInternalContext(configuration);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { decorateInternalContext } = require(path.join(

@@ -12,7 +12,7 @@ import { DatabaseInternal, MigrationFile } from "../context";
 import { Parser, AST } from "node-sql-parser";
 import { identifier } from "../event-handlers";
 import { SQLModuleInternal } from "../event-handlers/sqlmodule-pipeline";
-import { InternalContext } from "../context";
+import { Configuration } from "../configuration";
 
 /**
  * Map SQLite to our neutral type strings.
@@ -34,15 +34,13 @@ const typeMap = (fromSQLite: string): SQLTypeName => {
  * can actually be a network file - so everything can go wrong...
  */
 export default async (
-  rootContext: InternalContext,
+  configuration: Configuration,
   databaseName: string
 ): Promise<DatabaseInternal> => {
-  const dbUrl = rootContext.configuration?.databases[databaseName];
+  const dbUrl = configuration?.databases[databaseName];
   const filename = path.isAbsolute(dbUrl.pathname)
     ? dbUrl.pathname
-    : path.normalize(
-        path.join(rootContext.configuration.embraceSQLRoot, dbUrl.pathname)
-      );
+    : path.normalize(path.join(configuration.embraceSQLRoot, dbUrl.pathname));
   // SQLite -- open is connection -- each database 'is' its own connection
   const database = await open({
     filename,
@@ -173,12 +171,17 @@ export default async (
             ":run_at": Date.now(),
           });
           await markOff.all();
+          // this ends up being needed to relase the create table locks
+          await markOff.finalize();
         }
         await transactions.commit();
       } catch (e) {
         await transactions.rollback();
         throw e;
       }
+    },
+    close: async (): Promise<void> => {
+      return database.close();
     },
   };
 };

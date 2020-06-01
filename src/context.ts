@@ -59,6 +59,10 @@ export type DatabaseInternal = Database & {
    * Do a migration.
    */
   migrate: (migrationFile: MigrationFile) => Promise<void>;
+  /**
+   * Clean close.
+   */
+  close: () => Promise<void>;
 };
 
 /**
@@ -83,6 +87,10 @@ export type InternalContext = SQLModuleDirectExecutors & {
    * All configured databases, by name.
    */
   databases: AllDatabasesInternal;
+  /**
+   * Close all DB connections.
+   */
+  close: () => Promise<void>;
 };
 
 /**
@@ -97,14 +105,21 @@ export type InternalContext = SQLModuleDirectExecutors & {
 export const buildInternalContext = async (
   configuration: Configuration
 ): Promise<InternalContext> => {
+  const databases = await embraceDatabases(configuration);
   const internalContext = {
     configuration,
-    databases: {},
+    databases,
     directQueryExecutors: {},
+    close: async (): Promise<void> => {
+      const waitForThem = Object.values(databases).map((database) =>
+        database.close()
+      );
+      await Promise.all(waitForThem);
+    },
   };
   // need the database first, their connections are used
   // to mine metadata
-  await embraceDatabases(internalContext);
+  await embraceDatabases(configuration);
   await embraceEventHandlers(internalContext);
   return internalContext;
 };

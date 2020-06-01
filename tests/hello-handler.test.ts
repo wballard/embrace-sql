@@ -19,91 +19,14 @@ describe("hello world with a handler", () => {
   let listening: http.Server;
   let callback;
   beforeAll(async () => {
-    const root = path.relative(process.cwd(), "./tests/configs/hello-handler");
+    const root = path.relative(process.cwd(), "./.tests/hello-handler");
     // clean up
     await fs.ensureDir(root);
     await rmfr(root);
-    // set up
-    await fs.ensureDir(path.join(root, "default"));
-    await fs.writeFile(
-      path.join(root, "default", "hello.sql"),
-      "SELECT :stuff as message"
-    );
-    // before handlers are exciting, as noted by three exclamation points added to the parameter
-    await fs.writeFile(
-      path.join(root, "default", "hello.sql.before.ts"),
-      `
-/* eslint-disable @typescript-eslint/camelcase */
-import * as types from "../context";
-
-export const before: types.default_helloHandler = async (context) => {
-  context.parameters.stuff = context.parameters.stuff + "!!!";
-  return context;
-};
-      `
-    );
-    // double results === double fun
-    await fs.writeFile(
-      path.join(root, "default", "hello.sql.after.ts"),
-      `
-/* eslint-disable @typescript-eslint/camelcase */
-import * as types from "../context";
-
-export const after: types.default_helloHandler = async (context) => {
-  context.results = [
-    ...context.results,
-    ...context.results,
-  ];
-  return context;
-};
-      `
-    );
-    // error handling
-    await fs.writeFile(
-      path.join(root, "default", "hello.sql.afterError.ts"),
-      `
-/* eslint-disable @typescript-eslint/camelcase */
-import * as types from "../context";
-
-export const afterError: types.default_helloHandler = async (context) => {
-  return context;
-};
-      `
-    );
-    // folder before
-    await fs.writeFile(
-      path.join(root, "default", "before.ts"),
-      `
-/* eslint-disable @typescript-eslint/camelcase */
-import * as types from "../context";
-
-export const before: types.FolderHandler = async (context) => {
-  // simulated error
-  if (context.parameters.stuff === "error") {
-    throw new Error("Simulated Error");
-  }
-  return context;
-};
-
-      `
-    );
-    // folder after
-    await fs.writeFile(
-      path.join(root, "default", "after.ts"),
-      `
-/* eslint-disable @typescript-eslint/camelcase */
-import * as types from "../context";
-
-export const after: types.FolderHandler = async (context) => {
-  // even MOAR results
-  context.results = [...context.results, ...context.results];
-  return context;
-};
-
-      `
-    );
     // get the configuration and generate - let's do this just the once for speed
     const configuration = await loadConfiguration(root);
+    // set up
+    await fs.copy(path.join(__dirname, "configs/hello-handler"), root);
     rootContext = await buildInternalContext(configuration);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { decorateInternalContext } = require(path.join(
@@ -126,10 +49,22 @@ export const after: types.FolderHandler = async (context) => {
     );
     expect(response.text).toMatchSnapshot();
   });
+  it("will honor handlers over an HTTP call - GET - nested", async () => {
+    const response = await request(callback).get(
+      "/default/nested/echo?stuff=zzzooom"
+    );
+    expect(response.text).toMatchSnapshot();
+  });
   it("will honor handlers over an HTTP call - POST", async () => {
     const postResponse = await request(callback)
       .post("/default/hello")
       .send({ stuff: "amazing" });
+    expect(postResponse.text).toMatchSnapshot();
+  });
+  it("will honor handlers over an HTTP call - POST", async () => {
+    const postResponse = await request(callback)
+      .post("/default/nested/echo")
+      .send({ stuff: "marklar" });
     expect(postResponse.text).toMatchSnapshot();
   });
   it("will honor handlers with a client call", async () => {
@@ -182,6 +117,21 @@ export const after: types.FolderHandler = async (context) => {
     // simulated error throw
     expect(
       client.databases.default.hello.sql({ stuff: "error" })
+    ).rejects.toMatchSnapshot();
+  });
+  it("will throw errors back out to the client - nested", async () => {
+    // client
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { EmbraceSQL } = require(path.join(
+      process.cwd(),
+      rootContext.configuration.embraceSQLRoot,
+      "client",
+      "node"
+    ));
+    const client = EmbraceSQL("http://localhost:45679");
+    // simulated error throw
+    expect(
+      client.databases.default.nested.echo.sql({ stuff: "error" })
     ).rejects.toMatchSnapshot();
   });
 });
