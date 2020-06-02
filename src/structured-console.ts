@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import process from "process";
-import callsites from "callsites";
+import * as stackTraceParser from "stacktrace-parser";
 import path from "path";
 /**
  * Modification to console so that it will generate structured data.
@@ -17,7 +17,7 @@ import path from "path";
 /**
  * Four levels.
  */
-type LogLevel = "debug" | "info" | "error" | "warn" | "debug";
+export type LogLevel = "debug" | "info" | "error" | "warn" | "debug";
 
 /**
  * Turn those arguments into an object.
@@ -31,11 +31,26 @@ const restructure = (
   message: any,
   ...additional: any[]
 ): string => {
-  const call = callsites();
-  // up this call, and the log itself back to the call frame
-  // in the *actual* source file that called log.
-  const properDepth = call[2];
-  const relativePath = path.relative(process.cwd(), properDepth.getFileName());
+  const siteInfo = () => {
+    if (message?.stack) {
+      const stack = stackTraceParser.parse(message.stack);
+      return {
+        path: path.relative(process.cwd(), stack[0].file),
+        lineNumber: stack[0].lineNumber,
+      };
+    } else {
+      const error = new Error();
+      const stack = stackTraceParser.parse(error.stack);
+      // up this call, and the log itself back to the call frame
+      // in the *actual* source file that called log.
+      const DEPTH_BACKTRACE = 3;
+      return {
+        path: path.relative(process.cwd(), stack[DEPTH_BACKTRACE].file),
+        lineNumber: stack[DEPTH_BACKTRACE].lineNumber,
+      };
+    }
+  };
+  const info = siteInfo();
   // it is possible that the message is circular and cannot be sent to JSON
   // this I wasn't expecting, JSON.stringify returning {} when there is an actual message
   try {
@@ -47,7 +62,7 @@ const restructure = (
   }
   return JSON.stringify({
     logLevel,
-    source: `${relativePath}#${properDepth.getLineNumber()}`,
+    source: `${info.path}#${info.lineNumber}`,
     message,
     additional,
   });
@@ -105,4 +120,4 @@ const install = (): void => {
 /**
  * Direct acess to the logging methods
  */
-export { install, uninstall };
+export { install, uninstall, restructure };

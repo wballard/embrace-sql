@@ -1,7 +1,6 @@
 coverage
 node_modules
-yarn-error.logA
+yarn-error.log
 # only the one yaml file in this directory is to be saved
-tests/configs/hello/*
-tests/configs/hello-parameter/*
+.tests
 scratch

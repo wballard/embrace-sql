@@ -1,4 +1,4 @@
-import { RootContext } from "./context";
+import { InternalContext } from "./context";
 import walk from "ignore-walk";
 import path from "path";
 import readFile from "read-file-utf8";
@@ -6,7 +6,6 @@ import frontMatter from "front-matter";
 import handlebars from "handlebars";
 import prettier from "prettier";
 import fs from "fs-extra";
-import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
 
 /**
  * Code generation is via handlebars, so we take the config, load up all the
@@ -14,18 +13,6 @@ import { SQLModuleInternal } from "./event-handlers/sqlmodule-pipeline";
  *
  * Up here -- setting up handlebars with some helpers.
  */
-
-/**
- * Only contains SELECT statements, so eligible for a GET on HTTP.
- */
-handlebars.registerHelper("allSELECT", (module: SQLModuleInternal, options) => {
-  const render = module.ast?.type === "select";
-  if (render) {
-    return options.fn({ module });
-  } else {
-    return options.inverse({ module });
-  }
-});
 
 /**
  * Map iteration, lots of maps in our metadata and handlebars is
@@ -121,7 +108,7 @@ export type ToFile = {
  * @returns - a promise of the named files -- but this function doesn't do the writing
  */
 export const renderTemplates = async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   templatesInDirectory: string
 ): Promise<Array<ToFile>> => {
   // set up our partials that are actual code -- not really even handlebars

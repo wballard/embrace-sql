@@ -1,4 +1,4 @@
-import { RootContext, DatabaseInternal } from "../../context";
+import { InternalContext, DatabaseInternal } from "../../context";
 import { SQLModule } from "../../shared-context";
 import parseSQL from "./parse-sql";
 import transformResultTypes from "./transform-result-types";
@@ -22,15 +22,20 @@ export type SQLModuleInternal = SQLModule & {
  * context, as well as emit additional files.
  */
 export default async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   database: DatabaseInternal,
   sqlModule: SQLModule
-): Promise<RootContext> => {
+): Promise<InternalContext> => {
   const sqlModuleInternal = sqlModule as SQLModuleInternal;
-  // await makes this a lot less goofy than a promise chain
-  await parseSQL(rootContext, database, sqlModuleInternal);
-  await transformParameterTypes(rootContext, database, sqlModuleInternal);
-  await transformResultTypes(rootContext, database, sqlModuleInternal);
-  await generateDefaultHandlers(rootContext, sqlModuleInternal);
+  try {
+    // await makes this a lot less goofy than a promise chain
+    await parseSQL(rootContext, database, sqlModuleInternal);
+    await transformParameterTypes(rootContext, database, sqlModuleInternal);
+    await transformResultTypes(rootContext, database, sqlModuleInternal);
+    await generateDefaultHandlers(rootContext, sqlModuleInternal);
+  } catch (e) {
+    // a single module failing isn't fatal, it's gonna happen all the type with typos
+    console.warn(sqlModule.fullPath, e.message);
+  }
   return rootContext;
 };

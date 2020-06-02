@@ -1,4 +1,4 @@
-import { RootContext } from "./context";
+import { InternalContext } from "./context";
 import { renderTemplates, ToFile } from "./render";
 import fs from "fs-extra";
 import path from "path";
@@ -14,7 +14,7 @@ import path from "path";
  * @param overwrite - default false, but if you set this to true generated files will overwrite existing files
  */
 export const generateFromTemplates = async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   templatesInDirectory: string,
   overwrite = false
 ): Promise<Array<ToFile>> => {

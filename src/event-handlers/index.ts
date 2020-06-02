@@ -1,11 +1,14 @@
-import { RootContext, DatabaseInternal } from "../context";
+import { InternalContext, DatabaseInternal } from "../context";
 import readFile from "read-file-utf8";
 import walk from "ignore-walk";
 import path from "path";
 import md5 from "md5";
 import sqlModulePipeline from "./sqlmodule-pipeline";
 import contextPipeline from "./context-pipeline";
-import { SQLModule } from "../shared-context";
+import limit from "p-limit";
+
+// thottling
+const oneAtATime = limit(1);
 
 /**
  * Scrub up identifiers to be valid JavaScript names.
@@ -34,10 +37,11 @@ export const identifier = (key: string): string => {
  * @param rootContext - like other internal methods, run off the root context
  */
 export const embraceEventHandlers = async (
-  rootContext: RootContext
-): Promise<RootContext> => {
+  rootContext: InternalContext
+): Promise<InternalContext> => {
   // this should be the only place where a file walk happens
   const fileNames = await walk({
+    ignoreFiles: [".sqlmoduleignore"],
     path: rootContext.configuration.embraceSQLRoot,
   });
   // just the SQL files
@@ -63,12 +67,20 @@ export const embraceEventHandlers = async (
       SQLFileName
     );
     const restPath = SQLFileName.replace(/\.sql$/, "");
+    // take the path segments and build up a path list
+    const handlerPaths = segments.map((_segment, index, array) => {
+      return path.join(...array.slice(0, index + 1));
+    });
     // get all the 'read' IO done
     const sql = await readFile(fullPath);
     // data about each SQL module
     const sqlModule = {
       restPath,
       fullPath,
+      // before handlers run from the root down toward the sql file
+      beforeHandlerPaths: handlerPaths,
+      // and after handlers are in reverse, from the sql file back toward the root
+      afterHandlerPaths: [...handlerPaths].reverse(),
       sql,
       cacheKey: md5(sql),
       contextName: identifier(path.join(parsedPath.dir, parsedPath.name)),
@@ -81,18 +93,23 @@ export const embraceEventHandlers = async (
   });
   // checkpoint -- wait for finish
   await Promise.all(allSQLModules);
-  const allDatabases = Object.values(rootContext.databases).map(
+  // with all sql modules enumerated time to build up metadata from each database
+  const allDatabases = Object.values(rootContext.databases).flatMap(
     async (database: DatabaseInternal) => {
       try {
         // one big transaction around all oof our module building
         // so we can roll back and know we didn't modify our database
         database.transactions.begin();
-        // one at a time iteration and wait
-        for (const sqlModule of Object.values(database.SQLModules) as Array<
-          SQLModule
-        >) {
-          await sqlModulePipeline(rootContext, database, sqlModule);
-        }
+        // one at a time iteration -- our database isn't re-entrant
+        const waitForThem = Object.values(
+          database.SQLModules
+        ).map(async (sqlModule) =>
+          oneAtATime(
+            async () =>
+              await sqlModulePipeline(rootContext, database, sqlModule)
+          )
+        );
+        await Promise.all(waitForThem);
         return database;
       } finally {
         database.transactions.rollback();

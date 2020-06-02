@@ -23,12 +23,12 @@ export const EmbraceSQL = (serverUrl: string) => {
 {{name}}: {
   {{#if value}}
   {{#if value.namedParameters.length}}
-  sql: async (parameters: context.{{value.contextName}}Parameters) : Promise<context.{{value.contextName}}Results> => {
-    return post(serverUrl, "/{{value.restPath}}", parameters) as unknown as context.{{value.contextName}}Results;
+  sql: async (parameters: context.{{value.contextName}}Parameters) : Promise<context.{{value.contextName}}Row[]> => {
+    return post(serverUrl, "/{{value.restPath}}", parameters) as unknown as context.{{value.contextName}}Row[];
   }
   {{else}}
-  sql: async () : Promise<context.{{value.contextName}}Results> => {
-    return post(serverUrl, "/{{value.restPath}}", {}) as unknown as context.{{value.contextName}}Results;
+  sql: async () : Promise<context.{{value.contextName}}Row[]> => {
+    return post(serverUrl, "/{{value.restPath}}", {}) as unknown as context.{{value.contextName}}Row[];
   }
   {{/if}}
   {{/if}}

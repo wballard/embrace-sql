@@ -1,6 +1,15 @@
 import { cosmiconfig } from "cosmiconfig";
 import Url from "url-parse";
 import { generateFromTemplates } from "./generator";
+import { LogLevel } from "./structured-console";
+import path from "path";
+
+/**
+ * Named URLs to databases.
+ */
+type Databases = {
+  [index: string]: Url;
+};
 
 /**
  * The all important root configuration. This tells EmbraceSQL which databases to manage.
@@ -17,7 +26,19 @@ export type Configuration = {
   /**
    * All available databases.
    */
-  databases?: Map<string, Url>;
+  databases?: Databases;
+  /**
+   * Logging control
+   */
+  logLevels: LogLevel[];
+  /**
+   * Flag for embedded mode. This will be force set by the embedded cli.
+   */
+  embedded: boolean;
+  /**
+   * Optional name used in bootsrap code generation.
+   */
+  name?: string;
 };
 
 /**
@@ -28,16 +49,26 @@ export type Configuration = {
  * Will look in the current directory or a environment variable set root.
  */
 export const loadConfiguration = async (
-  root: string
+  root: string,
+  embedded = false
 ): Promise<Configuration> => {
+  // default name based on the path
+  const name = root.split(path.sep).slice().pop() || "default";
   // run the root generation templates, gives you something to work
   // with even if you start in an empty directory so that system 'always works'
   await generateFromTemplates(
     {
       configuration: {
+        name,
+        embedded,
         embraceSQLRoot: root,
+        logLevels: ["info", "error"],
       },
       databases: undefined,
+      directQueryExecutors: {},
+      close: (): Promise<void> => {
+        return;
+      },
     },
     "default"
   );
@@ -50,12 +81,15 @@ export const loadConfiguration = async (
   const config = result.config as Configuration;
   config.embraceSQLRoot = root;
   // pop in some types so we are working with actual URLs
-  const databases = new Map<string, Url>();
-  Object.keys(result.config.databases).forEach((databaseName) => {
-    databases[databaseName] = new Url(result.config.databases[databaseName]);
-  });
+  const databases = Object.fromEntries(
+    Object.keys(result.config.databases).map((databaseName) => [
+      databaseName,
+      new Url(result.config.databases[databaseName]),
+    ])
+  );
   return {
-    embraceSQLRoot: result.config.embraceSQLRoot,
+    ...config,
+    logLevels: ["error"] || result.config.logLevels,
     databases,
   };
 };

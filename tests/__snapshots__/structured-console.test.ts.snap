@@ -4,7 +4,7 @@ exports[`structured console logging captures debug 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"debug\\",\\"source\\":\\"tests/structured-console.test.ts#18\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"debug\\",\\"source\\":\\"tests/structured-console.test.ts#14\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
     "
 ",
   ],
@@ -14,7 +14,7 @@ Object {
 exports[`structured console logging captures error 1`] = `
 Object {
   "stderr": Array [
-    "{\\"logLevel\\":\\"error\\",\\"source\\":\\"tests/structured-console.test.ts#36\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"error\\",\\"source\\":\\"tests/structured-console.test.ts#32\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
     "
 ",
   ],
@@ -26,7 +26,7 @@ exports[`structured console logging captures info 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#24\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#20\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
     "
 ",
   ],
@@ -37,7 +37,7 @@ exports[`structured console logging captures log 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#12\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"info\\",\\"source\\":\\"tests/structured-console.test.ts#8\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
     "
 ",
   ],
@@ -48,7 +48,7 @@ exports[`structured console logging captures warn 1`] = `
 Object {
   "stderr": Array [],
   "stdout": Array [
-    "{\\"logLevel\\":\\"warn\\",\\"source\\":\\"tests/structured-console.test.ts#30\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
+    "{\\"logLevel\\":\\"warn\\",\\"source\\":\\"tests/structured-console.test.ts#26\\",\\"message\\":\\"Hello World\\",\\"additional\\":[[]]}",
     "
 ",
   ],

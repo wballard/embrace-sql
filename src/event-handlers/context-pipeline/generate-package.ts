@@ -1,4 +1,4 @@
-import { RootContext } from "../../context";
+import { InternalContext } from "../../context";
 import yarn from "yarn-api";
 import path from "path";
 
@@ -8,7 +8,9 @@ import path from "path";
  *
  * @rootContext - as usual, our root context
  */
-export default async (rootContext: RootContext): Promise<RootContext> => {
+export default async (
+  rootContext: InternalContext
+): Promise<InternalContext> => {
   await new Promise((resolve, reject) => {
     yarn.install(
       [

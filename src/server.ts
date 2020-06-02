@@ -1,11 +1,12 @@
-import { RootContext } from "./context";
+import { InternalContext } from "./context";
 import Koa from "koa";
 import bodyparser from "koa-bodyparser";
 import OpenAPIBackend from "openapi-backend";
 import YAML from "yaml";
 import readFile from "read-file-utf8";
 import path from "path";
-import { Executor } from "./shared-context";
+import { HasContextualSQLModuleExecutors, SQLModule } from "./shared-context";
+import { restructure } from "./structured-console";
 
 /**
  * Create a HTTP server exposing an OpenAPI style set of endpoints for each Database
@@ -18,8 +19,7 @@ import { Executor } from "./shared-context";
  * @param executionMap - context name to execution function mapping to actually 'run' a query
  */
 export const createServer = async (
-  rootContext: RootContext,
-  executionMap: Map<string, Executor>
+  rootContext: InternalContext & HasContextualSQLModuleExecutors
 ): Promise<Koa<Koa.DefaultState, Koa.DefaultContext>> => {
   const server = new Koa();
 
@@ -30,39 +30,66 @@ export const createServer = async (
       path.join(rootContext.configuration.embraceSQLRoot, "openapi.yaml")
     )
   );
+  // all the modules by context name -- this is a global unique name that means
+  // we don't need to mess with file paths to get the module/handler
+  const allSQLModules = new Map<string, SQLModule>();
+  for (const databaseName of Object.keys(rootContext.databases)) {
+    for (const moduleName of Object.keys(
+      rootContext.databases[databaseName].SQLModules
+    )) {
+      const sqlModule =
+        rootContext.databases[databaseName].SQLModules[moduleName];
+      allSQLModules[sqlModule.contextName] = sqlModule;
+    }
+  }
 
+  // the handlers that wrap modules -- for GET and POST
   const handlers = {};
 
   // go ahead and make a handler for both GET and POST
-  // some of these GET handlers may not be connected at the OpenAPI layer
-  // but a few extra functions isn't going to hurt anything
-  executionMap.forEach((executor, contextName) => {
-    handlers[`get__${contextName}`] = async (
-      _openAPI,
-      httpContext
-    ): Promise<void> => {
-      try {
-        // parameters from the query
-        httpContext.body = await executor(httpContext.request.query);
-        httpContext.status = 200;
-      } catch (e) {
-        console.error(e);
-        httpContext.status = 500;
-        httpContext.body = e;
-      }
-    };
+  Object.keys(rootContext.directQueryExecutors).forEach((contextName) => {
+    if (!allSQLModules[contextName].canModifyData) {
+      handlers[`get__${contextName}`] = async (
+        _openAPI,
+        httpContext
+      ): Promise<void> => {
+        try {
+          // parameters from the query
+          const context = {
+            parameters: httpContext.request.query,
+            results: [],
+          };
+          await rootContext.contextualSQLModuleExecutors[contextName](context);
+          httpContext.body = context.results;
+          httpContext.status = 200;
+        } catch (e) {
+          // this is the very far edge of the system, time for a log
+          if (rootContext.configuration.logLevels.includes("error"))
+            console.error(e);
+          // send the full error to the client
+          httpContext.status = 500;
+          httpContext.body = restructure("error", e);
+        }
+      };
+    }
     handlers[`post__${contextName}`] = async (
       _openAPI,
       httpContext
     ): Promise<void> => {
       try {
         // parameters from the body
-        httpContext.body = await executor(httpContext.request.body);
+        const context = {
+          parameters: httpContext.request.body,
+          results: [],
+        };
+        await rootContext.contextualSQLModuleExecutors[contextName](context);
+        httpContext.body = context.results;
         httpContext.status = 200;
       } catch (e) {
-        console.error(e);
+        if (rootContext.configuration.logLevels.includes("error"))
+          console.error(e);
         httpContext.status = 500;
-        httpContext.body = e;
+        httpContext.body = restructure("error", e);
       }
     };
   });

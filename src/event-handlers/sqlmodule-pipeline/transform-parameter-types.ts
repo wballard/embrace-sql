@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { RootContext, DatabaseInternal } from "../../context";
+import { InternalContext, DatabaseInternal } from "../../context";
 import { SQLModuleInternal } from ".";
 
 /**
@@ -18,10 +18,10 @@ type MaybeAParameter = object & {
  * @param sqlModules - the sql module to inspect
  */
 export default async (
-  rootContext: RootContext,
+  rootContext: InternalContext,
   _database: DatabaseInternal,
   sqlModule: SQLModuleInternal
-): Promise<RootContext> => {
+): Promise<InternalContext> => {
   // descend the AST and pick out all the parameters we can find
   const traverse = (o: MaybeAParameter): Array<string> => {
     if (o?.type === "param") {

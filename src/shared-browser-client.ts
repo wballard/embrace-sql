@@ -18,7 +18,7 @@ export const post = async (
 ): Promise<Array<object>> => {
   const cleaned = serverUrl.endsWith("/") ? serverUrl.slice(0, -1) : serverUrl;
   // let any exception leak out to the client
-  return fetch(`${cleaned}${apiPath}`, {
+  const response = await fetch(`${cleaned}${apiPath}`, {
     method: "POST",
     mode: "cors",
     cache: "no-cache",
@@ -28,5 +28,11 @@ export const post = async (
     },
     redirect: "follow",
     body: JSON.stringify(parameters),
-  }).then((response) => response.json());
+  });
+  const content = await response.json();
+  if (response.ok) {
+    return content;
+  } else {
+    throw Error(content.message);
+  }
 };
