@@ -23,7 +23,8 @@ export default async (
     // single item arrays are OK
     sqlModule.ast = ast[0];
   } else {
-    // and a raw, non array is AST is OK
+    // and a raw, non array is AST is OK -- this gets returned from single SELECTS with no ;
+    // when using node-sql-parser
     sqlModule.ast = ast as AST;
   }
   sqlModule.canModifyData = sqlModule.ast.type !== "select";

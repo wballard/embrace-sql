@@ -77,7 +77,9 @@ export const embraceEventHandlers = async (
     const sqlModule = {
       restPath,
       fullPath,
+      // before handlers run from the root down toward the sql file
       beforeHandlerPaths: handlerPaths,
+      // and after handlers are in reverse, from the sql file back toward the root
       afterHandlerPaths: [...handlerPaths].reverse(),
       sql,
       cacheKey: md5(sql),

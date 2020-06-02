@@ -30,7 +30,8 @@ export const createServer = async (
       path.join(rootContext.configuration.embraceSQLRoot, "openapi.yaml")
     )
   );
-  // all the modules by context name
+  // all the modules by context name -- this is a global unique name that means
+  // we don't need to mess with file paths to get the module/handler
   const allSQLModules = new Map<string, SQLModule>();
   for (const databaseName of Object.keys(rootContext.databases)) {
     for (const moduleName of Object.keys(
@@ -42,6 +43,7 @@ export const createServer = async (
     }
   }
 
+  // the handlers that wrap modules -- for GET and POST
   const handlers = {};
 
   // go ahead and make a handler for both GET and POST
