@@ -2,6 +2,7 @@ import { cosmiconfig } from "cosmiconfig";
 import Url from "url-parse";
 import { generateFromTemplates } from "./generator";
 import { LogLevel } from "./structured-console";
+import path from "path";
 
 /**
  * Named URLs to databases.
@@ -30,6 +31,14 @@ export type Configuration = {
    * Logging control
    */
   logLevels: LogLevel[];
+  /**
+   * Flag for embedded mode. This will be force set by the embedded cli.
+   */
+  embedded: boolean;
+  /**
+   * Optional name used in bootsrap code generation.
+   */
+  name?: string;
 };
 
 /**
@@ -40,18 +49,26 @@ export type Configuration = {
  * Will look in the current directory or a environment variable set root.
  */
 export const loadConfiguration = async (
-  root: string
+  root: string,
+  embedded = false
 ): Promise<Configuration> => {
+  // default name based on the path
+  const name = root.split(path.sep).slice().pop() || "default";
   // run the root generation templates, gives you something to work
   // with even if you start in an empty directory so that system 'always works'
   await generateFromTemplates(
     {
       configuration: {
+        name,
+        embedded,
         embraceSQLRoot: root,
         logLevels: ["info", "error"],
       },
       databases: undefined,
       directQueryExecutors: {},
+      close: (): Promise<void> => {
+        return;
+      },
     },
     "default"
   );
@@ -71,7 +88,7 @@ export const loadConfiguration = async (
     ])
   );
   return {
-    embraceSQLRoot: result.config.embraceSQLRoot,
+    ...config,
     logLevels: ["error"] || result.config.logLevels,
     databases,
   };

@@ -35,12 +35,16 @@ export default new Command()
         });
         return server.listen(port);
       };
-      const initialContext = await buildInternalContext(configuration);
-      let listener = await listen(initialContext);
+      let internalContext = await buildInternalContext(configuration);
+      let listener = await listen(internalContext);
       const watcher = watchRoot(root);
       watcher.emitter.on("reload", async (newContext: InternalContext) => {
         console.info("Reloading");
-        listener.close(async () => (listener = await listen(newContext)));
+        listener.close(async () => {
+          await internalContext.close();
+          listener = await listen(newContext);
+          internalContext = newContext;
+        });
       });
     }
   );

@@ -112,6 +112,7 @@ export default async (
         } else {
           await preparedCreate.all();
         }
+        await preparedCreate.finalize();
         const readDescribeRows = await database.all(describe);
         await database.all(drop);
         // OK so something to know -- columns with spaces in them are quoted

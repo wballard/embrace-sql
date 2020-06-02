@@ -1,9 +1,10 @@
 {
   "name": "embracesql",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "author": "Will Ballard <wballard@mailframe.net>",
   "license": "MIT",
+  "bin": "./src/bin/index.js",
   "scripts": {
     "start": "",
     "test": "jest",
@@ -30,7 +31,7 @@
     "@types/yaml": "^1.9.7",
     "@typescript-eslint/eslint-plugin": "^2.32.0",
     "@typescript-eslint/parser": "^2.32.0",
-    "@zeit/ncc": "^0.22.2",
+    "@zeit/ncc": "^0.22.3",
     "caller-callsite": "^4.1.0",
     "chokidar": "^3.4.0",
     "commander": "^5.1.0",

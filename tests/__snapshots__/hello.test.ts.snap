@@ -71,6 +71,7 @@ Object {
       "username": "",
     },
   },
+  "embedded": false,
   "embraceSQLRoot": ".tests/hello",
   "logLevels": Array [
     "error",
@@ -125,6 +126,7 @@ Object {
         "username": "",
       },
     },
+    "embedded": false,
     "embraceSQLRoot": ".tests/hello",
     "logLevels": Array [
       "error",
