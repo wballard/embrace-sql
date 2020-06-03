@@ -8,4 +8,5 @@ export default new Command()
   .description("Generates a docker-compose.yaml so you can get started.")
   .action(async () => {
     await generateFromTemplates(undefined, "cli", true);
+    return;
   });

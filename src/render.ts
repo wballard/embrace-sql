@@ -129,9 +129,10 @@ export const renderTemplates = async (
   // ok -- these are actual good old fashioned partials -- put shared templates
   // you need in `templates/partials` and they will be registered by name for you
   // as "partials/<filename>"
-  const waitForPartials = (
-    await fs.readdir(path.join(__dirname, "templates", "partials"))
-  ).map(
+  const partials = await fs.readdir(
+    path.join(__dirname, "templates", "partials")
+  );
+  const waitForPartials = partials.map(
     async (fileName): Promise<void> => {
       const fileContent = await readFile(
         path.join(__dirname, "templates", "partials", fileName)

@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI initializes 1`] = `Array []`;
+
+exports[`CLI initializes 2`] = `
+"version: '3.0'
+services:
+  embracesql:
+    command: start /var/embracesql 8765
+    image: embracesql/server
+    ports:
+    - \\"8765:8765\\"
+    volumes:
+    - .:/var/embracesql"
+`;

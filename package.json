@@ -24,6 +24,7 @@
     "@types/koa-bodyparser": "^4.3.0",
     "@types/node-fetch": "^2.5.7",
     "@types/rmfr": "^2.0.0",
+    "@types/sinon": "^9.0.4",
     "@types/std-mocks": "^1.0.0",
     "@types/url-parse": "^1.4.3",
     "@types/watchpack": "^1.1.5",
