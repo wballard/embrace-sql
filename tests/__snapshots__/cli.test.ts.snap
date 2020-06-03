@@ -1,5 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CLI generates an embedded client 1`] = `
+Array [
+  "/Users/wballard/embrace-sql-core/.tests/embedded",
+]
+`;
+
+exports[`CLI generates an embedded client 2`] = `
+"import { buildEmbeddedContext } from \\"embracesql\\";
+import { EmbraceSQL } from \\"./client/node-inprocess\\";
+
+/**
+ * Use this to access the database.
+ */
+export const EmbraceSQLEmbedded = async () => {
+  // the package itself has the configuration and is the root
+  const context = await buildEmbeddedContext(__dirname);
+  return EmbraceSQL(context);
+};
+"
+`;
+
 exports[`CLI initializes 1`] = `Array []`;
 
 exports[`CLI initializes 2`] = `
