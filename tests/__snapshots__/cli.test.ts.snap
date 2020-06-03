@@ -34,3 +34,7 @@ services:
     volumes:
     - .:/var/embracesql"
 `;
+
+exports[`CLI migrates 1`] = `"beginning migration"`;
+
+exports[`CLI migrates 2`] = `""`;
