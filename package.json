@@ -45,7 +45,7 @@
     "front-matter": "^4.0.2",
     "fs-extra": "^9.0.0",
     "git-branch-is": "^3.1.0",
-    "handlebars": "^4.7.6",
+    "handlebars": "^4.7.7",
     "husky": "^4.2.5",
     "ignore-walk": "^3.0.3",
     "jest": "^26.0.1",
